@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ELECTRAUTO</title>
+    <script>
+        // Redirect to maintenance page if not authenticated
+        try {
+            if (sessionStorage.getItem('electrauto-preview') !== 'true') {
+                window.location.replace('maintenance.html');
+            }
+        } catch(e) {
+            window.location.replace('maintenance.html');
+        }
+    </script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>

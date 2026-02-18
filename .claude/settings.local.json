@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:electrautoquebec.com)",
+      "Bash(git -C \"d:/Github/ELECTRAUTO\" ls-files)",
+      "Bash(git -C \"d:/Github/ELECTRAUTO\" log --oneline)",
+      "WebFetch(domain:www.pagesjaunes.ca)",
+      "Bash(start maintenance.html)",
+      "Bash(printf:*)",
+      "Bash(certutil:*)",
+      "Bash(node -e:*)",
+      "Bash(echo:*)",
+      "Bash(git config:*)",
+      "Bash(test:*)",
+      "Bash(dir:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(ssh:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
