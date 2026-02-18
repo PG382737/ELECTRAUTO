@@ -376,8 +376,20 @@
             height: 18px;
         }
 
-        .card-facebook:hover .card-arrow {
+        a.card:hover .card-arrow {
             transform: translateX(3px);
+            color: var(--orange);
+        }
+
+        .card-phone .card-arrow {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .card-phone:hover .card-arrow {
+            color: var(--white);
+        }
+
+        .card-facebook:hover .card-arrow {
             color: #1877F2;
         }
 
@@ -782,6 +794,9 @@
                     <h3 data-fr="Appelez-nous" data-en="Call us">Appelez-nous</h3>
                     <p>1.418.666.9769</p>
                 </div>
+                <div class="card-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
             </a>
 
             <!-- Address -->
@@ -793,6 +808,9 @@
                     <h3 data-fr="Adresse" data-en="Address">Adresse</h3>
                     <p>2485, boul. Wilfrid-Hamel<br>Québec (QC) G1P 2H9</p>
                 </div>
+                <div class="card-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
             </a>
 
             <!-- Email -->
@@ -803,6 +821,9 @@
                 <div class="card-body">
                     <h3 data-fr="Courriel" data-en="Email">Courriel</h3>
                     <p>info@electrautoquebec.com</p>
+                </div>
+                <div class="card-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
             </a>
 
