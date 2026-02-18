@@ -66,19 +66,26 @@
         }
 
         /* ============================================
-           LANGUAGE TOGGLE
+           TOP BAR + LANGUAGE TOGGLE
            ============================================ */
-        .lang-toggle {
+        .top-bar {
             position: fixed;
-            top: 16px;
-            right: 16px;
+            top: 0;
+            left: 0;
+            right: 0;
             z-index: 100;
+            background: var(--dark-deep);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
             display: flex;
-            background: rgba(30, 30, 30, 0.85);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            align-items: center;
+            justify-content: flex-end;
+            padding: 8px 20px;
+        }
+
+        .lang-toggle {
+            display: flex;
+            background: rgba(255, 255, 255, 0.08);
             border-radius: 50px;
-            box-shadow: var(--shadow);
             overflow: hidden;
             border: 1px solid rgba(255,255,255,0.1);
         }
@@ -117,7 +124,7 @@
                 );
             color: var(--white);
             text-align: center;
-            padding: 60px 24px 50px;
+            padding: 80px 24px 50px;
             position: relative;
             overflow: hidden;
         }
@@ -436,10 +443,8 @@
            RESPONSIVE
            ============================================ */
         @media (max-width: 640px) {
-            .lang-toggle {
-                left: 50%;
-                right: auto;
-                transform: translateX(-50%);
+            .top-bar {
+                justify-content: center;
             }
 
             .hero {
@@ -533,10 +538,6 @@
            SMALL MOBILE (450px and below)
            ============================================ */
         @media (max-width: 450px) {
-            .lang-toggle {
-                top: 12px;
-            }
-
             .lang-btn {
                 padding: 6px 14px;
                 font-size: 0.75rem;
@@ -738,11 +739,13 @@
 </head>
 <body>
 
-    <!-- Language Toggle -->
-    <div class="lang-toggle" role="group" aria-label="Sélection de langue / Language selection">
-        <button class="lang-btn active" id="btn-fr" onclick="setLang('fr')" aria-label="Français">FR</button>
-        <button class="lang-btn" id="btn-en" onclick="setLang('en')" aria-label="English">EN</button>
-    </div>
+    <!-- Top Bar -->
+    <nav class="top-bar">
+        <div class="lang-toggle" role="group" aria-label="Sélection de langue / Language selection">
+            <button class="lang-btn active" id="btn-fr" onclick="setLang('fr')" aria-label="Français">FR</button>
+            <button class="lang-btn" id="btn-en" onclick="setLang('en')" aria-label="English">EN</button>
+        </div>
+    </nav>
 
     <!-- Hero Section -->
     <section class="hero">
