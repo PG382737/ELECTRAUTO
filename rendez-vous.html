@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rendez-vous | Électr'auto Québec</title>
+    <meta name="description" content="Prenez rendez-vous en ligne chez Électr'auto Québec pour l'entretien ou la réparation de votre véhicule.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/v2.css">
+</head>
+<body>
+
+    <!-- ========== NAVBAR (hidden for preview) ========== -->
+    <nav class="nav" id="nav" style="display:none">
+        <div class="nav__inner">
+            <a href="index-v2.html" class="nav__brand">
+                ELECTR<span class="o">&#8217;</span>AUTO
+            </a>
+            <ul class="nav__links" id="nav-links">
+                <li><a href="index-v2.html#hero" data-fr="Accueil" data-en="Home">Accueil</a></li>
+                <li><a href="index-v2.html#services" data-fr="Services" data-en="Services">Services</a></li>
+                <li><a href="index-v2.html#about" data-fr="À Propos" data-en="About">À Propos</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li><a href="rendez-vous.html" class="active" data-fr="Rendez-vous" data-en="Appointment">Rendez-vous</a></li>
+                <li><a href="index-v2.html#contact" class="nav__cta" data-fr="Contact" data-en="Contact">Contact</a></li>
+            </ul>
+            <div class="nav__actions">
+                <button class="theme-toggle" id="theme-toggle" aria-label="Changer le thème">
+                    <svg class="theme-toggle__icon theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    <svg class="theme-toggle__icon theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </button>
+                <div class="lang" role="group">
+                    <button class="lang__btn active" id="btn-fr" onclick="setLang('fr')">FR</button>
+                    <button class="lang__btn" id="btn-en" onclick="setLang('en')">EN</button>
+                </div>
+                <button class="burger" id="burger" aria-label="Menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========== PAGE HEADER ========== -->
+    <section class="appt-hero" style="padding-top:48px">
+        <div class="appt-hero__bg"></div>
+        <div class="wrap">
+            <span class="section__tag" data-fr="Planifiez votre visite" data-en="Plan your visit">Planifiez votre visite</span>
+            <h1 data-fr="Prendre rendez-vous" data-en="Book an Appointment">Prendre rendez-vous</h1>
+            <p class="appt-hero__desc" data-fr="Remplissez le formulaire ci-dessous et un membre de notre équipe vous contactera pour confirmer votre rendez-vous." data-en="Fill out the form below and a team member will contact you to confirm your appointment.">Remplissez le formulaire ci-dessous et un membre de notre équipe vous contactera pour confirmer votre rendez-vous.</p>
+        </div>
+    </section>
+
+    <!-- ========== APPOINTMENT FORM ========== -->
+    <main class="section section--dark">
+        <div class="wrap">
+            <form id="appt-form" class="appt-form" novalidate>
+
+                <!-- Section 1: Client Type -->
+                <div class="appt-section reveal">
+                    <div class="appt-section__head">
+                        <span class="appt-section__num">1</span>
+                        <h2 data-fr="Type de client" data-en="Client Type">Type de client</h2>
+                    </div>
+                    <div class="appt-toggle" id="client-type-toggle">
+                        <button type="button" class="appt-toggle__btn active" data-value="new" data-fr="Nouveau client" data-en="New client">Nouveau client</button>
+                        <button type="button" class="appt-toggle__btn" data-value="existing" data-fr="Client existant" data-en="Existing client">Client existant</button>
+                    </div>
+                    <input type="hidden" name="clientType" value="new">
+                </div>
+
+                <!-- Section 2: Personal Info -->
+                <div class="appt-section reveal">
+                    <div class="appt-section__head">
+                        <span class="appt-section__num">2</span>
+                        <h2 data-fr="Vos informations" data-en="Your Information">Vos informations</h2>
+                    </div>
+                    <div class="field">
+                        <input type="text" name="name" required placeholder=" " maxlength="80" autocomplete="name">
+                        <label data-fr="Nom complet" data-en="Full name">Nom complet</label>
+                    </div>
+                    <div class="field-row">
+                        <div class="field">
+                            <input type="tel" name="phone" required placeholder=" " maxlength="15" inputmode="numeric" autocomplete="tel">
+                            <label data-fr="Téléphone" data-en="Phone">Téléphone</label>
+                        </div>
+                        <div class="field">
+                            <input type="email" name="email" required placeholder=" " maxlength="120" autocomplete="email">
+                            <label data-fr="Courriel" data-en="Email">Courriel</label>
+                        </div>
+                    </div>
+                    <div class="appt-pref">
+                        <span class="appt-pref__label" data-fr="Préférence de contact" data-en="Contact preference">Préférence de contact</span>
+                        <div class="appt-toggle appt-toggle--sm" id="contact-pref-toggle">
+                            <button type="button" class="appt-toggle__btn active" data-value="email" data-fr="Courriel" data-en="Email">Courriel</button>
+                            <button type="button" class="appt-toggle__btn" data-value="phone" data-fr="Téléphone" data-en="Phone">Téléphone</button>
+                        </div>
+                        <input type="hidden" name="contactPref" value="email">
+                    </div>
+                </div>
+
+                <!-- Section 3: Vehicle Info -->
+                <div class="appt-section reveal">
+                    <div class="appt-section__head">
+                        <span class="appt-section__num">3</span>
+                        <h2 data-fr="Votre véhicule" data-en="Your Vehicle">Votre véhicule</h2>
+                    </div>
+                    <div class="field-row">
+                        <div class="field">
+                            <input type="text" name="makeModel" required placeholder=" " maxlength="60">
+                            <label data-fr="Marque / Modèle" data-en="Make / Model">Marque / Modèle</label>
+                        </div>
+                        <div class="field">
+                            <input type="text" name="year" required placeholder=" " maxlength="4" inputmode="numeric">
+                            <label data-fr="Année" data-en="Year">Année</label>
+                        </div>
+                    </div>
+                    <div class="field-row">
+                        <div class="field">
+                            <input type="text" name="mileage" placeholder=" " maxlength="7" inputmode="numeric">
+                            <label data-fr="Kilométrage" data-en="Mileage (km)">Kilométrage</label>
+                        </div>
+                        <div class="field">
+                            <input type="text" name="vin" placeholder=" " maxlength="17">
+                            <label data-fr="No. de série (NIV)" data-en="VIN (serial number)">No. de série (NIV)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Service Type -->
+                <div class="appt-section reveal">
+                    <div class="appt-section__head">
+                        <span class="appt-section__num">4</span>
+                        <h2 data-fr="Type de service" data-en="Service Type">Type de service</h2>
+                    </div>
+                    <div class="appt-cards" id="service-type-cards">
+                        <button type="button" class="appt-card" data-value="service">
+                            <div class="appt-card__icon appt-card__icon--accent">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                            </div>
+                            <h3 data-fr="Service" data-en="Service">Service</h3>
+                            <p class="appt-card__desc" data-fr="Entretien régulier et préventif" data-en="Regular and preventive maintenance">Entretien régulier et préventif</p>
+                            <ul class="appt-card__examples">
+                                <li data-fr="Vidange d'huile" data-en="Oil change">Vidange d'huile</li>
+                                <li data-fr="Changement de pneus" data-en="Tire change">Changement de pneus</li>
+                                <li data-fr="Inspection" data-en="Inspection">Inspection</li>
+                                <li data-fr="Freins" data-en="Brakes">Freins</li>
+                            </ul>
+                            <span class="appt-card__check">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            </span>
+                        </button>
+                        <button type="button" class="appt-card" data-value="repair">
+                            <div class="appt-card__icon appt-card__icon--accent">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                            </div>
+                            <h3 data-fr="Réparation" data-en="Repair">Réparation</h3>
+                            <p class="appt-card__desc" data-fr="Diagnostic et réparation de problèmes" data-en="Diagnosis and problem repair">Diagnostic et réparation de problèmes</p>
+                            <ul class="appt-card__examples">
+                                <li data-fr="Problème moteur" data-en="Engine problem">Problème moteur</li>
+                                <li data-fr="Transmission" data-en="Transmission">Transmission</li>
+                                <li data-fr="Électronique" data-en="Electronics">Électronique</li>
+                                <li data-fr="Climatisation" data-en="A/C">Climatisation</li>
+                            </ul>
+                            <span class="appt-card__check">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            </span>
+                        </button>
+                    </div>
+                    <input type="hidden" name="serviceType" value="">
+                </div>
+
+                <!-- Section 5: Description + Photos (hidden until service type chosen) -->
+                <div class="appt-section appt-section--hidden" id="section-description">
+                    <div class="appt-section__head">
+                        <span class="appt-section__num">5</span>
+                        <h2 id="desc-title" data-fr="Décrivez votre besoin" data-en="Describe Your Need">Décrivez votre besoin</h2>
+                    </div>
+                    <div class="field">
+                        <textarea name="description" rows="5" required placeholder=" "></textarea>
+                        <label id="desc-label" data-fr="Description du problème ou service requis" data-en="Description of the problem or service needed">Description du problème ou service requis</label>
+                    </div>
+                    <div class="appt-upload" id="photo-upload">
+                        <label class="appt-upload__area" id="upload-area">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                            <span data-fr="Ajouter des photos (optionnel)" data-en="Add photos (optional)">Ajouter des photos (optionnel)</span>
+                            <small data-fr="Cliquez ou glissez vos fichiers ici — max 5 photos" data-en="Click or drag files here — max 5 photos">Cliquez ou glissez vos fichiers ici — max 5 photos</small>
+                        </label>
+                        <input type="file" id="photo-input" name="photos" accept="image/*" multiple style="display:none">
+                        <div class="appt-upload__preview" id="photo-preview"></div>
+                    </div>
+                </div>
+
+                <!-- Section 6: Courtesy -->
+                <div class="appt-section appt-section--hidden" id="section-courtesy">
+                    <div class="appt-section__head">
+                        <span class="appt-section__num">6</span>
+                        <h2 data-fr="Options supplémentaires" data-en="Additional Options">Options supplémentaires</h2>
+                    </div>
+                    <p class="appt-section__sub" data-fr="Avez-vous besoin d'un transport de courtoisie ?" data-en="Do you need a courtesy ride?">Avez-vous besoin d'un transport de courtoisie ?</p>
+                    <div class="appt-courtesy" id="courtesy-options">
+                        <label class="appt-radio-card">
+                            <input type="radio" name="courtesy" value="none" checked>
+                            <span class="appt-radio-card__inner">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 6L9 17l-5-5"/></svg>
+                                <span data-fr="Non merci" data-en="No thanks">Non merci</span>
+                            </span>
+                        </label>
+                        <label class="appt-radio-card">
+                            <input type="radio" name="courtesy" value="drive-home">
+                            <span class="appt-radio-card__inner">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                                <span data-fr="Reconduisez-moi" data-en="Drive me home">Reconduisez-moi</span>
+                            </span>
+                        </label>
+                        <label class="appt-radio-card">
+                            <input type="radio" name="courtesy" value="need-vehicle">
+                            <span class="appt-radio-card__inner">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/></svg>
+                                <span data-fr="Besoin d'un véhicule" data-en="Need a vehicle">Besoin d'un véhicule</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Section 7: Wait Time + Submit -->
+                <div class="appt-section appt-section--hidden" id="section-submit">
+                    <div class="appt-wait" id="wait-time-display" style="display:none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <div>
+                            <span class="appt-wait__label" data-fr="Délai estimé pour un rendez-vous" data-en="Estimated wait time for an appointment">Délai estimé pour un rendez-vous</span>
+                            <strong class="appt-wait__value" id="wait-time-value"></strong>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--full appt-submit" data-fr="Envoyer la demande" data-en="Submit Request">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                        <span data-fr="Envoyer la demande" data-en="Submit Request">Envoyer la demande</span>
+                    </button>
+                    <div class="form-status" id="appt-error"></div>
+                </div>
+
+            </form>
+
+            <!-- Success Message (replaces form on submit) -->
+            <div class="appt-success" id="appt-success" style="display:none;">
+                <div class="appt-success__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
+                </div>
+                <h2 data-fr="Demande reçue !" data-en="Request received!">Demande reçue !</h2>
+                <p data-fr="Nous avons bien reçu votre demande de rendez-vous. Un membre de notre équipe communiquera avec vous sous peu pour confirmer votre rendez-vous." data-en="We have received your appointment request. A team member will contact you shortly to confirm your appointment.">Nous avons bien reçu votre demande de rendez-vous. Un membre de notre équipe communiquera avec vous sous peu pour confirmer votre rendez-vous.</p>
+                <a href="index-v2.html" class="btn btn--ghost" data-fr="Retour à l'accueil" data-en="Back to home">Retour à l'accueil</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- ========== FOOTER (hidden for preview) ========== -->
+    <footer class="footer" style="display:none">
+        <div class="wrap">
+            <div class="footer__top">
+                <div class="footer__brand">
+                    <span class="footer__logo">ELECTR<span class="o">&#8217;</span>AUTO</span>
+                    <p data-fr="Mécanique Générale" data-en="General Mechanics">Mécanique Générale</p>
+                </div>
+                <div class="footer__col">
+                    <h4 data-fr="Navigation" data-en="Navigation">Navigation</h4>
+                    <a href="index-v2.html#hero" data-fr="Accueil" data-en="Home">Accueil</a>
+                    <a href="index-v2.html#services" data-fr="Services" data-en="Services">Services</a>
+                    <a href="index-v2.html#about" data-fr="À Propos" data-en="About">À Propos</a>
+                    <a href="blog.html">Blog</a>
+                    <a href="rendez-vous.html" data-fr="Rendez-vous" data-en="Appointment">Rendez-vous</a>
+                    <a href="index-v2.html#contact" data-fr="Contact" data-en="Contact">Contact</a>
+                </div>
+                <div class="footer__col">
+                    <h4 data-fr="Coordonnées" data-en="Contact Info">Coordonnées</h4>
+                    <a href="tel:+14186669769">1.418.666.9769</a>
+                    <a href="mailto:info@electrautoquebec.com">info@electrautoquebec.com</a>
+                    <span>2485, boul. Wilfrid-Hamel</span>
+                    <span>Québec (QC) G1P 2H9</span>
+                </div>
+            </div>
+            <div class="footer__bottom">
+                <p>&copy; 2026 Électr'auto Québec — <span data-fr="Tous droits réservés" data-en="All rights reserved">Tous droits réservés</span></p>
+                <a href="admin.html" class="footer__admin">Admin</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/rendez-vous.js"></script>
+</body>
+</html>

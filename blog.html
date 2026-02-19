@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog | Électr'auto Québec</title>
+    <meta name="description" content="Nouvelles et articles d'Électr'auto Québec — Mécanique Générale.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Auth guard — disabled for local dev, re-enable for production
+    <script>
+        try {
+            if (sessionStorage.getItem('electrauto-preview') !== 'true') {
+                window.location.replace('maintenance.html');
+            }
+        } catch(e) {
+            window.location.replace('maintenance.html');
+        }
+    </script>
+    -->
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="nav-logo-text">ELECTR<span class="apostrophe">'</span>AUTO</span>
+            </a>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="index.html" class="nav-link" data-fr="Accueil" data-en="Home">Accueil</a></li>
+                <li><a href="index.html#services" class="nav-link" data-fr="Services" data-en="Services">Services</a></li>
+                <li><a href="index.html#apropos" class="nav-link" data-fr="À Propos" data-en="About">À Propos</a></li>
+                <li><a href="blog.html" class="nav-link active">Blog</a></li>
+                <li><a href="index.html#contact" class="nav-link" data-fr="Contact" data-en="Contact">Contact</a></li>
+            </ul>
+            <div class="nav-right">
+                <div class="lang-toggle" role="group" aria-label="Langue / Language">
+                    <button class="lang-btn active" id="btn-fr" onclick="setLang('fr')" aria-label="Français">FR</button>
+                    <button class="lang-btn" id="btn-en" onclick="setLang('en')" aria-label="English">EN</button>
+                </div>
+                <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <h1>Blog</h1>
+        <p data-fr="Nouvelles et articles d'Électr'auto Québec" data-en="News and articles from Électr'auto Quebec">Nouvelles et articles d'Électr'auto Québec</p>
+    </header>
+
+    <!-- Articles Grid -->
+    <main class="container">
+        <div class="blog-page-grid" id="blog-list">
+            <!-- Articles loaded dynamically -->
+        </div>
+        <div class="blog-empty" id="blog-empty" style="display:none;">
+            <p data-fr="Aucun article pour le moment. Revenez bientôt!" data-en="No articles yet. Check back soon!">Aucun article pour le moment. Revenez bientôt!</p>
+        </div>
+        <div class="blog-load-more" id="load-more-wrapper" style="display:none;">
+            <button class="btn btn-outline" id="load-more" style="color: var(--gray-800); border-color: var(--gray-300);" data-fr="Charger plus d'articles" data-en="Load more articles">Charger plus d'articles</button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-bottom" style="border-top:none; padding-top:0;">
+                <p>&copy; 2026 <strong>Électr'auto Québec</strong> &middot; <span data-fr="Tous droits réservés" data-en="All rights reserved">Tous droits réservés</span></p>
+                <a href="index.html" data-fr="Retour au site" data-en="Back to site">Retour au site</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/local-articles.js"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/blog.js"></script>
+</body>
+</html>

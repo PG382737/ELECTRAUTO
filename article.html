@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article | Électr'auto Québec</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Auth guard — disabled for local dev, re-enable for production
+    <script>
+        try {
+            if (sessionStorage.getItem('electrauto-preview') !== 'true') {
+                window.location.replace('maintenance.html');
+            }
+        } catch(e) {
+            window.location.replace('maintenance.html');
+        }
+    </script>
+    -->
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="nav-logo-text">ELECTR<span class="apostrophe">'</span>AUTO</span>
+            </a>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="index.html" class="nav-link" data-fr="Accueil" data-en="Home">Accueil</a></li>
+                <li><a href="index.html#services" class="nav-link" data-fr="Services" data-en="Services">Services</a></li>
+                <li><a href="index.html#apropos" class="nav-link" data-fr="À Propos" data-en="About">À Propos</a></li>
+                <li><a href="blog.html" class="nav-link active">Blog</a></li>
+                <li><a href="index.html#contact" class="nav-link" data-fr="Contact" data-en="Contact">Contact</a></li>
+            </ul>
+            <div class="nav-right">
+                <div class="lang-toggle" role="group" aria-label="Langue / Language">
+                    <button class="lang-btn active" id="btn-fr" onclick="setLang('fr')" aria-label="Français">FR</button>
+                    <button class="lang-btn" id="btn-en" onclick="setLang('en')" aria-label="English">EN</button>
+                </div>
+                <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Article Content -->
+    <main class="article-page" id="article-page">
+        <a href="blog.html" class="article-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            <span data-fr="Retour au blog" data-en="Back to blog">Retour au blog</span>
+        </a>
+
+        <div id="article-loading" style="text-align:center; padding:48px 0; color:var(--gray-400);">
+            <p data-fr="Chargement..." data-en="Loading...">Chargement...</p>
+        </div>
+
+        <article id="article-content" style="display:none;">
+            <div class="article-meta" id="article-date"></div>
+            <h1 class="article-title" id="article-title"></h1>
+            <img class="article-hero-image" id="article-image" alt="" style="display:none;">
+            <div class="article-content" id="article-body"></div>
+
+            <!-- Share -->
+            <div class="article-share">
+                <span data-fr="Partager" data-en="Share">Partager</span>
+                <button class="share-btn" id="share-copy" title="Copier le lien">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+                <button class="share-btn" id="share-facebook" title="Facebook">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                </button>
+                <button class="share-btn" id="share-x" title="X (Twitter)">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                </button>
+            </div>
+        </article>
+
+        <div id="article-not-found" style="display:none; text-align:center; padding:48px 0;">
+            <h2 data-fr="Article introuvable" data-en="Article not found">Article introuvable</h2>
+            <p style="color:var(--gray-400); margin-top:12px;" data-fr="Cet article n'existe pas ou a été retiré." data-en="This article doesn't exist or has been removed.">Cet article n'existe pas ou a été retiré.</p>
+            <a href="blog.html" class="btn btn-primary" style="margin-top:24px;" data-fr="Retour au blog" data-en="Back to blog">Retour au blog</a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-bottom" style="border-top:none; padding-top:0;">
+                <p>&copy; 2026 <strong>Électr'auto Québec</strong> &middot; <span data-fr="Tous droits réservés" data-en="All rights reserved">Tous droits réservés</span></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/local-articles.js"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/article.js"></script>
+</body>
+</html>
