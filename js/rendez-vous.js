@@ -42,15 +42,12 @@
         if (savedTheme) setTheme(savedTheme);
     } catch(e) {}
 
-    var themeBtnPreview = document.getElementById('theme-toggle-preview');
-    [themeBtn, themeBtnPreview].forEach(function(btn) {
-        if (btn) {
-            btn.addEventListener('click', function() {
-                var current = document.documentElement.getAttribute('data-theme');
-                setTheme(current === 'light' ? 'dark' : 'light');
-            });
-        }
-    });
+    if (themeBtn) {
+        themeBtn.addEventListener('click', function() {
+            var current = document.documentElement.getAttribute('data-theme');
+            setTheme(current === 'light' ? 'dark' : 'light');
+        });
+    }
 
     // ---- Navbar scroll ----
     var nav = document.getElementById('nav');
