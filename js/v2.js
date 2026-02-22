@@ -139,6 +139,21 @@
         }
     };
 
+    // ---- Phone formatting (xxx) xxx-xxxx ----
+    var phoneInput = document.querySelector('input[name="phone"]');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function() {
+            var digits = this.value.replace(/\D/g, '').substring(0, 10);
+            if (digits.length >= 7) {
+                this.value = '(' + digits.substring(0,3) + ') ' + digits.substring(3,6) + '-' + digits.substring(6);
+            } else if (digits.length >= 4) {
+                this.value = '(' + digits.substring(0,3) + ') ' + digits.substring(3);
+            } else if (digits.length > 0) {
+                this.value = '(' + digits;
+            }
+        });
+    }
+
     // ---- Contact form ----
     var form = document.getElementById('contact-form');
     if (form) {
