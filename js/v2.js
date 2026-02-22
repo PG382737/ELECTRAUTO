@@ -139,6 +139,15 @@
         }
     };
 
+    // ---- Auto-resize textarea ----
+    var textarea = document.querySelector('textarea[name="message"]');
+    if (textarea) {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    }
+
     // ---- Phone formatting (xxx) xxx-xxxx ----
     var phoneInput = document.querySelector('input[name="phone"]');
     if (phoneInput) {

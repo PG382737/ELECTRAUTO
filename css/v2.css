@@ -1184,6 +1184,7 @@ a.contact__item--phone:hover .contact__arrow {
 .field textarea {
     resize: none;
     min-height: 100px;
+    overflow: hidden;
 }
 
 .form-status {
