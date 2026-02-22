@@ -139,7 +139,7 @@ exports.handler = async (event) => {
             from: "Électr'auto Site Web <noreply@electrautoquebec.com>",
             to: [CONTACT_EMAIL],
             reply_to: email,
-            subject: `Rendez-vous - ${escapeHtml(name)} (${serviceTypeLabel})`,
+            subject: `Demande de rendez-vous - ${escapeHtml(name)}`,
             html: emailHtml
         };
 
