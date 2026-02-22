@@ -1169,13 +1169,16 @@ a.contact__item--phone:hover .contact__arrow {
 .field input:not(:placeholder-shown) + label,
 .field textarea:focus + label,
 .field textarea:not(:placeholder-shown) + label {
-    top: 6px;
+    top: 0;
+    left: 0;
+    right: 0;
     font-size: 0.7rem;
     color: var(--accent);
     letter-spacing: 0.5px;
     background: var(--bg-field);
-    padding: 0 4px;
+    padding: 5px 16px 3px;
     z-index: 1;
+    border-radius: var(--radius-xs) var(--radius-xs) 0 0;
 }
 
 .field textarea {
