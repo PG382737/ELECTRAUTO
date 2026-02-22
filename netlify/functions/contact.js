@@ -38,7 +38,7 @@ exports.handler = async (event) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                from: 'Électr\'auto Site Web <onboarding@resend.dev>',
+                from: 'Électr\'auto Site Web <noreply@electrautoquebec.com>',
                 to: [CONTACT_EMAIL],
                 reply_to: email,
                 subject: `Nouveau message de ${name} - Électr'auto`,
