@@ -427,7 +427,8 @@
         var btn = form.querySelector('[type="submit"]');
         var origHTML = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<span>...</span>';
+        btn.innerHTML = '';
+        btn.classList.add('btn-loading');
 
         var errorDiv = document.getElementById('appt-error');
 
@@ -487,6 +488,7 @@
         }
 
         btn.disabled = false;
+        btn.classList.remove('btn-loading');
         btn.innerHTML = origHTML;
     });
 

@@ -173,7 +173,8 @@
             var orig = btn.textContent;
 
             btn.disabled = true;
-            btn.textContent = '...';
+            btn.textContent = '';
+            btn.classList.add('btn-loading');
             status.textContent = '';
             status.className = 'form-status';
 
@@ -209,6 +210,7 @@
             }
 
             btn.disabled = false;
+            btn.classList.remove('btn-loading');
             btn.textContent = orig;
         });
     }

@@ -2678,6 +2678,18 @@ a.contact__item--phone:hover .contact__arrow {
     50% { transform: scale(1.15); opacity: 0.7; }
 }
 
+/* Animated dots for loading buttons */
+.btn-loading::after {
+    content: '';
+    animation: dots 1.2s steps(4, end) infinite;
+}
+@keyframes dots {
+    0%  { content: ''; }
+    25% { content: '.'; }
+    50% { content: '..'; }
+    75% { content: '...'; }
+}
+
 .appt-wait__label {
     display: block;
     font-size: 0.78rem;
