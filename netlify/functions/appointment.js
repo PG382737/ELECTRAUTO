@@ -68,7 +68,7 @@ exports.handler = async (event) => {
 
         const emailHtml = `
             <div style="font-family:Arial,sans-serif; max-width:600px;">
-                <h2 style="color:#cf8a2e; margin-bottom:4px;">Nouvelle demande de rendez-vous</h2>
+                <h2 style="color:#cf8a2e; margin-bottom:4px;">Demande de rendez-vous</h2>
                 <p style="color:#666; margin-top:0;">Via le site web Électr'auto Québec</p>
 
                 <table style="border-collapse:collapse; width:100%; margin-top:20px;">
@@ -85,11 +85,11 @@ exports.handler = async (event) => {
                     </tr>
                     <tr>
                         <td style="padding:8px 16px; font-weight:bold; color:#666;">Téléphone</td>
-                        <td style="padding:8px 0;">${escapeHtml(phone)}</td>
+                        <td style="padding:8px 0;">${phone ? escapeHtml(phone) : 'Aucun'}</td>
                     </tr>
                     <tr>
                         <td style="padding:8px 16px; font-weight:bold; color:#666;">Courriel</td>
-                        <td style="padding:8px 0;"><a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></td>
+                        <td style="padding:8px 0;">${email ? `<a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a>` : 'Aucun'}</td>
                     </tr>
                     <tr>
                         <td style="padding:8px 16px; font-weight:bold; color:#666;">Préférence</td>
@@ -117,20 +117,20 @@ exports.handler = async (event) => {
                     </tr>
                     <tr>
                         <td style="padding:8px 16px; font-weight:bold; color:#666;">Type</td>
-                        <td style="padding:8px 0;"><strong>${escapeHtml(serviceTypeLabel)}</strong></td>
+                        <td style="padding:8px 0;">${escapeHtml(serviceTypeLabel)}</td>
                     </tr>
                     <tr>
                         <td style="padding:8px 16px; font-weight:bold; color:#666; vertical-align:top;">Description</td>
                         <td style="padding:8px 0;">${escapeHtml(description).replace(/\n/g, '<br>')}</td>
                     </tr>
-                    ${photos && photos.length > 0 ? `<tr>
-                        <td style="padding:8px 16px; font-weight:bold; color:#666;">Photos</td>
-                        <td style="padding:8px 0;">${photos.length} photo(s) jointe(s)</td>
-                    </tr>` : ''}
                     <tr>
                         <td style="padding:8px 16px; font-weight:bold; color:#666;">Courtoisie</td>
                         <td style="padding:8px 0;">${escapeHtml(courtesyLabel)}</td>
                     </tr>
+                    ${photos && photos.length > 0 ? `<tr>
+                        <td style="padding:8px 16px; font-weight:bold; color:#666;">Photos</td>
+                        <td style="padding:8px 0;">${photos.length} photo(s) jointe(s)</td>
+                    </tr>` : ''}
                 </table>
             </div>
         `;
