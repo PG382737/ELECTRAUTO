@@ -17,74 +17,98 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/v2.css">
 </head>
 <body>
-    <!-- Auth guard — disabled for local dev, re-enable for production
-    <script>
-        try {
-            if (sessionStorage.getItem('electrauto-preview') !== 'true') {
-                window.location.replace('maintenance.html');
-            }
-        } catch(e) {
-            window.location.replace('maintenance.html');
-        }
-    </script>
-    -->
 
-    <!-- Navigation -->
-    <nav class="navbar" id="navbar">
-        <div class="nav-container">
-            <a href="index.html" class="nav-logo">
-                <span class="nav-logo-text">ELECTR<span class="apostrophe">'</span>AUTO</span>
+    <!-- ========== NAVBAR ========== -->
+    <nav class="nav" id="nav">
+        <div class="nav__inner">
+            <a href="index-v2.html" class="nav__brand">
+                ELECTR<span class="o">&#8217;</span>AUTO
             </a>
-            <ul class="nav-menu" id="nav-menu">
-                <li><a href="index.html" class="nav-link" data-fr="Accueil" data-en="Home">Accueil</a></li>
-                <li><a href="index.html#services" class="nav-link" data-fr="Services" data-en="Services">Services</a></li>
-                <li><a href="index.html#apropos" class="nav-link" data-fr="À Propos" data-en="About">À Propos</a></li>
-                <li><a href="blog.html" class="nav-link active">Blog</a></li>
-                <li><a href="index.html#contact" class="nav-link" data-fr="Contact" data-en="Contact">Contact</a></li>
+            <ul class="nav__links" id="nav-links">
+                <li><a href="index-v2.html#hero" data-fr="Accueil" data-en="Home">Accueil</a></li>
+                <li><a href="index-v2.html#services" data-fr="Services" data-en="Services">Services</a></li>
+                <li><a href="index-v2.html#about" data-fr="À Propos" data-en="About">À Propos</a></li>
+                <li><a href="blog.html" class="active">Blog</a></li>
+                <li><a href="rendez-vous.html" data-fr="Rendez-vous" data-en="Appointment">Rendez-vous</a></li>
+                <li><a href="index-v2.html#contact" data-fr="Contact" data-en="Contact">Contact</a></li>
             </ul>
-            <div class="nav-right">
-                <div class="lang-toggle" role="group" aria-label="Langue / Language">
-                    <button class="lang-btn active" id="btn-fr" onclick="setLang('fr')" aria-label="Français">FR</button>
-                    <button class="lang-btn" id="btn-en" onclick="setLang('en')" aria-label="English">EN</button>
+            <div class="nav__actions">
+                <div class="theme-toggle" id="theme-toggle" role="switch" aria-label="Changer le thème">
+                    <span class="theme-toggle__opt theme-toggle__opt--sun">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    </span>
+                    <span class="theme-toggle__opt theme-toggle__opt--moon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    </span>
                 </div>
-                <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                <div class="lang" role="group">
+                    <button class="lang__btn active" id="btn-fr" onclick="setLang('fr')">FR</button>
+                    <button class="lang__btn" id="btn-en" onclick="setLang('en')">EN</button>
+                </div>
+                <button class="burger" id="burger" aria-label="Menu">
+                    <span></span><span></span><span></span>
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- Page Header -->
-    <header class="page-header">
-        <h1>Blog</h1>
-        <p data-fr="Nouvelles et articles d'Électr'auto Québec" data-en="News and articles from Électr'auto Quebec">Nouvelles et articles d'Électr'auto Québec</p>
-    </header>
+    <!-- ========== PAGE HEADER ========== -->
+    <section class="appt-hero">
+        <div class="appt-hero__bg"></div>
+        <div class="wrap">
+            <span class="section__tag" data-fr="Nouvelles et articles" data-en="News and articles">Nouvelles et articles</span>
+            <h1>Blog</h1>
+            <p class="appt-hero__desc" data-fr="Restez informé des dernières nouvelles d'Électr'auto Québec." data-en="Stay up to date with the latest news from Électr'auto Quebec.">Restez informé des dernières nouvelles d'Électr'auto Québec.</p>
+        </div>
+    </section>
 
-    <!-- Articles Grid -->
-    <main class="container">
-        <div class="blog-page-grid" id="blog-list">
-            <!-- Articles loaded dynamically -->
-        </div>
-        <div class="blog-empty" id="blog-empty" style="display:none;">
-            <p data-fr="Aucun article pour le moment. Revenez bientôt!" data-en="No articles yet. Check back soon!">Aucun article pour le moment. Revenez bientôt!</p>
-        </div>
-        <div class="blog-load-more" id="load-more-wrapper" style="display:none;">
-            <button class="btn btn-outline" id="load-more" style="color: var(--gray-800); border-color: var(--gray-300);" data-fr="Charger plus d'articles" data-en="Load more articles">Charger plus d'articles</button>
+    <!-- ========== ARTICLES ========== -->
+    <main class="section section--dark">
+        <div class="wrap">
+            <div class="blog-page-grid" id="blog-list">
+                <!-- Articles loaded dynamically -->
+            </div>
+            <div class="blog-empty" id="blog-empty" style="display:none;">
+                <p data-fr="Aucun article pour le moment. Revenez bientôt!" data-en="No articles yet. Check back soon!">Aucun article pour le moment. Revenez bientôt!</p>
+            </div>
+            <div class="blog-load-more" id="load-more-wrapper" style="display:none;">
+                <button class="btn btn--ghost" id="load-more" data-fr="Charger plus d'articles" data-en="Load more articles">Charger plus d'articles</button>
+            </div>
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="site-footer">
-        <div class="container">
-            <div class="footer-bottom" style="border-top:none; padding-top:0;">
-                <p>&copy; 2026 <strong>Électr'auto Québec</strong> &middot; <span data-fr="Tous droits réservés" data-en="All rights reserved">Tous droits réservés</span></p>
-                <a href="index.html" data-fr="Retour au site" data-en="Back to site">Retour au site</a>
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+        <div class="wrap">
+            <div class="footer__top">
+                <div class="footer__brand">
+                    <span class="footer__logo">ELECTR<span class="o">&#8217;</span>AUTO</span>
+                    <p data-fr="Mécanique Générale" data-en="General Mechanics">Mécanique Générale</p>
+                </div>
+                <div class="footer__col">
+                    <h4 data-fr="Navigation" data-en="Navigation">Navigation</h4>
+                    <a href="index-v2.html#hero" data-fr="Accueil" data-en="Home">Accueil</a>
+                    <a href="index-v2.html#services" data-fr="Services" data-en="Services">Services</a>
+                    <a href="index-v2.html#about" data-fr="À Propos" data-en="About">À Propos</a>
+                    <a href="blog.html">Blog</a>
+                    <a href="rendez-vous.html" data-fr="Rendez-vous" data-en="Appointment">Rendez-vous</a>
+                    <a href="index-v2.html#contact" data-fr="Contact" data-en="Contact">Contact</a>
+                </div>
+                <div class="footer__col">
+                    <h4 data-fr="Coordonnées" data-en="Contact Info">Coordonnées</h4>
+                    <a href="tel:+14186669769">1.418.666.9769</a>
+                    <a href="mailto:info@electrautoquebec.com">info@electrautoquebec.com</a>
+                    <span>2485, boul. Wilfrid-Hamel</span>
+                    <span>Québec (QC) G1P 2H9</span>
+                </div>
+            </div>
+            <div class="footer__bottom">
+                <p>&copy; 2026 Électr'auto Québec <span data-fr="Tous droits réservés" data-en="All rights reserved">Tous droits réservés</span></p>
+                <a href="admin.html" class="footer__admin">Admin</a>
             </div>
         </div>
     </footer>

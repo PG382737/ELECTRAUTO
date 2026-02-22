@@ -25,28 +25,45 @@ document.addEventListener('DOMContentLoaded', function() {
         if (saved === 'en') setLang('en');
     } catch(e) {}
 
-    // ---- Hamburger ----
-    var hamburger = document.getElementById('hamburger');
-    var navMenu = document.getElementById('nav-menu');
-    if (hamburger && navMenu) {
-        hamburger.addEventListener('click', function() {
-            var isOpen = navMenu.classList.toggle('open');
-            hamburger.classList.toggle('active', isOpen);
-            hamburger.setAttribute('aria-expanded', isOpen);
+    // ---- Theme Toggle ----
+    var themeToggle = document.getElementById('theme-toggle');
+    function applyTheme(t) {
+        document.documentElement.setAttribute('data-theme', t);
+        try { localStorage.setItem('electrauto-theme', t); } catch(e) {}
+    }
+    try {
+        var savedTheme = localStorage.getItem('electrauto-theme');
+        if (savedTheme) applyTheme(savedTheme);
+    } catch(e) {}
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            var current = document.documentElement.getAttribute('data-theme');
+            applyTheme(current === 'light' ? 'dark' : 'light');
         });
-        navMenu.querySelectorAll('.nav-link').forEach(function(link) {
+    }
+
+    // ---- Burger Menu ----
+    var burger = document.getElementById('burger');
+    var navLinks = document.getElementById('nav-links');
+    if (burger && navLinks) {
+        burger.addEventListener('click', function() {
+            var isOpen = navLinks.classList.toggle('open');
+            burger.classList.toggle('active', isOpen);
+            burger.setAttribute('aria-expanded', isOpen);
+        });
+        navLinks.querySelectorAll('a').forEach(function(link) {
             link.addEventListener('click', function() {
-                navMenu.classList.remove('open');
-                hamburger.classList.remove('active');
+                navLinks.classList.remove('open');
+                burger.classList.remove('active');
             });
         });
     }
 
     // ---- Navbar scroll ----
-    var navbar = document.getElementById('navbar');
-    if (navbar) {
+    var nav = document.getElementById('nav');
+    if (nav) {
         window.addEventListener('scroll', function() {
-            navbar.classList.toggle('scrolled', window.scrollY > 50);
+            nav.classList.toggle('scrolled', window.scrollY > 50);
         }, { passive: true });
     }
 

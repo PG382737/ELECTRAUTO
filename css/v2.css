@@ -968,11 +968,23 @@ img { max-width:100%; height:auto; display:block; }
     line-height: 1.6;
 }
 
+.blog-page-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    padding: 48px 0;
+}
+
 .blog-empty {
     grid-column: 1 / -1;
     text-align: center;
     padding: 48px 24px;
     color: var(--text-muted);
+}
+
+.blog-load-more {
+    text-align: center;
+    padding: 0 0 48px;
 }
 
 /* ============================================
@@ -1424,6 +1436,7 @@ a.contact__item--phone:hover .contact__arrow {
     .about__stats .stat { flex: 1; }
     .contact { grid-template-columns: 1fr; gap: 32px; }
     .blog-grid { grid-template-columns: repeat(2, 1fr); }
+    .blog-page-grid { grid-template-columns: repeat(2, 1fr); }
     .footer__top { grid-template-columns: 1fr 1fr; }
     .footer__brand { grid-column: 1 / -1; }
     .banner__inner { padding: 48px; gap: 40px; }
@@ -1470,6 +1483,7 @@ a.contact__item--phone:hover .contact__arrow {
 
     /* Blog */
     .blog-grid { grid-template-columns: 1fr; }
+    .blog-page-grid { grid-template-columns: 1fr; }
 
     /* Contact — centered title */
     .contact { grid-template-columns: 1fr; }
