@@ -140,9 +140,30 @@
     var yearField = form.querySelector('[name="year"]');
     var mileageField = form.querySelector('[name="mileage"]');
 
-    if (phoneField) digitsOnly(phoneField);
+    // Phone formatting (xxx) xxx-xxxx
+    if (phoneField) {
+        phoneField.addEventListener('input', function() {
+            var digits = this.value.replace(/\D/g, '').substring(0, 10);
+            if (digits.length >= 7) {
+                this.value = '(' + digits.substring(0,3) + ') ' + digits.substring(3,6) + '-' + digits.substring(6);
+            } else if (digits.length >= 4) {
+                this.value = '(' + digits.substring(0,3) + ') ' + digits.substring(3);
+            } else if (digits.length > 0) {
+                this.value = '(' + digits;
+            }
+        });
+    }
     if (yearField) digitsOnly(yearField);
     if (mileageField) digitsOnly(mileageField);
+
+    // ---- Textarea auto-resize ----
+    var descTextarea = form.querySelector('textarea[name="description"]');
+    if (descTextarea) {
+        descTextarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    }
 
     // ---- Service Type Cards ----
     var serviceTypeInput = form.querySelector('[name="serviceType"]');

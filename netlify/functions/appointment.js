@@ -21,16 +21,38 @@ exports.handler = async (event) => {
     }
 
     try {
-        const {
+        let {
             clientType, name, phone, email, contactPref,
             makeModel, year, mileage, vin,
             serviceType, description, courtesy, photos
         } = JSON.parse(event.body);
 
+        // Trim and enforce length limits
+        name = String(name || '').trim().substring(0, 80);
+        phone = String(phone || '').trim().substring(0, 14);
+        email = String(email || '').trim().substring(0, 120);
+        makeModel = String(makeModel || '').trim().substring(0, 60);
+        year = String(year || '').trim().substring(0, 4);
+        mileage = String(mileage || '').trim().substring(0, 7);
+        vin = String(vin || '').trim().substring(0, 17);
+        description = String(description || '').trim().substring(0, 2000);
+        clientType = String(clientType || 'new').trim();
+        contactPref = String(contactPref || 'phone').trim();
+        serviceType = String(serviceType || '').trim();
+        courtesy = String(courtesy || 'none').trim();
+
         if (!name || (!email && !phone) || !makeModel || !year || !serviceType || !description) {
             return {
                 statusCode: 400, headers,
                 body: JSON.stringify({ error: 'Missing required fields' })
+            };
+        }
+
+        // Basic email format validation (if provided)
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            return {
+                statusCode: 400, headers,
+                body: JSON.stringify({ error: 'Invalid email' })
             };
         }
 
@@ -114,7 +136,7 @@ exports.handler = async (event) => {
         `;
 
         const resendPayload = {
-            from: "Électr'auto Site Web <onboarding@resend.dev>",
+            from: "Électr'auto Site Web <noreply@electrautoquebec.com>",
             to: [CONTACT_EMAIL],
             reply_to: email,
             subject: `Rendez-vous - ${escapeHtml(name)} (${serviceTypeLabel})`,
@@ -138,8 +160,10 @@ exports.handler = async (event) => {
 
         if (!res.ok) {
             const text = await res.text();
+            console.error('Resend API error:', res.status, text);
             throw new Error(`Resend error: ${res.status} ${text}`);
         }
+        console.log('Appointment email sent successfully');
 
         return {
             statusCode: 200, headers,
@@ -147,6 +171,7 @@ exports.handler = async (event) => {
         };
 
     } catch (err) {
+        console.error('Appointment function error:', err.message);
         return {
             statusCode: 500, headers,
             body: JSON.stringify({ error: err.message })
