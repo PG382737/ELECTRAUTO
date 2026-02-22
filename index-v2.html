@@ -392,19 +392,19 @@
                     <h3 data-fr="Envoyez-nous un message" data-en="Send us a message">Envoyez-nous un message</h3>
                     <form id="contact-form">
                         <div class="field">
-                            <input type="text" name="name" required placeholder=" ">
+                            <input type="text" name="name" required placeholder=" " maxlength="80" autocomplete="name">
                             <label data-fr="Nom complet" data-en="Full name">Nom complet</label>
                         </div>
                         <div class="field">
-                            <input type="email" name="email" required placeholder=" ">
+                            <input type="email" name="email" required placeholder=" " maxlength="120" autocomplete="email">
                             <label data-fr="Courriel" data-en="Email">Courriel</label>
                         </div>
                         <div class="field">
-                            <input type="tel" name="phone" placeholder=" ">
+                            <input type="tel" name="phone" placeholder=" " maxlength="14" autocomplete="tel">
                             <label data-fr="Téléphone" data-en="Phone">Téléphone</label>
                         </div>
                         <div class="field field--grow">
-                            <textarea name="message" required placeholder=" "></textarea>
+                            <textarea name="message" required placeholder=" " maxlength="2000"></textarea>
                             <label data-fr="Votre message" data-en="Your message">Votre message</label>
                         </div>
                         <button type="submit" class="btn btn--primary btn--full" data-fr="Envoyer le message" data-en="Send message">Envoyer le message</button>

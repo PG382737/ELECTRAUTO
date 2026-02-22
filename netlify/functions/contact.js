@@ -21,13 +21,28 @@ exports.handler = async (event) => {
     }
 
     try {
-        const { name, email, phone, message } = JSON.parse(event.body);
+        let { name, email, phone, message } = JSON.parse(event.body);
+
+        // Trim and enforce length limits
+        name = String(name || '').trim().substring(0, 80);
+        email = String(email || '').trim().substring(0, 120);
+        phone = String(phone || '').trim().substring(0, 14);
+        message = String(message || '').trim().substring(0, 2000);
 
         if (!name || !email || !message) {
             return {
                 statusCode: 400,
                 headers,
                 body: JSON.stringify({ error: 'Missing required fields' })
+            };
+        }
+
+        // Basic email format validation
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            return {
+                statusCode: 400,
+                headers,
+                body: JSON.stringify({ error: 'Invalid email' })
             };
         }
 
