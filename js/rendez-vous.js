@@ -393,6 +393,13 @@
             }
         }
 
+        // VIN must be exactly 17 characters (if filled)
+        var vinEl = form.querySelector('[name="vin"]');
+        if (vinEl && vinEl.value.trim() && vinEl.value.trim().length !== 17) {
+            vinEl.closest('.field').classList.add('appt-error');
+            valid = false;
+        }
+
         // Service type
         if (!serviceTypeInput.value) {
             document.getElementById('service-type-cards').classList.add('appt-error');

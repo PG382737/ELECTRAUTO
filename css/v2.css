@@ -2195,12 +2195,12 @@ a.contact__item--phone:hover .contact__arrow {
 /* Page header */
 .appt-hero {
     position: relative;
-    padding: calc(var(--nav-h) + 64px) 0 32px;
+    padding: calc(var(--nav-h) + 64px) 0 16px;
     overflow: hidden;
 }
 
 .appt-hero + .section {
-    padding-top: 40px;
+    padding-top: 24px;
 }
 
 .appt-hero__bg {
