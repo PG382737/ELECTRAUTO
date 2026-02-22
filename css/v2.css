@@ -1173,6 +1173,9 @@ a.contact__item--phone:hover .contact__arrow {
     font-size: 0.7rem;
     color: var(--accent);
     letter-spacing: 0.5px;
+    background: var(--bg-field);
+    padding: 0 4px;
+    z-index: 1;
 }
 
 .field textarea {
