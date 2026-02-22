@@ -1189,6 +1189,49 @@ a.contact__item--phone:hover .contact__arrow {
 .form-status.success { color: #4ade80; }
 .form-status.error { color: #f87171; }
 
+/* Form success state */
+.form-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 48px 24px;
+    min-height: 360px;
+    animation: fadeInDetails 0.5s ease;
+}
+
+.form-success__icon {
+    width: 72px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(74,222,128,0.12);
+    border: 2px solid rgba(74,222,128,0.25);
+    border-radius: 50%;
+    margin-bottom: 24px;
+}
+
+.form-success__icon svg {
+    width: 36px;
+    height: 36px;
+    color: #4ade80;
+}
+
+.form-success h3 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+}
+
+.form-success p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    max-width: 320px;
+}
+
 /* ============================================
    CONTACT BACKGROUND EFFECT
    ============================================ */

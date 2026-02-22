@@ -167,9 +167,14 @@
 
                 if (res.ok) {
                     var lang = document.documentElement.lang || 'fr';
-                    status.textContent = lang === 'en' ? 'Message sent!' : 'Message envoyé!';
-                    status.className = 'form-status success';
-                    form.reset();
+                    var formBox = form.closest('.contact__form');
+                    formBox.innerHTML = '<div class="form-success">'
+                        + '<div class="form-success__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 12 15 16 10"/></svg></div>'
+                        + '<h3>' + (lang === 'en' ? 'Message sent!' : 'Message envoyé!') + '</h3>'
+                        + '<p>' + (lang === 'en'
+                            ? 'Thank you for contacting us. A representative will get back to you shortly.'
+                            : 'Merci de nous avoir contacté. Un représentant communiquera avec vous dans les plus brefs délais.') + '</p>'
+                        + '</div>';
                 } else {
                     throw new Error();
                 }
