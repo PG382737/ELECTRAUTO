@@ -34,7 +34,7 @@ exports.handler = async (event) => {
         makeModel = String(makeModel || '').trim().substring(0, 60);
         year = String(year || '').trim().substring(0, 4);
         mileage = String(mileage || '').trim().substring(0, 7);
-        vin = String(vin || '').trim().substring(0, 17);
+        vin = String(vin || '').trim().substring(0, 21);
         description = String(description || '').trim().substring(0, 2000);
         clientType = String(clientType || 'new').trim();
         contactPref = String(contactPref || 'phone').trim();

@@ -387,7 +387,7 @@
         var yearEl = form.querySelector('[name="year"]');
         if (yearEl && yearEl.value.trim()) {
             var y = parseInt(yearEl.value.trim());
-            if (isNaN(y) || y < 1980 || y > 2027) {
+            if (isNaN(y) || y < 1000 || y > 9999) {
                 yearEl.closest('.field').classList.add('appt-error');
                 valid = false;
             }
