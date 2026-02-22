@@ -136,10 +136,10 @@ exports.handler = async (event) => {
         `;
 
         const resendPayload = {
-            from: "Électr'auto Site Web <noreply@electrautoquebec.com>",
+            from: "Electrauto <noreply@electrautoquebec.com>",
             to: [CONTACT_EMAIL],
             reply_to: email,
-            subject: `Demande de rendez-vous - ${escapeHtml(name)}`,
+            subject: 'Demande de rendez-vous',
             html: emailHtml
         };
 
