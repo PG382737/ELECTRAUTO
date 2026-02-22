@@ -466,7 +466,7 @@
 
             // Show success inside the form container
             var lang = document.documentElement.lang || 'fr';
-            form.innerHTML = '<div class="appt-success" style="display:block;">'
+            form.innerHTML = '<div class="appt-section"><div class="appt-success" style="display:block;">'
                 + '<div class="appt-success__icon">'
                 + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>'
                 + '</div>'
@@ -475,7 +475,7 @@
                     ? 'We have received your appointment request. A team member will contact you shortly to confirm your appointment.'
                     : 'Nous avons bien reçu votre demande de rendez-vous. Un membre de notre équipe communiquera avec vous sous peu pour confirmer votre rendez-vous.') + '</p>'
                 + '<a href="index-v2.html" class="btn btn--ghost">' + (lang === 'en' ? 'Back to home' : 'Retour à l\'accueil') + '</a>'
-                + '</div>';
+                + '</div></div>';
             form.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
         } catch(err) {
