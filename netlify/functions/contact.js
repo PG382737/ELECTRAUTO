@@ -68,8 +68,10 @@ exports.handler = async (event) => {
 
         if (!res.ok) {
             const text = await res.text();
+            console.error('Resend API error:', res.status, text);
             throw new Error(`Resend error: ${res.status} ${text}`);
         }
+        console.log('Email sent successfully');
 
         return {
             statusCode: 200,
@@ -78,6 +80,7 @@ exports.handler = async (event) => {
         };
 
     } catch (err) {
+        console.error('Contact function error:', err.message);
         return {
             statusCode: 500,
             headers,
