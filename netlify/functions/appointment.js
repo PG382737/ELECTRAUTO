@@ -117,7 +117,7 @@ exports.handler = async (event) => {
             from: "Électr'auto Site Web <onboarding@resend.dev>",
             to: [CONTACT_EMAIL],
             reply_to: email,
-            subject: `Rendez-vous — ${escapeHtml(name)} (${serviceTypeLabel})`,
+            subject: `Rendez-vous - ${escapeHtml(name)} (${serviceTypeLabel})`,
             html: emailHtml
         };
 

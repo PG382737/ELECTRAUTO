@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Électr'auto Québec | Mécanique Générale</title>
-    <meta name="description" content="Électr'auto Québec — L'atelier le plus recommandé à Québec pour les problèmes électroniques et électriques de voitures de toutes marques.">
+    <meta name="description" content="Électr'auto Québec - L'atelier le plus recommandé à Québec pour les problèmes électroniques et électriques de voitures de toutes marques.">
     <meta name="robots" content="noindex, nofollow">
     <script>
         try {
@@ -33,14 +33,30 @@
                 <li><a href="#services" data-fr="Services" data-en="Services">Services</a></li>
                 <li><a href="#about" data-fr="À Propos" data-en="About">À Propos</a></li>
                 <li><a href="blog.html">Blog</a></li>
-                <li><a href="rendez-vous.html" data-fr="Rendez-vous" data-en="Appointment">Rendez-vous</a></li>
-                <li><a href="#contact" class="nav__cta" data-fr="Contact" data-en="Contact">Contact</a></li>
+                <li class="nav__links--mobile-only"><a href="rendez-vous.html" data-fr="Rendez-vous" data-en="Appointment">Rendez-vous</a></li>
+                <li class="nav__links--mobile-only"><a href="#contact" data-fr="Contact" data-en="Contact">Contact</a></li>
+                <li class="nav__theme-menu">
+                    <div class="theme-toggle" id="theme-toggle-menu" role="switch" aria-label="Changer le thème">
+                        <span class="theme-toggle__opt theme-toggle__opt--sun">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                        </span>
+                        <span class="theme-toggle__opt theme-toggle__opt--moon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                        </span>
+                    </div>
+                </li>
             </ul>
             <div class="nav__actions">
-                <button class="theme-toggle" id="theme-toggle" aria-label="Changer le thème">
-                    <svg class="theme-toggle__icon theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                    <svg class="theme-toggle__icon theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                </button>
+                <a href="rendez-vous.html" class="nav__shortcut" data-fr="Rendez-vous" data-en="Appointment">Rendez-vous</a>
+                <a href="#contact" class="nav__shortcut" data-fr="Contact" data-en="Contact">Contact</a>
+                <div class="theme-toggle" id="theme-toggle" role="switch" aria-label="Changer le thème">
+                    <span class="theme-toggle__opt theme-toggle__opt--sun">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    </span>
+                    <span class="theme-toggle__opt theme-toggle__opt--moon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    </span>
+                </div>
                 <div class="lang" role="group">
                     <button class="lang__btn active" id="btn-fr" onclick="setLang('fr')">FR</button>
                     <button class="lang__btn" id="btn-en" onclick="setLang('en')">EN</button>
@@ -53,16 +69,16 @@
     </nav>
 
     <!-- ========== HERO ========== -->
-    <section id="hero" class="hero">
+    <section id="hero" class="hero hero--carbon hero--txt-bottom">
         <div class="hero__bg"></div>
         <div class="hero__content">
-            <span class="hero__tag" data-fr="Depuis 2004 à Québec" data-en="Since 2004 in Quebec City">Depuis 2004 à Québec</span>
+            <span class="hero__tag" data-fr="Spécialistes BMW et Audi" data-en="BMW and Audi Specialists">Spécialistes BMW et Audi</span>
             <h1>
                 <span class="hero__line1" data-fr="L'expertise" data-en="The expertise">L'expertise</span>
                 <span class="hero__line2" data-fr="automobile" data-en="automotive">automobile</span>
                 <span class="hero__line3" data-fr="à votre service." data-en="at your service.">à votre service.</span>
             </h1>
-            <p class="hero__desc" data-fr="Spécialistes en problèmes électroniques et électriques de voitures de toutes marques. Entretien et mécanique générale BMW & Audi." data-en="Specialists in electronic and electrical problems for all vehicle brands. General maintenance and mechanics for BMW & Audi.">Spécialistes en problèmes électroniques et électriques de voitures de toutes marques. Entretien et mécanique générale BMW & Audi.</p>
+            <p class="hero__desc" data-fr="Experts en problèmes électroniques et électriques de voitures de toutes marques. Entretien et mécanique générale." data-en="Experts in electronic and electrical car problems for all makes. Maintenance and general mechanics.">Experts en problèmes électroniques et électriques de voitures de toutes marques. Entretien et mécanique générale.</p>
             <div class="hero__actions">
                 <a href="rendez-vous.html" class="btn btn--primary">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
@@ -92,7 +108,7 @@
                     <div class="scard__icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9m-6-6h15m-6 0V6"/></svg>
                     </div>
-                    <h3 data-fr="Réparation & Entretien Audi – BMW" data-en="Audi – BMW Repair & Maintenance">Réparation & Entretien Audi – BMW</h3>
+                    <h3 data-fr="Spécialistes Audi et BMW" data-en="Audi & BMW Specialists">Spécialistes Audi et BMW</h3>
                     <p data-fr="Vous cherchez un endroit fiable et honnête pour la réparation et l'entretien de votre BMW ou Audi ? Vous avez trouvé." data-en="Looking for a reliable and honest place for the repair and maintenance of your BMW or Audi? You've found it.">Vous cherchez un endroit fiable et honnête pour la réparation et l'entretien de votre BMW ou Audi ? Vous avez trouvé.</p>
                     <button class="scard__more" onclick="toggleService(this.parentElement)" data-fr="Détails" data-en="Details">Détails <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
                     <button class="scard__close" onclick="event.stopPropagation(); toggleService(this.closest('.scard'))" aria-label="Fermer">
@@ -118,7 +134,7 @@
                 </div>
 
                 <div class="scard reveal">
-                    <div class="scard__icon scard__icon--accent">
+                    <div class="scard__icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v4m0 12v4M2 12h4m12 0h4M6.34 6.34l2.83 2.83m5.66 5.66l2.83 2.83M17.66 6.34l-2.83 2.83m-5.66 5.66l-2.83 2.83"/><circle cx="12" cy="12" r="3"/></svg>
                     </div>
                     <h3 data-fr="Air climatisé" data-en="Air Conditioning">Air climatisé</h3>
@@ -143,7 +159,7 @@
                     <div class="scard__icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
                     </div>
-                    <h3 data-fr="Mécanique générale – Entretien" data-en="General Mechanics – Maintenance">Mécanique générale – Entretien</h3>
+                    <h3 data-fr="Entretien préventif" data-en="Preventive Maintenance">Entretien préventif</h3>
                     <p data-fr="L'entretien régulier de votre véhicule prévient les problèmes majeurs. Nos entretiens détectent les signes de fatigue pour minimiser les dégâts et les coûts." data-en="Regular vehicle maintenance prevents major problems. Our services detect signs of wear to minimize damage and costs.">L'entretien régulier de votre véhicule prévient les problèmes majeurs. Nos entretiens détectent les signes de fatigue pour minimiser les dégâts et les coûts.</p>
                     <button class="scard__more" onclick="toggleService(this.parentElement)" data-fr="Détails" data-en="Details">Détails <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
                     <button class="scard__close" onclick="event.stopPropagation(); toggleService(this.closest('.scard'))" aria-label="Fermer">
@@ -167,7 +183,7 @@
                     <div class="scard__icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 6V4m4 2V4m4 2V4m4 2V4M6 18v2m4-2v2m4-2v2m4-2v2"/><circle cx="12" cy="12" r="3"/></svg>
                     </div>
-                    <h3 data-fr="Mécanique générale – Réparation" data-en="General Mechanics – Repair">Mécanique générale – Réparation</h3>
+                    <h3 data-fr="Réparation mécanique" data-en="Mechanical Repair">Réparation mécanique</h3>
                     <p data-fr="Notre personnel est qualifié pour bien identifier votre problème, remplacer les pièces et les composantes défectueuses et effectuer les réparations requises." data-en="Our staff is qualified to properly identify your problem, replace defective parts and components and perform the required repairs.">Notre personnel est qualifié pour bien identifier votre problème, remplacer les pièces et les composantes défectueuses et effectuer les réparations requises.</p>
                     <button class="scard__more" onclick="toggleService(this.parentElement)" data-fr="Détails" data-en="Details">Détails <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
                     <button class="scard__close" onclick="event.stopPropagation(); toggleService(this.closest('.scard'))" aria-label="Fermer">
@@ -190,7 +206,7 @@
                 </div>
 
                 <div class="scard reveal">
-                    <div class="scard__icon scard__icon--accent">
+                    <div class="scard__icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/><path d="M7 10l3 3 4-5 3 2"/></svg>
                     </div>
                     <h3 data-fr="Diagnostic électronique avancé" data-en="Advanced Electronic Diagnostics">Diagnostic électronique avancé</h3>
@@ -254,15 +270,16 @@
         <div class="wrap">
             <div class="about reveal">
                 <div class="about__left">
-                    <span class="section__tag" data-fr="Notre histoire" data-en="Our story">Notre histoire</span>
-                    <h2 data-fr="Une entreprise familiale depuis 2004" data-en="A family business since 2004">Une entreprise familiale depuis 2004</h2>
-                    <p data-fr="Notre mission est d'optimiser le rendement des véhicules automobiles en fonction des attentes de la clientèle. Nous avons constitué une équipe fière et dynamique ayant à cœur de vous offrir un service de mécanique courtois et transparent depuis plus de 15 ans." data-en="Our mission is to optimize vehicle performance according to customer expectations. We have built a proud and dynamic team dedicated to providing courteous and transparent mechanical service for over 15 years.">Notre mission est d'optimiser le rendement des véhicules automobiles en fonction des attentes de la clientèle. Nous avons constitué une équipe fière et dynamique ayant à cœur de vous offrir un service de mécanique courtois et transparent depuis plus de 15 ans.</p>
-                    <p data-fr="Électr'auto est aussi une entreprise spécialisée dans les systèmes électriques et électroniques et nous sommes en mesure d'effectuer le calibrage des performances de votre voiture." data-en="Électr'auto is also specialized in electrical and electronic systems and we can calibrate the performance of your car.">Électr'auto est aussi une entreprise spécialisée dans les systèmes électriques et électroniques et nous sommes en mesure d'effectuer le calibrage des performances de votre voiture.</p>
+                    <span class="section__tag" data-fr="Notre histoire depuis 2004" data-en="Our story since 2004">Notre histoire depuis 2004</span>
+                    <h2 data-fr="Une entreprise familiale" data-en="A family business">Une entreprise familiale</h2>
+                    <p class="about__subtitle" data-fr="Fondée par passion, bâtie sur la confiance." data-en="Founded by passion, built on trust.">Fondée par passion, bâtie sur la confiance.</p>
+                    <p data-fr="Notre mission est d'assurer le bon fonctionnement de votre véhicule en fonction de vos attentes. Nous avons constitué une équipe fière et dynamique ayant à cœur de vous offrir un service de mécanique courtois et transparent depuis plus de 22 ans." data-en="Our mission is to ensure your vehicle runs properly according to your expectations. We have built a proud and dynamic team dedicated to providing courteous and transparent mechanical service for over 22 years.">Notre mission est d'assurer le bon fonctionnement de votre véhicule en fonction de vos attentes. Nous avons constitué une équipe fière et dynamique ayant à cœur de vous offrir un service de mécanique courtois et transparent depuis plus de 22 ans.</p>
+                    <p data-fr="Électr'auto est aussi une entreprise spécialisée dans les systèmes électriques et électroniques de votre véhicule. Nous sommes plus particulièrement spécialisés dans l'entretien et la réparation des véhicules BMW et Audi." data-en="Électr'auto is also specialized in electrical and electronic systems of your vehicle. We are particularly specialized in the maintenance and repair of BMW and Audi vehicles.">Électr'auto est aussi une entreprise spécialisée dans les systèmes électriques et électroniques de votre véhicule. Nous sommes plus particulièrement spécialisés dans l'entretien et la réparation des véhicules BMW et Audi.</p>
                 </div>
                 <div class="about__right">
                     <div class="about__stats">
                         <div class="stat">
-                            <span class="stat__num">20+</span>
+                            <span class="stat__num">22+</span>
                             <span class="stat__label" data-fr="Années d'expérience" data-en="Years of experience">Années d'expérience</span>
                         </div>
                         <div class="stat">
@@ -289,6 +306,7 @@
             <div class="section__head reveal">
                 <span class="section__tag" data-fr="Nouvelles" data-en="News">Nouvelles</span>
                 <h2 data-fr="Derniers articles" data-en="Latest Articles">Derniers articles</h2>
+                <p data-fr="Conseils, nouveautés et astuces automobiles." data-en="Tips, news and automotive tricks.">Conseils, nouveautés et astuces automobiles.</p>
             </div>
             <div class="blog-grid" id="blog-preview">
                 <div class="blog-empty" id="blog-empty">
@@ -296,17 +314,19 @@
                 </div>
             </div>
             <div class="text-center" style="margin-top:40px;">
-                <a href="blog.html" class="btn btn--outline-dark" data-fr="Tous les articles" data-en="All articles">Tous les articles</a>
+                <a href="blog.html" class="btn btn--ghost" data-fr="Tous les articles" data-en="All articles">Tous les articles</a>
             </div>
         </div>
     </section>
 
     <!-- ========== CONTACT ========== -->
-    <section id="contact" class="section section--dark">
+    <section id="contact" class="section section--dark contact-bg contact-bg--sparks">
+        <div class="contact-bg__overlay"></div>
         <div class="wrap">
             <div class="section__head reveal">
                 <span class="section__tag" data-fr="Parlons-en" data-en="Let's talk">Parlons-en</span>
                 <h2 data-fr="Contactez-nous" data-en="Contact Us">Contactez-nous</h2>
+                <p data-fr="Une question ? On est là pour vous aider." data-en="Have a question? We're here to help.">Une question ? On est là pour vous aider.</p>
             </div>
 
             <div class="contact">
@@ -318,6 +338,7 @@
                             <small data-fr="Téléphone" data-en="Phone">Téléphone</small>
                             <strong>1.418.666.9769</strong>
                         </div>
+                        <span class="contact__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
                     </a>
 
                     <div class="contact__item">
@@ -334,6 +355,7 @@
                             <small data-fr="Adresse" data-en="Address">Adresse</small>
                             <strong>2485, boul. Wilfrid-Hamel<br>Québec (QC) G1P 2H9</strong>
                         </div>
+                        <span class="contact__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
                     </a>
 
                     <a href="mailto:info@electrautoquebec.com" class="contact__item">
@@ -342,13 +364,15 @@
                             <small data-fr="Courriel" data-en="Email">Courriel</small>
                             <strong>info@electrautoquebec.com</strong>
                         </div>
+                        <span class="contact__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
                     </a>
 
                     <div class="contact__item">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                         <div>
                             <small data-fr="Heures d'ouverture" data-en="Business Hours">Heures d'ouverture</small>
-                            <strong data-fr="Lundi – Vendredi : 8h à 17h" data-en="Monday – Friday: 8am to 5pm">Lundi – Vendredi : 8h à 17h</strong>
+                            <strong data-fr="Lundi – Jeudi : 8h à 17h" data-en="Monday – Thursday: 8am to 5pm">Lundi – Jeudi : 8h à 17h</strong>
+                            <span class="contact__closed" data-fr="Vendredi : 8h à 12h" data-en="Friday: 8am to 12pm">Vendredi : 8h à 12h</span>
                             <span class="contact__closed" data-fr="Samedi & Dimanche : Fermé" data-en="Saturday & Sunday: Closed">Samedi & Dimanche : Fermé</span>
                         </div>
                     </div>
@@ -359,6 +383,7 @@
                             <small>Facebook</small>
                             <strong data-fr="Suivez-nous" data-en="Follow us">Suivez-nous</strong>
                         </div>
+                        <span class="contact__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
                     </a>
                 </div>
 
@@ -370,18 +395,16 @@
                             <input type="text" name="name" required placeholder=" ">
                             <label data-fr="Nom complet" data-en="Full name">Nom complet</label>
                         </div>
-                        <div class="field-row">
-                            <div class="field">
-                                <input type="email" name="email" required placeholder=" ">
-                                <label data-fr="Courriel" data-en="Email">Courriel</label>
-                            </div>
-                            <div class="field">
-                                <input type="tel" name="phone" placeholder=" ">
-                                <label data-fr="Téléphone" data-en="Phone">Téléphone</label>
-                            </div>
+                        <div class="field">
+                            <input type="email" name="email" required placeholder=" ">
+                            <label data-fr="Courriel" data-en="Email">Courriel</label>
                         </div>
                         <div class="field">
-                            <textarea name="message" rows="4" required placeholder=" "></textarea>
+                            <input type="tel" name="phone" placeholder=" ">
+                            <label data-fr="Téléphone" data-en="Phone">Téléphone</label>
+                        </div>
+                        <div class="field field--grow">
+                            <textarea name="message" required placeholder=" "></textarea>
                             <label data-fr="Votre message" data-en="Your message">Votre message</label>
                         </div>
                         <button type="submit" class="btn btn--primary btn--full" data-fr="Envoyer le message" data-en="Send message">Envoyer le message</button>
@@ -418,69 +441,14 @@
                 </div>
             </div>
             <div class="footer__bottom">
-                <p>&copy; 2026 Électr'auto Québec — <span data-fr="Tous droits réservés" data-en="All rights reserved">Tous droits réservés</span></p>
+                <p>&copy; 2026 Électr'auto Québec <span data-fr="Tous droits réservés" data-en="All rights reserved">Tous droits réservés</span></p>
                 <a href="admin.html" class="footer__admin">Admin</a>
             </div>
         </div>
     </footer>
 
-    <!-- Background Selector (Temporary) -->
-    <div class="bg-selector" id="bg-selector">
-        <div class="bg-selector__title">Hero Background</div>
-        <button class="bg-selector__btn active" data-bg="carbon">
-            <span class="bg-selector__preview bg-selector__preview--carbon"></span>
-            <span class="bg-selector__label">Carbon Fiber</span>
-        </button>
-        <button class="bg-selector__btn" data-bg="racing">
-            <span class="bg-selector__preview bg-selector__preview--racing"></span>
-            <span class="bg-selector__label">Racing Flag</span>
-        </button>
-        <button class="bg-selector__btn" data-bg="tread">
-            <span class="bg-selector__preview bg-selector__preview--tread"></span>
-            <span class="bg-selector__label">Tire Tread</span>
-        </button>
-        <button class="bg-selector__btn" data-bg="steel">
-            <span class="bg-selector__preview bg-selector__preview--steel"></span>
-            <span class="bg-selector__label">Brushed Steel</span>
-        </button>
-        <button class="bg-selector__btn" data-bg="grunge">
-            <span class="bg-selector__preview bg-selector__preview--grunge"></span>
-            <span class="bg-selector__label">Garage Grunge</span>
-        </button>
-    </div>
-
     <script src="js/local-articles.js"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/v2.js"></script>
-
-    <!-- Background Selector Script (Temporary) -->
-    <script>
-    (function() {
-        var hero = document.getElementById('hero');
-        var btns = document.querySelectorAll('.bg-selector__btn');
-        var variants = ['carbon', 'racing', 'tread', 'steel', 'grunge'];
-
-        // Apply default
-        hero.classList.add('hero--carbon');
-
-        btns.forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                var bg = btn.getAttribute('data-bg');
-
-                // Remove all variant classes
-                variants.forEach(function(v) {
-                    hero.classList.remove('hero--' + v);
-                });
-
-                // Add selected
-                hero.classList.add('hero--' + bg);
-
-                // Update active button
-                btns.forEach(function(b) { b.classList.remove('active'); });
-                btn.classList.add('active');
-            });
-        });
-    })();
-    </script>
 </body>
 </html>

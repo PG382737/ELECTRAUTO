@@ -8,11 +8,11 @@ window.LOCAL_ARTICLES = [
         title: "Électr'auto : L'importance de prendre soin de votre batterie de voiture",
         slug: 'prendre-soin-batterie-de-voiture',
         excerpt: "Découvrez pourquoi l'entretien de votre batterie est essentiel et comment Électr'auto peut vous aider à éviter les pannes imprévues.",
-        image_url: null,
+        image_url: 'Images/battery.jpg',
         published: true,
         created_at: '2024-11-15T10:00:00Z',
         content: `
-            <p>Votre batterie de voiture est bien plus qu'un simple composant — c'est le cœur électrique de votre véhicule. Sans elle, rien ne démarre, rien ne fonctionne. Chez Électr'auto, nous comprenons l'importance cruciale d'une batterie en bonne santé pour assurer la fiabilité de votre automobile au quotidien.</p>
+            <p>Votre batterie de voiture est bien plus qu'un simple composant, c'est le cœur électrique de votre véhicule. Sans elle, rien ne démarre, rien ne fonctionne. Chez Électr'auto, nous comprenons l'importance cruciale d'une batterie en bonne santé pour assurer la fiabilité de votre automobile au quotidien.</p>
 
             <h2>La Batterie : Un Cœur Électrique</h2>
             <p>La batterie de votre voiture alimente tous les systèmes électriques, du démarrage du moteur aux phares, en passant par le système de divertissement et la climatisation. Une batterie défaillante peut entraîner des pannes inattendues et coûteuses.</p>
@@ -53,7 +53,7 @@ window.LOCAL_ARTICLES = [
         title: "Réparation de l'air climatisé auto à Québec : Trouvez le meilleur prix sans compromettre la qualité",
         slug: 'reparation-de-lair-climatise-auto-a-quebec-trouvez-le-meilleur-prix-sans-compromettre-la-qualite',
         excerpt: "Guide complet pour la réparation de votre climatisation automobile à Québec. Découvrez les coûts, les signes de problèmes et où faire réparer.",
-        image_url: null,
+        image_url: 'Images/ac.jpg',
         published: true,
         created_at: '2024-10-28T10:00:00Z',
         content: `
@@ -99,7 +99,7 @@ window.LOCAL_ARTICLES = [
         title: 'Réparation de climatiseurs automobiles',
         slug: 'reparation-de-climatiseurs-automobiles',
         excerpt: "Tout ce que vous devez savoir sur la réparation des climatiseurs automobiles modernes et les technologies qui les rendent plus efficaces.",
-        image_url: null,
+        image_url: 'Images/mechanic.jpg',
         published: true,
         created_at: '2024-10-10T10:00:00Z',
         content: `
@@ -131,7 +131,8 @@ window.LOCAL_ARTICLES = [
         title: "Pourquoi choisir Électr'auto pour la réparation de votre climatisation automobile",
         slug: 'pourquoi-choisir-electrauto-pour-la-reparation-de-votre-climatisation-automobile',
         excerpt: "Découvrez ce qui distingue Électr'auto des autres ateliers pour la réparation de votre système de climatisation automobile.",
-        image_url: null,
+        image_url: 'Images/hero-bg.png',
+        logo_overlay: true,
         published: true,
         created_at: '2024-09-22T10:00:00Z',
         content: `
@@ -296,7 +297,7 @@ window.LOCAL_ARTICLES = [
         created_at: '2024-07-15T10:00:00Z',
         content: `
             <h2>Réparation air climatisé sur les voitures</h2>
-            <p>Voici des raisons de choisir de bons systèmes de réparation pour votre air climatisé automobile. Un système de climatisation automobile défaillant n'est pas qu'un simple inconfort — il peut affecter votre sécurité et la valeur de revente de votre véhicule.</p>
+            <p>Voici des raisons de choisir de bons systèmes de réparation pour votre air climatisé automobile. Un système de climatisation automobile défaillant n'est pas qu'un simple inconfort, il peut affecter votre sécurité et la valeur de revente de votre véhicule.</p>
 
             <h2>Voici des raisons de choisir de bons systèmes de réparations :</h2>
             <ul>
@@ -347,7 +348,7 @@ window.LOCAL_ARTICLES = [
                 <li>Placez la télécommande de votre porte de garage à environ 5 cm du module HomeLink</li>
                 <li>Appuyez simultanément sur le bouton de la télécommande et sur le bouton HomeLink souhaité</li>
                 <li>Maintenez les deux boutons jusqu'à ce que le voyant HomeLink clignote rapidement</li>
-                <li>Relâchez les boutons — la programmation est enregistrée</li>
+                <li>Relâchez les boutons, la programmation est enregistrée</li>
             </ol>
 
             <h2>La configuration est terminée et votre HomeLink est maintenant prêt</h2>

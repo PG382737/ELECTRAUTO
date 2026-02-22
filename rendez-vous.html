@@ -34,13 +34,17 @@
                 <li><a href="index-v2.html#about" data-fr="À Propos" data-en="About">À Propos</a></li>
                 <li><a href="blog.html">Blog</a></li>
                 <li><a href="rendez-vous.html" class="active" data-fr="Rendez-vous" data-en="Appointment">Rendez-vous</a></li>
-                <li><a href="index-v2.html#contact" class="nav__cta" data-fr="Contact" data-en="Contact">Contact</a></li>
+                <li><a href="index-v2.html#contact" data-fr="Contact" data-en="Contact">Contact</a></li>
             </ul>
             <div class="nav__actions">
-                <button class="theme-toggle" id="theme-toggle" aria-label="Changer le thème">
-                    <svg class="theme-toggle__icon theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                    <svg class="theme-toggle__icon theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                </button>
+                <div class="theme-toggle" id="theme-toggle" role="switch" aria-label="Changer le thème">
+                    <span class="theme-toggle__opt theme-toggle__opt--sun">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    </span>
+                    <span class="theme-toggle__opt theme-toggle__opt--moon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    </span>
+                </div>
                 <div class="lang" role="group">
                     <button class="lang__btn active" id="btn-fr" onclick="setLang('fr')">FR</button>
                     <button class="lang__btn" id="btn-en" onclick="setLang('en')">EN</button>
@@ -195,7 +199,7 @@
                         <label class="appt-upload__area" id="upload-area">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
                             <span data-fr="Ajouter des photos (optionnel)" data-en="Add photos (optional)">Ajouter des photos (optionnel)</span>
-                            <small data-fr="Cliquez ou glissez vos fichiers ici — max 5 photos" data-en="Click or drag files here — max 5 photos">Cliquez ou glissez vos fichiers ici — max 5 photos</small>
+                            <small data-fr="Cliquez ou glissez vos fichiers ici - max 5 photos" data-en="Click or drag files here - max 5 photos">Cliquez ou glissez vos fichiers ici - max 5 photos</small>
                         </label>
                         <input type="file" id="photo-input" name="photos" accept="image/*" multiple style="display:none">
                         <div class="appt-upload__preview" id="photo-preview"></div>
@@ -290,7 +294,7 @@
                 </div>
             </div>
             <div class="footer__bottom">
-                <p>&copy; 2026 Électr'auto Québec — <span data-fr="Tous droits réservés" data-en="All rights reserved">Tous droits réservés</span></p>
+                <p>&copy; 2026 Électr'auto Québec <span data-fr="Tous droits réservés" data-en="All rights reserved">Tous droits réservés</span></p>
                 <a href="admin.html" class="footer__admin">Admin</a>
             </div>
         </div>

@@ -41,7 +41,7 @@ exports.handler = async (event) => {
                 from: 'Électr\'auto Site Web <onboarding@resend.dev>',
                 to: [CONTACT_EMAIL],
                 reply_to: email,
-                subject: `Nouveau message de ${name} — Électr'auto`,
+                subject: `Nouveau message de ${name} - Électr'auto`,
                 html: `
                     <h2>Nouveau message du site web</h2>
                     <table style="border-collapse:collapse; margin-top:16px;">

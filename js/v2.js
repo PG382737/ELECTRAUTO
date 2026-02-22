@@ -29,10 +29,16 @@
 
     // ---- Theme Toggle (dark/light) ----
     var themeBtn = document.getElementById('theme-toggle');
+    var themeBtnMenu = document.getElementById('theme-toggle-menu');
 
     function setTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
         try { localStorage.setItem('electrauto-theme', theme); } catch(e) {}
+    }
+
+    function toggleTheme() {
+        var current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'light' ? 'dark' : 'light');
     }
 
     // Init theme from saved preference
@@ -41,12 +47,8 @@
         if (savedTheme) setTheme(savedTheme);
     } catch(e) {}
 
-    if (themeBtn) {
-        themeBtn.addEventListener('click', function() {
-            var current = document.documentElement.getAttribute('data-theme');
-            setTheme(current === 'light' ? 'dark' : 'light');
-        });
-    }
+    if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
+    if (themeBtnMenu) themeBtnMenu.addEventListener('click', toggleTheme);
 
     // ---- Navbar scroll ----
     var nav = document.getElementById('nav');
@@ -118,19 +120,22 @@
         });
 
         if (!wasExpanded) {
-            // Expand this card — hide others, go fullwidth
             card.classList.add('expanded');
             servicesGrid.classList.add('has-expanded');
-        } else {
-            // Closing — show all cards again
-            servicesGrid.classList.remove('has-expanded');
-        }
 
-        // Restore scroll so the section stays at same viewport position (no jump)
-        var newAnchorTop = anchor.getBoundingClientRect().top;
-        var drift = newAnchorTop - anchorTop;
-        if (Math.abs(drift) > 1) {
-            window.scrollBy(0, drift);
+            // Scroll the expanded card into view smoothly
+            var navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 72;
+            var cardTop = card.getBoundingClientRect().top + window.scrollY - navH - 20;
+            window.scrollTo({ top: cardTop, behavior: 'smooth' });
+        } else {
+            servicesGrid.classList.remove('has-expanded');
+
+            // Restore scroll so the section stays at same viewport position
+            var newAnchorTop = anchor.getBoundingClientRect().top;
+            var drift = newAnchorTop - anchorTop;
+            if (Math.abs(drift) > 1) {
+                window.scrollBy(0, drift);
+            }
         }
     };
 
@@ -198,8 +203,9 @@
                     { year: 'numeric', month: 'long', day: 'numeric' }
                 );
 
+                var logoHtml = a.logo_overlay ? '<span class="blog-card-logo">ELECTR<span class="o">&#8217;</span>AUTO</span>' : '';
                 card.innerHTML =
-                    (a.image_url ? '<img class="blog-card-image" src="' + a.image_url + '" alt="">' : '<div class="blog-card-image"></div>') +
+                    (a.image_url ? '<div class="blog-card-img' + (a.logo_overlay ? ' blog-card-img--logo' : '') + '"><img class="blog-card-image" src="' + a.image_url + '" alt="">' + logoHtml + '</div>' : '<div class="blog-card-image"></div>') +
                     '<div class="blog-card-body">' +
                         '<div class="blog-card-date">' + date + '</div>' +
                         '<div class="blog-card-title">' + a.title + '</div>' +
@@ -213,10 +219,10 @@
 
     if (blogPreview) {
         if (typeof supabase !== 'undefined' && supabase.url !== 'YOUR_SUPABASE_URL') {
-            supabase.getArticles(3, 0).then(renderBlogPreview).catch(function() {});
+            supabase.getArticles(4, 0).then(renderBlogPreview).catch(function() {});
         } else if (typeof window.LOCAL_ARTICLES !== 'undefined') {
             var localPublished = window.LOCAL_ARTICLES.filter(function(a) { return a.published; });
-            renderBlogPreview(localPublished.slice(0, 3));
+            renderBlogPreview(localPublished.slice(0, 4));
         }
     }
 
