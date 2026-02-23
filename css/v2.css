@@ -127,6 +127,10 @@ img { max-width:100%; height:auto; display:block; }
     color: var(--text);
 }
 
+.nav__shortcut.active {
+    color: var(--accent);
+}
+
 /* Duplicate items shown only inside mobile burger */
 /* Hidden only on tablet where shortcuts are visible */
 
