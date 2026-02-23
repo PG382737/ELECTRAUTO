@@ -68,10 +68,10 @@ exports.handler = async (event) => {
                             <td style="padding:8px 16px 8px 0; font-weight:bold; color:#666;">Courriel</td>
                             <td style="padding:8px 0;"><a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></td>
                         </tr>
-                        ${phone ? `<tr>
+                        <tr>
                             <td style="padding:8px 16px 8px 0; font-weight:bold; color:#666;">Téléphone</td>
-                            <td style="padding:8px 0;">${escapeHtml(phone)}</td>
-                        </tr>` : ''}
+                            <td style="padding:8px 0;">${phone ? escapeHtml(phone) : 'Aucun'}</td>
+                        </tr>
                         <tr>
                             <td style="padding:8px 16px 8px 0; font-weight:bold; color:#666; vertical-align:top;">Message</td>
                             <td style="padding:8px 0;">${escapeHtml(message).replace(/\n/g, '<br>')}</td>
