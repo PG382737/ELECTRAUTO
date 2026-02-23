@@ -972,7 +972,7 @@ img { max-width:100%; height:auto; display:block; }
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
-    padding: 48px 0;
+    padding: 0 0 48px;
 }
 
 .blog-empty {
