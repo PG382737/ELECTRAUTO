@@ -238,13 +238,13 @@ html, body {
     padding: 24px 20px;
     font-size: 1.2rem;
     font-weight: 800;
-    letter-spacing: 1.5px;
     border-bottom: 1px solid var(--border);
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 10px;
 }
-.sidebar__brand span { color: var(--accent); }
+.sidebar__brand .sidebar__logo { color: var(--text); letter-spacing: 1.5px; }
+.sidebar__brand .sidebar__logo span { color: var(--accent); }
 .sidebar__brand small {
     font-size: 0.65rem;
     font-weight: 600;
@@ -313,7 +313,6 @@ html, body {
 .tab__desc {
     color: var(--text-muted);
     margin-bottom: 28px;
-    max-width: 600px;
     line-height: 1.6;
 }
 
