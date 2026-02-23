@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 </head>
 <body>
 
@@ -258,6 +259,34 @@
         </div>
     </div>
 
+    <!-- ===== CROP MODAL ===== -->
+    <div class="modal-overlay" id="crop-modal">
+        <div class="modal modal--crop">
+            <div class="modal__header">
+                <h2>Recadrer l'image</h2>
+                <button class="modal__close" id="crop-close">&times;</button>
+            </div>
+            <div class="modal__body crop-body">
+                <div class="crop-container">
+                    <img id="crop-image" src="" alt="Crop">
+                </div>
+                <div class="crop-controls">
+                    <div class="crop-ratios">
+                        <button class="crop-ratio active" data-ratio="1.777">16:9</button>
+                        <button class="crop-ratio" data-ratio="1.333">4:3</button>
+                        <button class="crop-ratio" data-ratio="1">1:1</button>
+                        <button class="crop-ratio" data-ratio="0">Libre</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal__footer">
+                <button class="btn btn--ghost" id="crop-cancel">Annuler</button>
+                <button class="btn btn--primary" id="crop-confirm">Recadrer</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
     <script src="js/admin.js"></script>
 </body>
 </html>

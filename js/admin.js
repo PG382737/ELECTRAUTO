@@ -408,25 +408,96 @@ document.querySelectorAll('.tb-btn').forEach(function(btn) {
     });
 });
 
-// ---- Image Upload ----
-document.getElementById('image-file').addEventListener('change', async function(e) {
+// ---- Image Upload with Crop ----
+var cropperInstance = null;
+var cropFilename = '';
+
+document.getElementById('image-file').addEventListener('change', function(e) {
     var file = e.target.files[0];
     if (!file) return;
 
-    var preview = document.getElementById('image-preview');
-    var uploadArea = document.getElementById('image-upload');
+    cropFilename = file.name;
 
-    // Show preview immediately
+    // Read file and open crop modal
     var reader = new FileReader();
     reader.onload = function(ev) {
-        preview.innerHTML = '<img src="' + ev.target.result + '" alt="Preview">';
-        uploadArea.classList.add('has-image');
+        openCropModal(ev.target.result);
     };
     reader.readAsDataURL(file);
 
-    // Upload to server
+    // Reset file input so same file can be re-selected
+    e.target.value = '';
+});
+
+function openCropModal(imageSrc) {
+    var modal = document.getElementById('crop-modal');
+    var img = document.getElementById('crop-image');
+
+    img.src = imageSrc;
+    modal.classList.add('active');
+
+    // Reset ratio buttons
+    document.querySelectorAll('.crop-ratio').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelector('.crop-ratio[data-ratio="1.777"]').classList.add('active');
+
+    // Destroy previous instance if any
+    if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+
+    // Initialize Cropper after image loads
+    img.onload = function() {
+        cropperInstance = new Cropper(img, {
+            aspectRatio: 16 / 9,
+            viewMode: 1,
+            dragMode: 'move',
+            autoCropArea: 0.9,
+            responsive: true,
+            background: false
+        });
+    };
+}
+
+function closeCropModal() {
+    var modal = document.getElementById('crop-modal');
+    modal.classList.remove('active');
+    if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+}
+
+// Aspect ratio buttons
+document.querySelectorAll('.crop-ratio').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.crop-ratio').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        var ratio = parseFloat(btn.dataset.ratio);
+        if (cropperInstance) {
+            cropperInstance.setAspectRatio(ratio === 0 ? NaN : ratio);
+        }
+    });
+});
+
+// Confirm crop
+document.getElementById('crop-confirm').addEventListener('click', async function() {
+    if (!cropperInstance) return;
+
+    var confirmBtn = document.getElementById('crop-confirm');
+    confirmBtn.disabled = true;
+    confirmBtn.classList.add('btn-loading');
+
     try {
-        var base64 = await fileToBase64(file);
+        var canvas = cropperInstance.getCroppedCanvas({
+            maxWidth: 1600,
+            maxHeight: 1200,
+            imageSmoothingQuality: 'high'
+        });
+
+        // Show preview in article modal
+        var preview = document.getElementById('image-preview');
+        var uploadArea = document.getElementById('image-upload');
+        preview.innerHTML = '<img src="' + canvas.toDataURL() + '" alt="Preview">';
+        uploadArea.classList.add('has-image');
+
+        // Convert canvas to base64 and upload
+        var base64 = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
+
         var res = await fetch('/api/upload-image', {
             method: 'POST',
             headers: {
@@ -435,27 +506,27 @@ document.getElementById('image-file').addEventListener('change', async function(
             },
             body: JSON.stringify({
                 data: base64,
-                filename: file.name,
-                contentType: file.type
+                filename: cropFilename.replace(/\.[^.]+$/, '.jpg'),
+                contentType: 'image/jpeg'
             })
         });
 
         if (!res.ok) throw new Error('Upload failed');
         var result = await res.json();
         document.getElementById('edit-image-url').value = result.url;
+
+        closeCropModal();
     } catch(err) {
         alert('Erreur upload: ' + err.message);
+    } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.classList.remove('btn-loading');
     }
 });
 
-function fileToBase64(file) {
-    return new Promise(function(resolve, reject) {
-        var reader = new FileReader();
-        reader.onload = function() { resolve(reader.result.split(',')[1]); };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-}
+// Cancel crop
+document.getElementById('crop-cancel').addEventListener('click', closeCropModal);
+document.getElementById('crop-close').addEventListener('click', closeCropModal);
 
 // ---- Save Article ----
 document.getElementById('btn-save').addEventListener('click', async function() {
