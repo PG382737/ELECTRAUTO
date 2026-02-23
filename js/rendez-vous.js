@@ -42,12 +42,13 @@
         if (savedTheme) setTheme(savedTheme);
     } catch(e) {}
 
-    if (themeBtn) {
-        themeBtn.addEventListener('click', function() {
-            var current = document.documentElement.getAttribute('data-theme');
-            setTheme(current === 'light' ? 'dark' : 'light');
-        });
+    function toggleTheme() {
+        var current = document.documentElement.getAttribute('data-theme');
+        setTheme(current === 'light' ? 'dark' : 'light');
     }
+    if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
+    var themeBtnMenu = document.getElementById('theme-toggle-menu');
+    if (themeBtnMenu) themeBtnMenu.addEventListener('click', toggleTheme);
 
     // ---- Navbar scroll ----
     var nav = document.getElementById('nav');

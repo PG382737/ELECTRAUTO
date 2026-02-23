@@ -35,12 +35,13 @@ document.addEventListener('DOMContentLoaded', function() {
         var savedTheme = localStorage.getItem('electrauto-theme');
         if (savedTheme) applyTheme(savedTheme);
     } catch(e) {}
-    if (themeToggle) {
-        themeToggle.addEventListener('click', function() {
-            var current = document.documentElement.getAttribute('data-theme');
-            applyTheme(current === 'light' ? 'dark' : 'light');
-        });
+    function toggleTheme() {
+        var current = document.documentElement.getAttribute('data-theme');
+        applyTheme(current === 'light' ? 'dark' : 'light');
     }
+    if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
+    var themeToggleMenu = document.getElementById('theme-toggle-menu');
+    if (themeToggleMenu) themeToggleMenu.addEventListener('click', toggleTheme);
 
     // ---- Burger Menu ----
     var burger = document.getElementById('burger');
