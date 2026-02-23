@@ -3074,3 +3074,19 @@ a.contact__item--phone:hover .contact__arrow {
         padding: 48px 20px;
     }
 }
+
+@media (max-width: 400px) {
+    .appt-toggle {
+        flex-direction: column;
+    }
+
+    .appt-toggle__btn:first-child {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .appt-pref {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
