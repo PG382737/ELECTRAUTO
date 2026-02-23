@@ -2787,21 +2787,7 @@ a.contact__item--phone:hover .contact__arrow {
 }
 
 [data-theme="light"] .appt-hero__bg {
-    background:
-        radial-gradient(circle 3px at 5% 25%, rgba(207,138,46,0.6) 0%, transparent 100%),
-        radial-gradient(circle 4px at 18% 12%, rgba(207,138,46,0.55) 0%, transparent 100%),
-        radial-gradient(circle 3px at 30% 35%, rgba(207,138,46,0.45) 0%, transparent 100%),
-        radial-gradient(circle 5px at 45% 8%, rgba(207,138,46,0.6) 0%, transparent 100%),
-        radial-gradient(circle 3px at 58% 28%, rgba(207,138,46,0.55) 0%, transparent 100%),
-        radial-gradient(circle 4px at 72% 15%, rgba(207,138,46,0.45) 0%, transparent 100%),
-        radial-gradient(circle 3px at 85% 30%, rgba(207,138,46,0.55) 0%, transparent 100%),
-        radial-gradient(circle 4px at 92% 10%, rgba(207,138,46,0.6) 0%, transparent 100%),
-        radial-gradient(circle 3px at 12% 45%, rgba(207,138,46,0.4) 0%, transparent 100%),
-        radial-gradient(circle 4px at 38% 50%, rgba(207,138,46,0.3) 0%, transparent 100%),
-        radial-gradient(circle 3px at 65% 48%, rgba(207,138,46,0.35) 0%, transparent 100%),
-        radial-gradient(circle 4px at 80% 42%, rgba(207,138,46,0.4) 0%, transparent 100%),
-        radial-gradient(circle 3px at 95% 38%, rgba(207,138,46,0.45) 0%, transparent 100%),
-        radial-gradient(ellipse 90% 60% at 50% 0%, rgba(207,138,46,0.12) 0%, transparent 55%);
+    display: none;
 }
 
 [data-theme="light"] .appt-hero + .section {
