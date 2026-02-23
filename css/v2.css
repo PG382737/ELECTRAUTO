@@ -128,7 +128,8 @@ img { max-width:100%; height:auto; display:block; }
 }
 
 .nav__shortcut.active {
-    color: var(--accent);
+    color: var(--text);
+    font-weight: 600;
 }
 
 /* Duplicate items shown only inside mobile burger */
