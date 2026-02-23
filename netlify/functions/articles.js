@@ -105,13 +105,20 @@ exports.handler = async (event) => {
             }
 
             const body = JSON.parse(event.body);
-            const slug = slugify(body.title) + '-' + Date.now().toString(36);
+            const titleFr = body.title_fr || body.title || '';
+            const slug = slugify(titleFr) + '-' + Date.now().toString(36);
 
             const article = {
-                title: body.title,
+                title: titleFr,
+                title_fr: titleFr,
+                title_en: body.title_en || '',
                 slug: slug,
-                content: body.content,
-                excerpt: body.excerpt || '',
+                content: body.content_fr || body.content || '',
+                content_fr: body.content_fr || body.content || '',
+                content_en: body.content_en || '',
+                excerpt: body.excerpt_fr || body.excerpt || '',
+                excerpt_fr: body.excerpt_fr || body.excerpt || '',
+                excerpt_en: body.excerpt_en || '',
                 image_url: body.image_url || null,
                 published: body.published || false
             };
@@ -137,10 +144,17 @@ exports.handler = async (event) => {
                 return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing article id' }) };
             }
 
+            const titleFr = body.title_fr || body.title || '';
             const updates = {
-                title: body.title,
-                content: body.content,
-                excerpt: body.excerpt || '',
+                title: titleFr,
+                title_fr: titleFr,
+                title_en: body.title_en || '',
+                content: body.content_fr || body.content || '',
+                content_fr: body.content_fr || body.content || '',
+                content_en: body.content_en || '',
+                excerpt: body.excerpt_fr || body.excerpt || '',
+                excerpt_fr: body.excerpt_fr || body.excerpt || '',
+                excerpt_en: body.excerpt_en || '',
                 image_url: body.image_url || null,
                 published: body.published,
                 updated_at: new Date().toISOString()

@@ -1,5 +1,5 @@
 // ============================================
-// ELECTRAUTO - Admin Panel JavaScript
+// ELECTRAUTO — Admin Panel JavaScript
 // ============================================
 
 var adminPassword = '';
@@ -15,32 +15,27 @@ async function sha256(str) {
 }
 
 // ---- Login ----
-window.adminLogin = async function(e) {
+document.getElementById('login-form').addEventListener('submit', async function(e) {
     e.preventDefault();
-    var input = document.getElementById('admin-pwd');
+    var input = document.getElementById('login-pwd');
     var hash = await sha256(input.value);
 
     if (hash === PASSWORD_HASH) {
         adminPassword = input.value;
-        document.getElementById('admin-login').style.display = 'none';
-        document.getElementById('admin-dashboard').style.display = 'block';
-        // Also set preview access
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'flex';
         try { sessionStorage.setItem('electrauto-preview', 'true'); } catch(ex) {}
         loadArticles();
+        loadDelays();
     } else {
         input.classList.add('error');
         input.value = '';
         setTimeout(function() { input.classList.remove('error'); }, 500);
     }
-};
+});
 
 // ---- API Helper ----
-async function api(method, params, body) {
-    var url = '/api/articles';
-    if (params) {
-        url += '?' + new URLSearchParams(params).toString();
-    }
-
+async function api(method, url, body) {
     var options = {
         method: method,
         headers: {
@@ -48,10 +43,7 @@ async function api(method, params, body) {
             'Authorization': 'Bearer ' + adminPassword
         }
     };
-
-    if (body) {
-        options.body = JSON.stringify(body);
-    }
+    if (body) options.body = JSON.stringify(body);
 
     var res = await fetch(url, options);
     if (!res.ok) {
@@ -61,90 +53,157 @@ async function api(method, params, body) {
     return res.json();
 }
 
-// ---- Load Articles ----
+// ============================================
+// SIDEBAR TABS
+// ============================================
+document.querySelectorAll('.sidebar__link[data-tab]').forEach(function(link) {
+    link.addEventListener('click', function() {
+        document.querySelectorAll('.sidebar__link[data-tab]').forEach(function(l) { l.classList.remove('active'); });
+        document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+        link.classList.add('active');
+        document.getElementById('tab-' + link.dataset.tab).classList.add('active');
+    });
+});
+
+// ============================================
+// BLOG — ARTICLES
+// ============================================
+
 async function loadArticles() {
     var container = document.getElementById('articles-container');
 
     try {
-        var articles = await api('GET', { all: 'true' });
+        var articles = await api('GET', '/api/articles?all=true');
 
         if (!articles || articles.length === 0) {
             container.innerHTML =
-                '<div class="admin-empty">' +
-                    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V9a2 2 0 012-2h2a2 2 0 012 2v9a2 2 0 01-2 2h-2z"/></svg>' +
-                    '<h3>Aucun article</h3>' +
-                    '<p>Créez votre premier article en cliquant sur "Nouvel article".</p>' +
+                '<div class="empty-state">' +
+                    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+                    '<p>Aucun article. Cliquez sur «&nbsp;Nouvel article&nbsp;» pour commencer.</p>' +
                 '</div>';
             return;
         }
 
         var html = '<table class="articles-table"><thead><tr>' +
-            '<th>Titre</th><th>Date</th><th>Statut</th><th>Actions</th>' +
+            '<th>Titre</th><th>Date</th><th>Statut</th><th style="text-align:right;">Actions</th>' +
             '</tr></thead><tbody>';
 
         articles.forEach(function(a) {
             var date = new Date(a.created_at).toLocaleDateString('fr-CA', {
                 year: 'numeric', month: 'short', day: 'numeric'
             });
-            var statusClass = a.published ? 'article-status--published' : 'article-status--draft';
-            var statusText = a.published ? 'Publié' : 'Brouillon';
+            var isPub = a.published;
+            var badgeClass = isPub ? 'badge-status--published' : 'badge-status--draft';
+            var badgeText = isPub ? 'Publié' : 'Brouillon';
 
             html += '<tr>' +
-                '<td><strong>' + escapeHtml(a.title) + '</strong></td>' +
-                '<td>' + date + '</td>' +
-                '<td><span class="article-status ' + statusClass + '">' + statusText + '</span></td>' +
-                '<td><div class="table-actions">' +
-                    '<button class="admin-btn admin-btn--outline" onclick="editArticle(\'' + a.id + '\')">Modifier</button>' +
-                    '<button class="admin-btn admin-btn--danger" onclick="confirmDelete(\'' + a.id + '\')">Supprimer</button>' +
+                '<td class="col-title">' + escapeHtml(a.title || a.title_fr || '') + '</td>' +
+                '<td class="col-date">' + date + '</td>' +
+                '<td><span class="badge-status ' + badgeClass + '">' + badgeText + '</span></td>' +
+                '<td><div class="col-actions">' +
+                    '<button class="btn btn--ghost btn--sm" onclick="editArticle(\'' + a.id + '\')">Modifier</button>' +
+                    '<button class="btn btn--danger btn--sm" onclick="confirmDelete(\'' + a.id + '\')">Supprimer</button>' +
                 '</div></td>' +
                 '</tr>';
         });
 
         html += '</tbody></table>';
         container.innerHTML = html;
-
-        // Store articles for editing
         window._articles = articles;
 
     } catch(e) {
         container.innerHTML =
-            '<div class="admin-empty">' +
-                '<h3>Erreur de chargement</h3>' +
-                '<p>' + escapeHtml(e.message) + '</p>' +
+            '<div class="empty-state">' +
+                '<p>Erreur: ' + escapeHtml(e.message) + '</p>' +
             '</div>';
     }
 }
 
 // ---- Article Modal ----
-window.openArticleModal = function(article) {
-    document.getElementById('article-modal').classList.add('active');
+var articleModal = document.getElementById('article-modal');
+
+document.getElementById('btn-new-article').addEventListener('click', function() {
+    openArticleModal(null);
+});
+
+function openArticleModal(article) {
+    articleModal.classList.add('active');
     document.getElementById('modal-title').textContent = article ? 'Modifier l\'article' : 'Nouvel article';
     document.getElementById('edit-id').value = article ? article.id : '';
-    document.getElementById('edit-title').value = article ? article.title : '';
-    document.getElementById('edit-excerpt').value = article ? (article.excerpt || '') : '';
-    document.getElementById('edit-content').innerHTML = article ? article.content : '';
+
+    // FR fields
+    document.getElementById('edit-title-fr').value = article ? (article.title_fr || article.title || '') : '';
+    document.getElementById('edit-excerpt-fr').value = article ? (article.excerpt_fr || article.excerpt || '') : '';
+    document.getElementById('edit-content-fr').innerHTML = article ? (article.content_fr || article.content || '') : '';
+
+    // EN fields
+    document.getElementById('edit-title-en').value = article ? (article.title_en || '') : '';
+    document.getElementById('edit-excerpt-en').value = article ? (article.excerpt_en || '') : '';
+    document.getElementById('edit-content-en').innerHTML = article ? (article.content_en || '') : '';
+
+    // Shared fields
     document.getElementById('edit-status').value = article ? (article.published ? 'published' : 'draft') : 'draft';
     document.getElementById('edit-image-url').value = article ? (article.image_url || '') : '';
 
     // Image preview
     var preview = document.getElementById('image-preview');
+    var upload = document.getElementById('image-upload');
     if (article && article.image_url) {
         preview.innerHTML = '<img src="' + article.image_url + '" alt="Preview">';
-        document.getElementById('image-upload').classList.add('has-image');
+        upload.classList.add('has-image');
     } else {
         preview.innerHTML =
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:40px;height:40px;color:var(--gray-400);margin-bottom:8px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>' +
-            '<p>Cliquer pour ajouter une image</p>';
-        document.getElementById('image-upload').classList.remove('has-image');
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;opacity:.4;margin-bottom:6px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>' +
+            '<span>Cliquer pour ajouter</span>';
+        upload.classList.remove('has-image');
     }
 
-    // Reset file input
+    // Reset file input and switch to FR tab
     document.getElementById('image-file').value = '';
-};
+    switchLangTab('fr');
+}
 
-window.closeArticleModal = function() {
-    document.getElementById('article-modal').classList.remove('active');
-};
+function closeArticleModal() {
+    articleModal.classList.remove('active');
+}
+
+document.getElementById('modal-close').addEventListener('click', closeArticleModal);
+document.getElementById('btn-cancel').addEventListener('click', closeArticleModal);
+articleModal.addEventListener('click', function(e) {
+    if (e.target === articleModal) closeArticleModal();
+});
+
+// ---- Language Tabs ----
+document.querySelectorAll('.lang-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+        switchLangTab(tab.dataset.lang);
+    });
+});
+
+function switchLangTab(lang) {
+    document.querySelectorAll('.lang-tab').forEach(function(t) {
+        t.classList.toggle('active', t.dataset.lang === lang);
+    });
+    document.querySelectorAll('.lang-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.getElementById('panel-' + lang).classList.add('active');
+}
+
+// ---- Rich Text Toolbar ----
+document.querySelectorAll('.tb-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var cmd = btn.dataset.cmd;
+        var val = btn.dataset.val || null;
+
+        if (cmd === 'createLink') {
+            var url = prompt('URL du lien:');
+            if (url) document.execCommand('createLink', false, url);
+        } else if (cmd === 'formatBlock') {
+            document.execCommand('formatBlock', false, '<' + val + '>');
+        } else {
+            document.execCommand(cmd, false, val);
+        }
+    });
+});
 
 // ---- Image Upload ----
 document.getElementById('image-file').addEventListener('change', async function(e) {
@@ -156,8 +215,8 @@ document.getElementById('image-file').addEventListener('change', async function(
 
     // Show preview immediately
     var reader = new FileReader();
-    reader.onload = function(e) {
-        preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
+    reader.onload = function(ev) {
+        preview.innerHTML = '<img src="' + ev.target.result + '" alt="Preview">';
         uploadArea.classList.add('has-image');
     };
     reader.readAsDataURL(file);
@@ -165,7 +224,6 @@ document.getElementById('image-file').addEventListener('change', async function(
     // Upload to server
     try {
         var base64 = await fileToBase64(file);
-
         var res = await fetch('/api/upload-image', {
             method: 'POST',
             headers: {
@@ -182,119 +240,93 @@ document.getElementById('image-file').addEventListener('change', async function(
         if (!res.ok) throw new Error('Upload failed');
         var result = await res.json();
         document.getElementById('edit-image-url').value = result.url;
-
     } catch(err) {
-        alert('Erreur lors de l\'upload: ' + err.message);
+        alert('Erreur upload: ' + err.message);
     }
 });
 
 function fileToBase64(file) {
     return new Promise(function(resolve, reject) {
         var reader = new FileReader();
-        reader.onload = function() {
-            // Remove data:...;base64, prefix
-            var base64 = reader.result.split(',')[1];
-            resolve(base64);
-        };
+        reader.onload = function() { resolve(reader.result.split(',')[1]); };
         reader.onerror = reject;
         reader.readAsDataURL(file);
     });
 }
 
-// ---- Rich Text Commands ----
-window.execCmd = function(cmd, value) {
-    if (cmd === 'formatBlock') {
-        document.execCommand('formatBlock', false, '<' + value + '>');
-    } else {
-        document.execCommand(cmd, false, value || null);
-    }
-    document.getElementById('edit-content').focus();
-};
-
-window.insertLink = function() {
-    var url = prompt('URL du lien:');
-    if (url) {
-        document.execCommand('createLink', false, url);
-    }
-};
-
 // ---- Save Article ----
-window.saveArticle = async function() {
-    var title = document.getElementById('edit-title').value.trim();
-    var content = document.getElementById('edit-content').innerHTML.trim();
-    var excerpt = document.getElementById('edit-excerpt').value.trim();
-    var imageUrl = document.getElementById('edit-image-url').value;
-    var published = document.getElementById('edit-status').value === 'published';
-    var id = document.getElementById('edit-id').value;
+document.getElementById('btn-save').addEventListener('click', async function() {
+    var titleFr = document.getElementById('edit-title-fr').value.trim();
+    var contentFr = document.getElementById('edit-content-fr').innerHTML.trim();
 
-    if (!title) {
-        alert('Le titre est requis.');
-        return;
-    }
+    if (!titleFr) { alert('Le titre français est requis.'); return; }
+    if (!contentFr) { alert('Le contenu français est requis.'); return; }
 
-    if (!content) {
-        alert('Le contenu est requis.');
-        return;
-    }
-
-    var btn = document.getElementById('save-btn');
+    var btn = document.getElementById('btn-save');
     btn.disabled = true;
     btn.textContent = 'Sauvegarde...';
 
     try {
         var data = {
-            title: title,
-            content: content,
-            excerpt: excerpt,
-            image_url: imageUrl || null,
-            published: published
+            title_fr: titleFr,
+            excerpt_fr: document.getElementById('edit-excerpt-fr').value.trim(),
+            content_fr: contentFr,
+            title_en: document.getElementById('edit-title-en').value.trim(),
+            excerpt_en: document.getElementById('edit-excerpt-en').value.trim(),
+            content_en: document.getElementById('edit-content-en').innerHTML.trim(),
+            image_url: document.getElementById('edit-image-url').value || null,
+            published: document.getElementById('edit-status').value === 'published'
         };
 
+        var id = document.getElementById('edit-id').value;
         if (id) {
             data.id = id;
-            await api('PUT', null, data);
+            await api('PUT', '/api/articles', data);
         } else {
-            await api('POST', null, data);
+            await api('POST', '/api/articles', data);
         }
 
         closeArticleModal();
         loadArticles();
-
     } catch(e) {
         alert('Erreur: ' + e.message);
     }
 
     btn.disabled = false;
     btn.textContent = 'Sauvegarder';
-};
+});
 
 // ---- Edit Article ----
 window.editArticle = function(id) {
     var articles = window._articles || [];
-    var article = articles.find(function(a) { return a.id === id; });
-    if (article) {
-        openArticleModal(article);
-    }
+    var article = articles.find(function(a) { return a.id == id; });
+    if (article) openArticleModal(article);
 };
 
 // ---- Delete Article ----
 var deleteTargetId = null;
+var confirmModal = document.getElementById('confirm-modal');
 
 window.confirmDelete = function(id) {
     deleteTargetId = id;
-    document.getElementById('confirm-dialog').classList.add('active');
+    confirmModal.classList.add('active');
 };
 
-window.closeConfirm = function() {
+function closeConfirm() {
     deleteTargetId = null;
-    document.getElementById('confirm-dialog').classList.remove('active');
-};
+    confirmModal.classList.remove('active');
+}
 
-document.getElementById('confirm-delete-btn').addEventListener('click', async function() {
+document.getElementById('confirm-close').addEventListener('click', closeConfirm);
+document.getElementById('btn-cancel-delete').addEventListener('click', closeConfirm);
+confirmModal.addEventListener('click', function(e) {
+    if (e.target === confirmModal) closeConfirm();
+});
+
+document.getElementById('btn-confirm-delete').addEventListener('click', async function() {
     if (!deleteTargetId) return;
-
     try {
-        await api('DELETE', { id: deleteTargetId });
+        await api('DELETE', '/api/articles?id=' + deleteTargetId);
         closeConfirm();
         loadArticles();
     } catch(e) {
@@ -303,16 +335,62 @@ document.getElementById('confirm-delete-btn').addEventListener('click', async fu
     }
 });
 
-// ---- Close modals on overlay click ----
-document.getElementById('article-modal').addEventListener('click', function(e) {
-    if (e.target === this) closeArticleModal();
+// ============================================
+// DELAYS
+// ============================================
+
+async function loadDelays() {
+    try {
+        var data = await api('GET', '/api/delays');
+        if (data.service) selectDelay('delay-service', data.service);
+        if (data.repair) selectDelay('delay-repair', data.repair);
+    } catch(e) {
+        // No delays saved yet — that's fine
+    }
+}
+
+function selectDelay(containerId, value) {
+    var container = document.getElementById(containerId);
+    container.querySelectorAll('.delay-opt').forEach(function(btn) {
+        btn.classList.toggle('active', btn.dataset.value === value);
+    });
+}
+
+// Click handlers for delay buttons
+document.querySelectorAll('.delay-options').forEach(function(container) {
+    container.addEventListener('click', function(e) {
+        var btn = e.target.closest('.delay-opt');
+        if (!btn) return;
+
+        container.querySelectorAll('.delay-opt').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+
+        saveDelays();
+    });
 });
 
-document.getElementById('confirm-dialog').addEventListener('click', function(e) {
-    if (e.target === this) closeConfirm();
-});
+async function saveDelays() {
+    var serviceBtn = document.querySelector('#delay-service .delay-opt.active');
+    var repairBtn = document.querySelector('#delay-repair .delay-opt.active');
+    var statusEl = document.getElementById('delays-status');
 
-// ---- Close modals on Escape ----
+    var data = {
+        service: serviceBtn ? serviceBtn.dataset.value : null,
+        repair: repairBtn ? repairBtn.dataset.value : null
+    };
+
+    try {
+        await api('POST', '/api/delays', data);
+        statusEl.className = 'delays-status success';
+        statusEl.textContent = 'Délais sauvegardés avec succès.';
+        setTimeout(function() { statusEl.className = 'delays-status'; }, 3000);
+    } catch(e) {
+        statusEl.className = 'delays-status error';
+        statusEl.textContent = 'Erreur: ' + e.message;
+    }
+}
+
+// ---- Escape key ----
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeArticleModal();

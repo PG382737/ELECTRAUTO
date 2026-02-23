@@ -90,15 +90,29 @@
     // ============================================
     // ADMIN-CONFIGURABLE WAIT TIMES
     // ============================================
-    var WAIT_TIMES = {
-        service: { fr: '~48 heures', en: '~48 hours' },
-        repair:  { fr: '~3-4 jours ouvrables', en: '~3-4 business days' }
+    var DELAY_LABELS = {
+        'less-24h':     { fr: 'Moins de 24 heures',  en: 'Less than 24 hours' },
+        '1-2-days':     { fr: '1 à 2 jours',         en: '1 to 2 days' },
+        '2-4-days':     { fr: '2 à 4 jours',         en: '2 to 4 days' },
+        'less-1-week':  { fr: "Moins d'une semaine",  en: 'Less than a week' },
+        '1-2-weeks':    { fr: '1 à 2 semaines',      en: '1 to 2 weeks' },
+        'less-1-month': { fr: 'Moins de 1 mois',     en: 'Less than 1 month' }
     };
 
-    try {
-        var savedWait = localStorage.getItem('electrauto-wait-times');
-        if (savedWait) WAIT_TIMES = JSON.parse(savedWait);
-    } catch(e) {}
+    var WAIT_TIMES = { service: null, repair: null };
+
+    // Fetch delays from API
+    fetch('/api/delays').then(function(res) {
+        return res.json();
+    }).then(function(data) {
+        if (data.service && DELAY_LABELS[data.service]) {
+            WAIT_TIMES.service = DELAY_LABELS[data.service];
+        }
+        if (data.repair && DELAY_LABELS[data.repair]) {
+            WAIT_TIMES.repair = DELAY_LABELS[data.repair];
+        }
+        updateWaitTimeText();
+    }).catch(function() {});
 
     // ============================================
     // FORM LOGIC
@@ -236,12 +250,15 @@
     }
 
     function updateWaitTimeText() {
-        if (!currentServiceType || !waitValue) return;
+        if (!currentServiceType || !waitValue || !waitDisplay) return;
         var lang = document.documentElement.lang || 'fr';
         var key = currentServiceType === 'repair' ? 'repair' : 'service';
         var wt = WAIT_TIMES[key];
         if (wt) {
             waitValue.textContent = wt[lang] || wt.fr;
+            waitDisplay.style.display = 'flex';
+        } else {
+            waitDisplay.style.display = 'none';
         }
     }
 

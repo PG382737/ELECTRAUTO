@@ -18,6 +18,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         try { localStorage.setItem('electrauto-lang', lang); } catch(e) {}
+
+        // Re-render article content in new language
+        if (window._currentArticle) renderArticle(window._currentArticle);
     };
 
     try {
@@ -25,28 +28,46 @@ document.addEventListener('DOMContentLoaded', function() {
         if (saved === 'en') setLang('en');
     } catch(e) {}
 
-    // ---- Hamburger ----
-    var hamburger = document.getElementById('hamburger');
-    var navMenu = document.getElementById('nav-menu');
-    if (hamburger && navMenu) {
-        hamburger.addEventListener('click', function() {
-            var isOpen = navMenu.classList.toggle('open');
-            hamburger.classList.toggle('active', isOpen);
-            hamburger.setAttribute('aria-expanded', isOpen);
+    // ---- Theme Toggle ----
+    var themeToggle = document.getElementById('theme-toggle');
+    function applyTheme(t) {
+        document.documentElement.setAttribute('data-theme', t);
+        try { localStorage.setItem('electrauto-theme', t); } catch(e) {}
+    }
+    try {
+        var savedTheme = localStorage.getItem('electrauto-theme');
+        if (savedTheme) applyTheme(savedTheme);
+    } catch(e) {}
+    function toggleTheme() {
+        var current = document.documentElement.getAttribute('data-theme');
+        applyTheme(current === 'light' ? 'dark' : 'light');
+    }
+    if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
+    var themeToggleMenu = document.getElementById('theme-toggle-menu');
+    if (themeToggleMenu) themeToggleMenu.addEventListener('click', toggleTheme);
+
+    // ---- Burger Menu ----
+    var burger = document.getElementById('burger');
+    var navLinks = document.getElementById('nav-links');
+    if (burger && navLinks) {
+        burger.addEventListener('click', function() {
+            var isOpen = navLinks.classList.toggle('open');
+            burger.classList.toggle('active', isOpen);
+            burger.setAttribute('aria-expanded', isOpen);
         });
-        navMenu.querySelectorAll('.nav-link').forEach(function(link) {
+        navLinks.querySelectorAll('a').forEach(function(link) {
             link.addEventListener('click', function() {
-                navMenu.classList.remove('open');
-                hamburger.classList.remove('active');
+                navLinks.classList.remove('open');
+                burger.classList.remove('active');
             });
         });
     }
 
     // ---- Navbar scroll ----
-    var navbar = document.getElementById('navbar');
-    if (navbar) {
+    var nav = document.getElementById('nav');
+    if (nav) {
         window.addEventListener('scroll', function() {
-            navbar.classList.toggle('scrolled', window.scrollY > 50);
+            nav.classList.toggle('scrolled', window.scrollY > 50);
         }, { passive: true });
     }
 
@@ -72,7 +93,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (typeof supabase !== 'undefined' && supabase.url !== 'YOUR_SUPABASE_URL') {
                 article = await supabase.getArticle(slug);
             } else if (typeof window.LOCAL_ARTICLES !== 'undefined') {
-                // Local fallback
                 article = window.LOCAL_ARTICLES.find(function(a) {
                     return a.slug === slug && a.published;
                 }) || null;
@@ -85,37 +105,44 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Set page title
-            document.title = article.title + ' | Électr\'auto Québec';
-
-            // Populate article
-            var lang = document.documentElement.lang || 'fr';
-            var dateStr = new Date(article.created_at).toLocaleDateString(
-                lang === 'en' ? 'en-CA' : 'fr-CA',
-                { year: 'numeric', month: 'long', day: 'numeric' }
-            );
-
-            document.getElementById('article-date').textContent = dateStr;
-            document.getElementById('article-title').textContent = article.title;
-
-            var img = document.getElementById('article-image');
-            if (article.image_url) {
-                img.src = article.image_url;
-                img.alt = article.title;
-                img.style.display = 'block';
-            }
-
-            document.getElementById('article-body').innerHTML = article.content;
+            window._currentArticle = article;
+            renderArticle(article);
 
             loading.style.display = 'none';
             content.style.display = 'block';
 
-            // Setup share buttons
             setupShare(article);
 
         } catch(e) {
             showNotFound();
         }
+    }
+
+    function renderArticle(article) {
+        var lang = document.documentElement.lang || 'fr';
+
+        // Bilingual: prefer lang-specific fields, fall back to defaults
+        var title = (lang === 'en' && article.title_en) ? article.title_en : (article.title_fr || article.title || '');
+        var articleContent = (lang === 'en' && article.content_en) ? article.content_en : (article.content_fr || article.content || '');
+
+        document.title = title + ' | Électr\'auto Québec';
+
+        var dateStr = new Date(article.created_at).toLocaleDateString(
+            lang === 'en' ? 'en-CA' : 'fr-CA',
+            { year: 'numeric', month: 'long', day: 'numeric' }
+        );
+
+        document.getElementById('article-date').textContent = dateStr;
+        document.getElementById('article-title').textContent = title;
+
+        var img = document.getElementById('article-image');
+        if (article.image_url) {
+            img.src = article.image_url;
+            img.alt = title;
+            img.style.display = 'block';
+        }
+
+        document.getElementById('article-body').innerHTML = articleContent;
     }
 
     function showNotFound() {
@@ -126,24 +153,22 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupShare(article) {
         var url = window.location.href;
 
-        // Copy link
         document.getElementById('share-copy').addEventListener('click', function() {
             navigator.clipboard.writeText(url).then(function() {
                 var btn = document.getElementById('share-copy');
                 var originalHTML = btn.innerHTML;
-                btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+                btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
                 setTimeout(function() { btn.innerHTML = originalHTML; }, 2000);
             });
         });
 
-        // Facebook
         document.getElementById('share-facebook').addEventListener('click', function() {
             window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url), '_blank', 'width=600,height=400');
         });
 
-        // X (Twitter)
         document.getElementById('share-x').addEventListener('click', function() {
-            window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(article.title), '_blank', 'width=600,height=400');
+            var title = (document.documentElement.lang === 'en' && article.title_en) ? article.title_en : (article.title_fr || article.title || '');
+            window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(title), '_blank', 'width=600,height=400');
         });
     }
 

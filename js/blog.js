@@ -114,14 +114,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     { year: 'numeric', month: 'long', day: 'numeric' }
                 );
 
+                // Bilingual support: prefer lang-specific fields, fall back to default
+                var title = (lang === 'en' && article.title_en) ? article.title_en : (article.title_fr || article.title || '');
+                var excerpt = (lang === 'en' && article.excerpt_en) ? article.excerpt_en : (article.excerpt_fr || article.excerpt || '');
+
                 card.innerHTML =
                     (article.image_url
-                        ? '<img class="blog-card-image" src="' + article.image_url + '" alt="' + escapeHtml(article.title) + '" loading="lazy">'
+                        ? '<img class="blog-card-image" src="' + article.image_url + '" alt="' + escapeHtml(title) + '" loading="lazy">'
                         : '<div class="blog-card-image"></div>') +
                     '<div class="blog-card-body">' +
                         '<div class="blog-card-date">' + dateStr + '</div>' +
-                        '<div class="blog-card-title">' + escapeHtml(article.title) + '</div>' +
-                        (article.excerpt ? '<div class="blog-card-excerpt">' + escapeHtml(article.excerpt) + '</div>' : '') +
+                        '<div class="blog-card-title">' + escapeHtml(title) + '</div>' +
+                        (excerpt ? '<div class="blog-card-excerpt">' + escapeHtml(excerpt) + '</div>' : '') +
                     '</div>';
 
                 blogList.appendChild(card);
