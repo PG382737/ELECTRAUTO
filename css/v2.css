@@ -2250,6 +2250,10 @@ a.contact__item--phone:hover .contact__arrow {
     margin: 0 auto;
 }
 
+.appt-hero--wide .wrap {
+    max-width: var(--wrap);
+}
+
 .appt-hero h1 {
     font-size: clamp(2rem, 4vw, 3rem);
     font-weight: 800;
