@@ -75,6 +75,7 @@
     // ---- Active link on scroll ----
     var sections = document.querySelectorAll('section[id]');
     var navAnchors = document.querySelectorAll('.nav__links a[href^="#"]');
+    var navShortcuts = document.querySelectorAll('.nav__shortcut[href^="#"]');
 
     window.addEventListener('scroll', function() {
         var y = window.scrollY + 120;
@@ -82,6 +83,9 @@
             if (y >= sec.offsetTop && y < sec.offsetTop + sec.offsetHeight) {
                 var id = sec.getAttribute('id');
                 navAnchors.forEach(function(a) {
+                    a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+                });
+                navShortcuts.forEach(function(a) {
                     a.classList.toggle('active', a.getAttribute('href') === '#' + id);
                 });
             }
