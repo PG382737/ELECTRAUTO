@@ -4,6 +4,8 @@
 
 var adminPassword = '';
 var PASSWORD_HASH = 'be50e4db19df4d208d3a3440926126de8806191de1818f9e251a80cab62fbb75';
+var MAX_ATTEMPTS = 5;
+var lockoutInterval = null;
 
 // ---- SHA-256 ----
 async function sha256(str) {
@@ -14,24 +16,216 @@ async function sha256(str) {
     }).join('');
 }
 
-// ---- Login ----
+// ---- Lockout helpers ----
+function getLockout() {
+    try {
+        var data = JSON.parse(localStorage.getItem('ea-lockout') || '{}');
+        return data;
+    } catch(e) { return {}; }
+}
+
+function setLockout(data) {
+    try { localStorage.setItem('ea-lockout', JSON.stringify(data)); } catch(e) {}
+}
+
+function showLockoutScreen(remainingSeconds) {
+    document.getElementById('login-form').style.display = 'none';
+    document.getElementById('tfa-form').style.display = 'none';
+    document.getElementById('lockout-screen').style.display = 'block';
+
+    updateLockoutTimer(remainingSeconds);
+
+    if (lockoutInterval) clearInterval(lockoutInterval);
+    lockoutInterval = setInterval(function() {
+        remainingSeconds--;
+        if (remainingSeconds <= 0) {
+            clearInterval(lockoutInterval);
+            lockoutInterval = null;
+            setLockout({});
+            document.getElementById('lockout-screen').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('login-attempts').textContent = '';
+            document.getElementById('login-error').textContent = '';
+        } else {
+            updateLockoutTimer(remainingSeconds);
+        }
+    }, 1000);
+}
+
+function updateLockoutTimer(secs) {
+    var m = Math.floor(secs / 60);
+    var s = secs % 60;
+    document.getElementById('lockout-timer').textContent =
+        String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}
+
+function updateAttemptsDisplay(attemptsLeft) {
+    var el = document.getElementById('login-attempts');
+    if (attemptsLeft <= 0) {
+        el.textContent = '';
+        return;
+    }
+    el.textContent = attemptsLeft + ' essai' + (attemptsLeft > 1 ? 's' : '') + ' restant' + (attemptsLeft > 1 ? 's' : '') + ' avant blocage';
+    el.className = 'login__attempts' + (attemptsLeft <= 2 ? ' danger' : attemptsLeft <= 3 ? ' warning' : '');
+}
+
+// ---- Check lockout on page load ----
+(function() {
+    var lockData = getLockout();
+    if (lockData.locked_until) {
+        var remaining = Math.ceil((new Date(lockData.locked_until) - new Date()) / 1000);
+        if (remaining > 0) {
+            showLockoutScreen(remaining);
+        } else {
+            setLockout({});
+        }
+    }
+})();
+
+// ---- Step 1: Password Login ----
 document.getElementById('login-form').addEventListener('submit', async function(e) {
     e.preventDefault();
-    var input = document.getElementById('login-pwd');
-    var hash = await sha256(input.value);
 
-    if (hash === PASSWORD_HASH) {
-        adminPassword = input.value;
+    // Client-side lockout check
+    var lockData = getLockout();
+    if (lockData.locked_until) {
+        var remaining = Math.ceil((new Date(lockData.locked_until) - new Date()) / 1000);
+        if (remaining > 0) {
+            showLockoutScreen(remaining);
+            return;
+        }
+        setLockout({});
+    }
+
+    var input = document.getElementById('login-pwd');
+    var btn = document.getElementById('login-btn');
+    var errorEl = document.getElementById('login-error');
+    errorEl.textContent = '';
+
+    var password = input.value;
+    var hash = await sha256(password);
+
+    btn.disabled = true;
+    btn.textContent = '';
+    btn.classList.add('btn-loading');
+
+    try {
+        var res = await fetch('/api/admin-auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'login', password_hash: hash })
+        });
+
+        var data = await res.json();
+
+        if (res.status === 429) {
+            // Locked out
+            var lockedUntil = new Date(Date.now() + (data.remaining_seconds || 3600) * 1000).toISOString();
+            setLockout({ locked_until: lockedUntil });
+            showLockoutScreen(data.remaining_seconds || 3600);
+            return;
+        }
+
+        if (res.status === 401) {
+            // Wrong password
+            input.classList.add('error');
+            input.value = '';
+            setTimeout(function() { input.classList.remove('error'); }, 500);
+            errorEl.textContent = data.message || 'Mot de passe incorrect.';
+            if (typeof data.attempts_left === 'number') {
+                updateAttemptsDisplay(data.attempts_left);
+                // Store locally for UI
+                setLockout({ attempts: MAX_ATTEMPTS - data.attempts_left });
+            }
+            return;
+        }
+
+        if (!res.ok) {
+            throw new Error(data.error || 'Erreur serveur');
+        }
+
+        // Password correct — show 2FA step
+        adminPassword = password;
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('tfa-form').style.display = 'block';
+        document.getElementById('tfa-code').value = '';
+        document.getElementById('tfa-code').focus();
+
+    } catch(err) {
+        errorEl.textContent = err.message || 'Erreur de connexion.';
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Accéder';
+        btn.classList.remove('btn-loading');
+    }
+});
+
+// ---- Step 2: 2FA Code Verification ----
+document.getElementById('tfa-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    var codeInput = document.getElementById('tfa-code');
+    var btn = document.getElementById('tfa-btn');
+    var errorEl = document.getElementById('tfa-error');
+    errorEl.textContent = '';
+
+    var code = codeInput.value.trim();
+    if (code.length !== 6) {
+        errorEl.textContent = 'Entrez le code à 6 chiffres.';
+        return;
+    }
+
+    var hash = await sha256(adminPassword);
+
+    btn.disabled = true;
+    btn.textContent = '';
+    btn.classList.add('btn-loading');
+
+    try {
+        var res = await fetch('/api/admin-auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'verify', code: code, password_hash: hash })
+        });
+
+        var data = await res.json();
+
+        if (!res.ok) {
+            errorEl.textContent = data.message || 'Code invalide.';
+            codeInput.value = '';
+            codeInput.focus();
+            return;
+        }
+
+        // 2FA success — enter dashboard
+        setLockout({});
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('dashboard').style.display = 'flex';
         try { sessionStorage.setItem('electrauto-preview', 'true'); } catch(ex) {}
         loadArticles();
         loadDelays();
-    } else {
-        input.classList.add('error');
-        input.value = '';
-        setTimeout(function() { input.classList.remove('error'); }, 500);
+
+    } catch(err) {
+        errorEl.textContent = err.message || 'Erreur de vérification.';
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Vérifier';
+        btn.classList.remove('btn-loading');
     }
+});
+
+// ---- 2FA: digits only ----
+document.getElementById('tfa-code').addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g, '');
+});
+
+// ---- Back button from 2FA ----
+document.getElementById('tfa-back').addEventListener('click', function() {
+    document.getElementById('tfa-form').style.display = 'none';
+    document.getElementById('login-form').style.display = 'block';
+    document.getElementById('login-pwd').value = '';
+    document.getElementById('login-pwd').focus();
+    adminPassword = '';
 });
 
 // ---- API Helper ----

@@ -17,10 +17,34 @@
         <div class="login__box">
             <h1 class="login__brand">ELECTR<span>'</span>AUTO</h1>
             <p class="login__sub">Administration</p>
+
+            <!-- Step 1: Password -->
             <form id="login-form">
                 <input type="password" id="login-pwd" placeholder="Mot de passe" autocomplete="off">
-                <button type="submit" class="btn btn--primary btn--full">Accéder</button>
+                <button type="submit" class="btn btn--primary btn--full" id="login-btn">Accéder</button>
+                <div class="login__attempts" id="login-attempts"></div>
+                <div class="login__error" id="login-error"></div>
             </form>
+
+            <!-- Step 2: 2FA Code -->
+            <form id="tfa-form" style="display:none;">
+                <div class="tfa-info">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <p>Un code de vérification a été envoyé à votre courriel.</p>
+                </div>
+                <input type="text" id="tfa-code" placeholder="Code à 6 chiffres" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
+                <button type="submit" class="btn btn--primary btn--full" id="tfa-btn">Vérifier</button>
+                <div class="login__error" id="tfa-error"></div>
+                <button type="button" class="tfa-back" id="tfa-back">Retour</button>
+            </form>
+
+            <!-- Lockout -->
+            <div class="lockout" id="lockout-screen" style="display:none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1"/></svg>
+                <h3>Accès bloqué</h3>
+                <p>Trop de tentatives échouées.</p>
+                <div class="lockout__timer" id="lockout-timer"></div>
+            </div>
         </div>
     </div>
 
