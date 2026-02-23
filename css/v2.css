@@ -2246,6 +2246,8 @@ a.contact__item--phone:hover .contact__arrow {
 .appt-hero .wrap {
     position: relative;
     z-index: 1;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .appt-hero h1 {
@@ -2253,7 +2255,11 @@ a.contact__item--phone:hover .contact__arrow {
     font-weight: 800;
     letter-spacing: -0.02em;
     line-height: 1.15;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
+}
+
+.appt-hero .section__tag {
+    margin-bottom: 6px;
 }
 
 .appt-hero__desc {
