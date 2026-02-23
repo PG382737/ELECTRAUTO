@@ -106,7 +106,6 @@ document.getElementById('login-form').addEventListener('submit', async function(
     var hash = await sha256(password);
 
     btn.disabled = true;
-    btn.textContent = '';
     btn.classList.add('btn-loading');
 
     try {
@@ -131,10 +130,8 @@ document.getElementById('login-form').addEventListener('submit', async function(
             input.classList.add('error');
             input.value = '';
             setTimeout(function() { input.classList.remove('error'); }, 500);
-            errorEl.textContent = data.message || 'Mot de passe incorrect.';
             if (typeof data.attempts_left === 'number') {
                 updateAttemptsDisplay(data.attempts_left);
-                // Store locally for UI
                 setLockout({ attempts: MAX_ATTEMPTS - data.attempts_left });
             }
             return;
@@ -178,7 +175,6 @@ document.getElementById('tfa-form').addEventListener('submit', async function(e)
     var hash = await sha256(adminPassword);
 
     btn.disabled = true;
-    btn.textContent = '';
     btn.classList.add('btn-loading');
 
     try {
