@@ -58,7 +58,7 @@ exports.handler = async (event) => {
                 reply_to: email,
                 subject: 'Message du site web',
                 html: `
-                    <h2>Nouveau message du site web</h2>
+                    <h2>Message du site web</h2>
                     <table style="border-collapse:collapse; margin-top:16px;">
                         <tr>
                             <td style="padding:8px 16px 8px 0; font-weight:bold; color:#666;">Nom</td>
