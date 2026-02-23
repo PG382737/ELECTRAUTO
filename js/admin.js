@@ -256,6 +256,19 @@ document.querySelectorAll('.sidebar__link[data-tab]').forEach(function(link) {
 });
 
 // ============================================
+// LOGOUT
+// ============================================
+document.getElementById('btn-logout').addEventListener('click', function() {
+    adminPassword = '';
+    setLockout({});
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('login-pwd').value = '';
+    document.getElementById('login-error').textContent = '';
+    document.getElementById('login-attempts').textContent = '';
+});
+
+// ============================================
 // BLOG — ARTICLES
 // ============================================
 
