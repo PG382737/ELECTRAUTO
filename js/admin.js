@@ -361,8 +361,9 @@ function openArticleModal(article) {
         upload.classList.remove('has-image');
     }
 
-    // Reset file input and switch to FR tab
+    // Reset file input, update remove button, switch to FR tab
     document.getElementById('image-file').value = '';
+    updateRemoveImageBtn();
     switchLangTab('fr');
 }
 
@@ -514,6 +515,7 @@ document.getElementById('crop-confirm').addEventListener('click', async function
         if (!res.ok) throw new Error('Upload failed');
         var result = await res.json();
         document.getElementById('edit-image-url').value = result.url;
+        updateRemoveImageBtn();
 
         closeCropModal();
     } catch(err) {
@@ -527,6 +529,19 @@ document.getElementById('crop-confirm').addEventListener('click', async function
 // Cancel crop
 document.getElementById('crop-cancel').addEventListener('click', closeCropModal);
 document.getElementById('crop-close').addEventListener('click', closeCropModal);
+
+// ---- Remove Image ----
+document.getElementById('btn-remove-image').addEventListener('click', function() {
+    document.getElementById('edit-image-url').value = '';
+    document.getElementById('image-preview').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;opacity:.4;margin-bottom:6px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><span>Cliquer pour ajouter</span>';
+    document.getElementById('image-upload').classList.remove('has-image');
+    document.getElementById('btn-remove-image').style.display = 'none';
+});
+
+function updateRemoveImageBtn() {
+    var hasImage = document.getElementById('edit-image-url').value || document.getElementById('image-upload').classList.contains('has-image');
+    document.getElementById('btn-remove-image').style.display = hasImage ? 'flex' : 'none';
+}
 
 // ---- Save Article ----
 document.getElementById('btn-save').addEventListener('click', async function() {

@@ -33,7 +33,9 @@ html, body {
     font-size: 14px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    scrollbar-width: none;
 }
+html::-webkit-scrollbar { display: none; }
 
 /* ===== BUTTONS ===== */
 .btn {
@@ -699,3 +701,17 @@ html, body {
     object-fit: cover;
     border-radius: var(--radius-sm);
 }
+.btn-remove-image {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    background: none;
+    border: none;
+    color: var(--danger);
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 4px 0;
+    font-family: var(--font);
+}
+.btn-remove-image:hover { color: var(--danger-hover); }
