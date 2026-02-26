@@ -76,26 +76,13 @@ document.addEventListener('DOMContentLoaded', function() {
     var LIMIT = 9;
     var offset = 0;
 
-    var useSupabase = typeof supabase !== 'undefined' && supabase.url !== 'YOUR_SUPABASE_URL';
-    var useLocal = !useSupabase && typeof window.LOCAL_ARTICLES !== 'undefined';
-
-    if (useSupabase || useLocal) {
-        loadArticles();
-    } else {
-        blogEmpty.style.display = 'block';
-    }
+    loadArticles();
 
     async function loadArticles() {
         try {
-            var articles;
-
-            if (useSupabase) {
-                articles = await supabase.getArticles(LIMIT, offset);
-            } else {
-                // Local fallback
-                articles = window.LOCAL_ARTICLES.filter(function(a) { return a.published; });
-                articles = articles.slice(offset, offset + LIMIT);
-            }
+            var res = await fetch('/api/articles?limit=' + LIMIT + '&offset=' + offset);
+            if (!res.ok) throw new Error('Failed to load articles');
+            var articles = await res.json();
 
             if (articles.length === 0 && offset === 0) {
                 blogEmpty.style.display = 'block';
@@ -114,7 +101,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     { year: 'numeric', month: 'long', day: 'numeric' }
                 );
 
-                // Bilingual support: prefer lang-specific fields, fall back to default
                 var title = (lang === 'en' && article.title_en) ? article.title_en : (article.title_fr || article.title || '');
                 var excerpt = (lang === 'en' && article.excerpt_en) ? article.excerpt_en : (article.excerpt_fr || article.excerpt || '');
 
@@ -133,10 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             offset += articles.length;
 
-            var totalLocal = useLocal ? window.LOCAL_ARTICLES.filter(function(a) { return a.published; }).length : 0;
-            if (useSupabase && articles.length >= LIMIT) {
-                loadMoreWrapper.style.display = 'block';
-            } else if (useLocal && offset < totalLocal) {
+            if (articles.length >= LIMIT) {
                 loadMoreWrapper.style.display = 'block';
             } else {
                 loadMoreWrapper.style.display = 'none';

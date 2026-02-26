@@ -90,12 +90,9 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             var article;
 
-            if (typeof supabase !== 'undefined' && supabase.url !== 'YOUR_SUPABASE_URL') {
-                article = await supabase.getArticle(slug);
-            } else if (typeof window.LOCAL_ARTICLES !== 'undefined') {
-                article = window.LOCAL_ARTICLES.find(function(a) {
-                    return a.slug === slug && a.published;
-                }) || null;
+            var res = await fetch('/api/articles?slug=' + encodeURIComponent(slug));
+            if (res.ok) {
+                article = await res.json();
             } else {
                 article = null;
             }

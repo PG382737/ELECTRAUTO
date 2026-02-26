@@ -253,12 +253,10 @@
     }
 
     if (blogPreview) {
-        if (typeof supabase !== 'undefined' && supabase.url !== 'YOUR_SUPABASE_URL') {
-            supabase.getArticles(4, 0).then(renderBlogPreview).catch(function() {});
-        } else if (typeof window.LOCAL_ARTICLES !== 'undefined') {
-            var localPublished = window.LOCAL_ARTICLES.filter(function(a) { return a.published; });
-            renderBlogPreview(localPublished.slice(0, 4));
-        }
+        fetch('/api/articles?limit=4&offset=0')
+            .then(function(res) { return res.json(); })
+            .then(renderBlogPreview)
+            .catch(function() {});
     }
 
 })();
