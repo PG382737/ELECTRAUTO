@@ -252,6 +252,14 @@ document.querySelectorAll('.sidebar__link[data-tab]').forEach(function(link) {
         document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
         link.classList.add('active');
         document.getElementById('tab-' + link.dataset.tab).classList.add('active');
+
+        // Start/stop notes polling based on active tab
+        if (link.dataset.tab === 'notes') {
+            loadNotes();
+            startNotesPolling();
+        } else {
+            stopNotesPolling();
+        }
     });
 });
 
@@ -261,6 +269,7 @@ document.querySelectorAll('.sidebar__link[data-tab]').forEach(function(link) {
 document.getElementById('btn-logout').addEventListener('click', function() {
     adminPassword = '';
     setLockout({});
+    stopNotesPolling();
     document.getElementById('dashboard').style.display = 'none';
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('login-pwd').value = '';
@@ -676,6 +685,108 @@ async function saveDelays() {
     } catch(e) {
         statusEl.className = 'delays-status error';
         statusEl.textContent = 'Erreur: ' + e.message;
+    }
+}
+
+// ============================================
+// NOTES
+// ============================================
+
+var notesPollingInterval = null;
+var notesLastTimestamp = null;
+
+async function loadNotes() {
+    try {
+        var data = await api('GET', '/api/notes');
+        renderNotes(data);
+        if (data.length > 0) {
+            notesLastTimestamp = data[0].created_at;
+        }
+    } catch(e) {
+        // Notes table may not exist yet
+    }
+}
+
+function renderNotes(notes) {
+    var feed = document.getElementById('notes-feed');
+    if (!notes || notes.length === 0) {
+        feed.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="width:48px;height:48px;opacity:.3;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><p>Aucune note. Écrivez votre première note ci-dessous.</p></div>';
+        return;
+    }
+    feed.innerHTML = notes.map(function(note) {
+        return '<div class="note-item" data-id="' + note.id + '">' +
+            '<div class="note-item__date">' + formatNoteDate(note.created_at) + '</div>' +
+            '<div class="note-item__text">' + escapeHtml(note.text) + '</div>' +
+            '</div>';
+    }).join('');
+}
+
+function formatNoteDate(iso) {
+    var d = new Date(iso);
+    var now = new Date();
+    var opts = { hour: '2-digit', minute: '2-digit' };
+    var time = d.toLocaleTimeString('fr-CA', opts);
+
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var noteDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var diff = Math.floor((today - noteDay) / 86400000);
+
+    if (diff === 0) return "Aujourd'hui à " + time;
+    if (diff === 1) return 'Hier à ' + time;
+    return d.toLocaleDateString('fr-CA', { day: 'numeric', month: 'long', year: 'numeric' }) + ' à ' + time;
+}
+
+// Send note
+document.getElementById('btn-send-note').addEventListener('click', sendNote);
+document.getElementById('note-text').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendNote();
+    }
+});
+
+async function sendNote() {
+    var input = document.getElementById('note-text');
+    var text = input.value.trim();
+    if (!text) return;
+
+    var btn = document.getElementById('btn-send-note');
+    btn.disabled = true;
+
+    try {
+        var note = await api('POST', '/api/notes', { text: text });
+        input.value = '';
+        // Reload all notes to stay in sync
+        await loadNotes();
+    } catch(e) {
+        alert('Erreur: ' + e.message);
+    } finally {
+        btn.disabled = false;
+        input.focus();
+    }
+}
+
+// Polling — check for new notes every 3 seconds
+function startNotesPolling() {
+    if (notesPollingInterval) return;
+    notesPollingInterval = setInterval(async function() {
+        if (!notesLastTimestamp) return;
+        try {
+            var newNotes = await api('GET', '/api/notes?since=' + encodeURIComponent(notesLastTimestamp));
+            if (newNotes && newNotes.length > 0) {
+                // New notes found — reload all
+                await loadNotes();
+            }
+        } catch(e) {
+            // Silently ignore polling errors
+        }
+    }, 3000);
+}
+
+function stopNotesPolling() {
+    if (notesPollingInterval) {
+        clearInterval(notesPollingInterval);
+        notesPollingInterval = null;
     }
 }
 

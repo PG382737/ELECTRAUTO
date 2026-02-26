@@ -67,6 +67,10 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                     Délais
                 </button>
+                <button class="sidebar__link" data-tab="notes">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Notes
+                </button>
             </nav>
             <div class="sidebar__bottom">
                 <button class="sidebar__link sidebar__link--muted" id="btn-logout">
@@ -138,6 +142,27 @@
                 </div>
 
                 <div class="delays-status" id="delays-status"></div>
+            </div>
+
+            <!-- ===== NOTES TAB ===== -->
+            <div class="tab" id="tab-notes">
+                <div class="main__header">
+                    <h1>Notes</h1>
+                </div>
+                <div class="notes-container">
+                    <div class="notes-feed" id="notes-feed">
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            <p>Aucune note. Écrivez votre première note ci-dessous.</p>
+                        </div>
+                    </div>
+                    <div class="notes-input">
+                        <textarea id="note-text" placeholder="Écrire une note..." rows="2"></textarea>
+                        <button class="btn btn--primary" id="btn-send-note">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                        </button>
+                    </div>
+                </div>
             </div>
 
         </main>
