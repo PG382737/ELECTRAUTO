@@ -10,6 +10,8 @@ const PASSWORD_HASH = 'be50e4db19df4d208d3a3440926126de8806191de1818f9e251a80cab
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_MINUTES = 60;
 const CODE_EXPIRY_MINUTES = 5;
+const TRUST_DAYS = 30;
+const SESSION_DAYS = 7;
 
 const headers = {
     'Content-Type': 'application/json',
@@ -146,7 +148,34 @@ exports.handler = async (event) => {
                 };
             }
 
-            // Password correct — generate 2FA code
+            // Password correct — check for trusted device token
+            const trustToken = body.trust_token;
+            if (trustToken) {
+                const trustData = await getSetting('admin_trust_tokens') || {};
+                const tokenHash = await sha256(trustToken);
+                const tokenEntry = trustData[tokenHash];
+
+                if (tokenEntry && new Date(tokenEntry.expires_at) > new Date()) {
+                    // Trusted device — skip 2FA, reset lockout
+                    ipData.attempts = 0;
+                    ipData.locked_until = null;
+                    lockoutData[ip] = ipData;
+                    await setSetting('admin_lockout', lockoutData);
+
+                    const sessionExpires = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000).toISOString();
+
+                    return {
+                        statusCode: 200, headers,
+                        body: JSON.stringify({
+                            success: true,
+                            skip_2fa: true,
+                            session_expires: sessionExpires
+                        })
+                    };
+                }
+            }
+
+            // No valid trust token — generate 2FA code
             const code = String(Math.floor(100000 + Math.random() * 900000));
             const codeHash = await sha256(code);
             const expiresAt = new Date(Date.now() + CODE_EXPIRY_MINUTES * 60 * 1000).toISOString();
@@ -186,8 +215,6 @@ exports.handler = async (event) => {
                 console.error('2FA email error:', emailRes.status, text);
                 throw new Error('Erreur envoi courriel');
             }
-
-            console.log('2FA code sent to', ADMIN_EMAIL);
 
             return {
                 statusCode: 200, headers,
@@ -248,9 +275,30 @@ exports.handler = async (event) => {
             lockoutData[ip] = ipData;
             await setSetting('admin_lockout', lockoutData);
 
+            const sessionExpires = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000).toISOString();
+            const result = { success: true, session_expires: sessionExpires };
+
+            // Generate trust token if "remember" was checked
+            if (body.remember) {
+                const rawToken = crypto.randomUUID() + '-' + Date.now();
+                const tokenHash = await sha256(rawToken);
+                const trustExpires = new Date(Date.now() + TRUST_DAYS * 24 * 60 * 60 * 1000).toISOString();
+
+                const trustData = await getSetting('admin_trust_tokens') || {};
+                // Clean expired tokens
+                for (const key of Object.keys(trustData)) {
+                    if (new Date(trustData[key].expires_at) < new Date()) delete trustData[key];
+                }
+                trustData[tokenHash] = { expires_at: trustExpires, ip: ip };
+                await setSetting('admin_trust_tokens', trustData);
+
+                result.trust_token = rawToken;
+                result.trust_expires = trustExpires;
+            }
+
             return {
                 statusCode: 200, headers,
-                body: JSON.stringify({ success: true })
+                body: JSON.stringify(result)
             };
         }
 

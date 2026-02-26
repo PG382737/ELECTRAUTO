@@ -69,16 +69,50 @@ function updateAttemptsDisplay(attemptsLeft) {
     el.className = 'login__attempts' + (attemptsLeft <= 2 ? ' danger' : attemptsLeft <= 3 ? ' warning' : '');
 }
 
-// ---- Check lockout on page load ----
+// ---- Session helpers ----
+function getSession() {
+    try { return JSON.parse(localStorage.getItem('ea-session') || '{}'); } catch(e) { return {}; }
+}
+function setSession(data) {
+    try { localStorage.setItem('ea-session', JSON.stringify(data)); } catch(e) {}
+}
+function clearSession() {
+    try { localStorage.removeItem('ea-session'); } catch(e) {}
+}
+function getTrustToken() {
+    try { return localStorage.getItem('ea-trust') || ''; } catch(e) { return ''; }
+}
+function setTrustToken(token, expires) {
+    try { localStorage.setItem('ea-trust', token); localStorage.setItem('ea-trust-exp', expires); } catch(e) {}
+}
+function clearTrustToken() {
+    try { localStorage.removeItem('ea-trust'); localStorage.removeItem('ea-trust-exp'); } catch(e) {}
+}
+
+function enterDashboard(password) {
+    adminPassword = password;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'flex';
+    loadArticles();
+    loadDelays();
+}
+
+// ---- Check session / lockout on page load ----
 (function() {
     var lockData = getLockout();
     if (lockData.locked_until) {
         var remaining = Math.ceil((new Date(lockData.locked_until) - new Date()) / 1000);
         if (remaining > 0) {
             showLockoutScreen(remaining);
-        } else {
-            setLockout({});
+            return;
         }
+        setLockout({});
+    }
+
+    // Check existing session
+    var session = getSession();
+    if (session.password && session.expires && new Date(session.expires) > new Date()) {
+        enterDashboard(session.password);
     }
 })();
 
@@ -109,16 +143,19 @@ document.getElementById('login-form').addEventListener('submit', async function(
     btn.classList.add('btn-loading');
 
     try {
+        var loginBody = { action: 'login', password_hash: hash };
+        var trustToken = getTrustToken();
+        if (trustToken) loginBody.trust_token = trustToken;
+
         var res = await fetch('/api/admin-auth', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'login', password_hash: hash })
+            body: JSON.stringify(loginBody)
         });
 
         var data = await res.json();
 
         if (res.status === 429) {
-            // Locked out
             var lockedUntil = new Date(Date.now() + (data.remaining_seconds || 3600) * 1000).toISOString();
             setLockout({ locked_until: lockedUntil });
             showLockoutScreen(data.remaining_seconds || 3600);
@@ -126,7 +163,6 @@ document.getElementById('login-form').addEventListener('submit', async function(
         }
 
         if (res.status === 401) {
-            // Wrong password
             input.classList.add('error');
             input.value = '';
             setTimeout(function() { input.classList.remove('error'); }, 500);
@@ -139,6 +175,14 @@ document.getElementById('login-form').addEventListener('submit', async function(
 
         if (!res.ok) {
             throw new Error(data.error || 'Erreur serveur');
+        }
+
+        // Trusted device — skip 2FA
+        if (data.skip_2fa) {
+            setSession({ password: password, expires: data.session_expires });
+            setLockout({});
+            enterDashboard(password);
+            return;
         }
 
         // Password correct — show 2FA step
@@ -178,10 +222,12 @@ document.getElementById('tfa-form').addEventListener('submit', async function(e)
     btn.classList.add('btn-loading');
 
     try {
+        var remember = document.getElementById('tfa-remember-check').checked;
+
         var res = await fetch('/api/admin-auth', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'verify', code: code, password_hash: hash })
+            body: JSON.stringify({ action: 'verify', code: code, password_hash: hash, remember: remember })
         });
 
         var data = await res.json();
@@ -193,13 +239,13 @@ document.getElementById('tfa-form').addEventListener('submit', async function(e)
             return;
         }
 
-        // 2FA success — enter dashboard
+        // 2FA success — save session, trust token, enter dashboard
         setLockout({});
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'flex';
-        try { sessionStorage.setItem('electrauto-preview', 'true'); } catch(ex) {}
-        loadArticles();
-        loadDelays();
+        setSession({ password: adminPassword, expires: data.session_expires });
+        if (data.trust_token) {
+            setTrustToken(data.trust_token, data.trust_expires);
+        }
+        enterDashboard(adminPassword);
 
     } catch(err) {
         errorEl.textContent = err.message || 'Erreur de vérification.';
@@ -269,9 +315,12 @@ document.querySelectorAll('.sidebar__link[data-tab]').forEach(function(link) {
 document.getElementById('btn-logout').addEventListener('click', function() {
     adminPassword = '';
     setLockout({});
+    clearSession();
     stopNotesPolling();
     document.getElementById('dashboard').style.display = 'none';
     document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('login-form').style.display = 'block';
+    document.getElementById('tfa-form').style.display = 'none';
     document.getElementById('login-pwd').value = '';
     document.getElementById('login-error').textContent = '';
     document.getElementById('login-attempts').textContent = '';
