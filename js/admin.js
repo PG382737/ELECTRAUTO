@@ -542,6 +542,7 @@ document.getElementById('crop-close').addEventListener('click', closeCropModal);
 // ---- Remove Image ----
 document.getElementById('btn-remove-image').addEventListener('click', function() {
     document.getElementById('edit-image-url').value = '';
+    document.getElementById('image-file').value = '';
     document.getElementById('image-preview').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;opacity:.4;margin-bottom:6px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><span>Cliquer pour ajouter</span>';
     document.getElementById('image-upload').classList.remove('has-image');
     document.getElementById('btn-remove-image').style.display = 'none';
@@ -715,6 +716,7 @@ function renderNotes(notes) {
     }
     feed.innerHTML = notes.map(function(note) {
         return '<div class="note-item" data-id="' + note.id + '">' +
+            '<button class="note-item__delete" onclick="deleteNote(\'' + note.id + '\')" title="Supprimer">&times;</button>' +
             '<div class="note-item__date">' + formatNoteDate(note.created_at) + '</div>' +
             '<div class="note-item__text">' + escapeHtml(note.text) + '</div>' +
             '</div>';
@@ -754,7 +756,7 @@ async function sendNote() {
     btn.disabled = true;
 
     try {
-        var note = await api('POST', '/api/notes', { text: text });
+        await api('POST', '/api/notes', { text: text });
         input.value = '';
         // Reload all notes to stay in sync
         await loadNotes();
@@ -765,6 +767,16 @@ async function sendNote() {
         input.focus();
     }
 }
+
+// Delete note
+window.deleteNote = async function(id) {
+    try {
+        await api('DELETE', '/api/notes?id=' + id);
+        await loadNotes();
+    } catch(e) {
+        alert('Erreur: ' + e.message);
+    }
+};
 
 // Polling — check for new notes every 3 seconds
 function startNotesPolling() {
