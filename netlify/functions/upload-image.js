@@ -58,6 +58,7 @@ exports.handler = async (event) => {
             {
                 method: 'POST',
                 headers: {
+                    'apikey': SUPABASE_SERVICE_KEY,
                     'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
                     'Content-Type': contentType || 'image/jpeg',
                     'x-upsert': 'true'
