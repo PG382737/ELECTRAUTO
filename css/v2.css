@@ -2020,17 +2020,6 @@ a.contact__item--phone:hover .contact__arrow {
 [data-theme="light"] .contact__form h3 {
     color: #333;
 }
-[data-theme="light"] .field input,
-[data-theme="light"] .field textarea {
-    background: #f5f5f5;
-    border-color: #e0e0e0;
-    color: #333;
-}
-[data-theme="light"] .field input:focus,
-[data-theme="light"] .field textarea:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(207,138,46,0.12);
-}
 [data-theme="light"] .field label {
     color: #999;
 }
@@ -2039,11 +2028,6 @@ a.contact__item--phone:hover .contact__arrow {
 [data-theme="light"] .field textarea:focus + label,
 [data-theme="light"] .field textarea:not(:placeholder-shown) + label {
     color: #888;
-}
-[data-theme="light"] .field input,
-[data-theme="light"] .field textarea {
-    background: #fff;
-    border-color: #ddd;
 }
 
 /* ---- Hide sparks in light mode (causes yellow tint) ---- */
@@ -3052,24 +3036,6 @@ a.contact__item--phone:hover .contact__arrow {
 [data-theme="light"] .appt-wait {
     background: rgba(207,138,46,0.06);
     border-color: rgba(207,138,46,0.18);
-}
-
-[data-theme="light"] .field input,
-[data-theme="light"] .field textarea {
-    background: #f7f7f5;
-    border-color: rgba(0,0,0,0.1);
-    color: var(--text);
-}
-
-[data-theme="light"] .field input:focus,
-[data-theme="light"] .field textarea:focus {
-    border-color: var(--accent);
-    background: #fff;
-}
-
-[data-theme="light"] .field input:-webkit-autofill,
-[data-theme="light"] .field input:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0 1000px #f7f7f5 inset;
 }
 
 /* ---- Appointment Responsive ---- */
