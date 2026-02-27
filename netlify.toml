@@ -18,3 +18,9 @@
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Redirect unknown paths to homepage (old blog slugs, 404s, etc.)
+[[redirects]]
+  from = "/*"
+  to = "/"
+  status = 301
