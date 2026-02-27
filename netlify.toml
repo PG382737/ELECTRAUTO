@@ -11,13 +11,6 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-# Redirect root to maintenance page
-[[redirects]]
-  from = "/"
-  to = "/maintenance.html"
-  status = 302
-  force = true
-
 # SPA-style: let HTML files handle their own routing
 [[headers]]
   for = "/*"

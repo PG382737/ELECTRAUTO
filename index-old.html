@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Électr'auto Québec | Mécanique Générale</title>
+    <meta name="description" content="Électr'auto Québec - L'atelier le plus recommandé à Québec pour les problèmes électroniques et électriques de voitures de toutes marques. Entretien et mécanique générale BMW et Audi.">
+    <meta name="robots" content="noindex, nofollow">
+    <script>
+        try {
+            if (sessionStorage.getItem('electrauto-preview') !== 'true') {
+                window.location.replace('maintenance.html');
+            }
+        } catch(e) {
+            window.location.replace('maintenance.html');
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- ============================================
+         NAVIGATION
+         ============================================ -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#accueil" class="nav-logo">
+                <span class="nav-logo-text">ELECTR<span class="apostrophe">'</span>AUTO</span>
+            </a>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="#accueil" class="nav-link" data-fr="Accueil" data-en="Home">Accueil</a></li>
+                <li><a href="#services" class="nav-link" data-fr="Services" data-en="Services">Services</a></li>
+                <li><a href="#apropos" class="nav-link" data-fr="À Propos" data-en="About">À Propos</a></li>
+                <li><a href="blog.html" class="nav-link">Blog</a></li>
+                <li><a href="#contact" class="nav-link" data-fr="Contact" data-en="Contact">Contact</a></li>
+            </ul>
+            <div class="nav-right">
+                <div class="lang-toggle" role="group" aria-label="Langue / Language">
+                    <button class="lang-btn active" id="btn-fr" onclick="setLang('fr')" aria-label="Français">FR</button>
+                    <button class="lang-btn" id="btn-en" onclick="setLang('en')" aria-label="English">EN</button>
+                </div>
+                <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ============================================
+         HERO
+         ============================================ -->
+    <section id="accueil" class="hero-section">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="logo-container">
+                <div class="logo-text-main">ELECTR<span class="apostrophe">'</span>AUTO</div>
+                <div class="logo-subtitle" data-fr="Mécanique Générale" data-en="General Mechanics">Mécanique Générale</div>
+            </div>
+            <div class="divider"></div>
+            <h1 data-fr="L'atelier le plus recommandé à Québec" data-en="Quebec's most recommended workshop">L'atelier le plus recommandé à Québec</h1>
+            <p class="hero-description" data-fr="Spécialistes en problèmes électroniques et électriques de voitures de toutes marques ainsi qu'en entretien et mécanique générale de BMW et Audi." data-en="Specialists in electronic and electrical problems for all vehicle brands, as well as general maintenance and mechanics for BMW and Audi.">Spécialistes en problèmes électroniques et électriques de voitures de toutes marques ainsi qu'en entretien et mécanique générale de BMW et Audi.</p>
+            <div class="hero-cta">
+                <a href="#contact" class="btn btn-primary" data-fr="Contactez-nous" data-en="Contact Us">Contactez-nous</a>
+                <a href="#services" class="btn btn-outline" data-fr="Nos services" data-en="Our Services">Nos services</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SERVICES
+         ============================================ -->
+    <section id="services" class="section">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2 data-fr="Nos Services" data-en="Our Services">Nos Services</h2>
+                <div class="divider"></div>
+                <p class="section-subtitle" data-fr="Vous cherchez un endroit fiable et honnête ainsi que le concessionnaire pour la réparation et l'entretien de votre BMW ou Audi ? Vous avez trouvé, appelez-nous ou envoyez-nous un courriel pour prendre un rendez-vous d'entretien." data-en="Looking for a reliable and honest place for the repair and maintenance of your BMW or Audi? You've found it, call us or send us an email to book a service appointment.">Vous cherchez un endroit fiable et honnête ainsi que le concessionnaire pour la réparation et l'entretien de votre BMW ou Audi ? Vous avez trouvé, appelez-nous ou envoyez-nous un courriel pour prendre un rendez-vous d'entretien.</p>
+            </div>
+
+            <!-- Service: Réparation & Entretien Audi - BMW -->
+            <div class="service-block reveal">
+                <div class="service-content">
+                    <h3 data-fr="Réparation & Entretien Audi – BMW" data-en="Audi – BMW Repair & Maintenance">Réparation & Entretien Audi – BMW</h3>
+                    <p data-fr="Tous les types de réparations disponibles :" data-en="All types of repairs available:">Tous les types de réparations disponibles :</p>
+                    <div class="service-grid">
+                        <ul>
+                            <li data-fr="Problèmes électroniques" data-en="Electronic problems">Problèmes électroniques</li>
+                            <li data-fr="Différentiel quattro et xdrive" data-en="Quattro and xDrive differentials">Différentiel quattro et xdrive</li>
+                            <li data-fr="Entretien recommandé" data-en="Recommended maintenance">Entretien recommandé</li>
+                            <li data-fr="Boîtes de vitesses" data-en="Transmissions">Boîtes de vitesses</li>
+                            <li data-fr="Inspection du véhicule et remise en état" data-en="Vehicle inspection and reconditioning">Inspection du véhicule et remise en état</li>
+                            <li data-fr="Révision des freins, des pneus et des pièces de freins" data-en="Brake, tire and brake parts revision">Révision des freins, des pneus et des pièces de freins</li>
+                            <li data-fr="Amortisseurs & suspension" data-en="Shocks & suspension">Amortisseurs & suspension</li>
+                            <li data-fr="Démarreurs et alternateurs" data-en="Starters and alternators">Démarreurs et alternateurs</li>
+                        </ul>
+                        <ul>
+                            <li data-fr="Système de refroidissement" data-en="Cooling system">Système de refroidissement</li>
+                            <li data-fr="Direction" data-en="Steering">Direction</li>
+                            <li data-fr="Problème de freins" data-en="Brake problems">Problème de freins</li>
+                            <li data-fr="Système de chauffage/dégivreur" data-en="Heating/defroster system">Système de chauffage/dégivreur</li>
+                            <li data-fr="Reprogrammation modules électroniques" data-en="Electronic module reprogramming">Reprogrammation modules électroniques</li>
+                            <li data-fr="Diagnostic électronique avancé" data-en="Advanced electronic diagnostics">Diagnostic électronique avancé</li>
+                            <li data-fr="Système d'échappement" data-en="Exhaust system">Système d'échappement</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="service-image">
+                    <div class="image-placeholder" data-icon="car">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9m-6-6h15m-6 0V6"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service: Air climatisé -->
+            <div class="service-block service-block--reverse reveal">
+                <div class="service-content">
+                    <h3 data-fr="Spécialiste en réparation d'air climatisé" data-en="Air Conditioning Repair Specialist">Spécialiste en réparation d'air climatisé</h3>
+                    <p data-fr="Que ce soit pour une voiture de marque populaire ou de prestige, nous disposons de tous les outils nécessaires pour réparer votre air climatisé." data-en="Whether for a popular or luxury brand vehicle, we have all the necessary tools to repair your air conditioning.">Que ce soit pour une voiture de marque populaire ou de prestige, nous disposons de tous les outils nécessaires pour réparer votre air climatisé.</p>
+                    <a href="#contact" class="btn btn-primary btn-sm" data-fr="En savoir plus" data-en="Learn more">En savoir plus</a>
+                </div>
+                <div class="service-image">
+                    <div class="image-placeholder" data-icon="ac">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v4m0 12v4M2 12h4m12 0h4M6.34 6.34l2.83 2.83m5.66 5.66l2.83 2.83M17.66 6.34l-2.83 2.83m-5.66 5.66l-2.83 2.83"/><circle cx="12" cy="12" r="3"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service: Mécanique générale - Entretien -->
+            <div class="service-block reveal">
+                <div class="service-content">
+                    <h3 data-fr="Mécanique générale – Entretien" data-en="General Mechanics – Maintenance">Mécanique générale – Entretien</h3>
+                    <p data-fr="L'entretien régulier de votre véhicule automobile permet d'éviter les problèmes majeurs. En remplaçant une pièce mécanique toutes les années on détecte des signes invisibles de fatigue, pour minimiser l'inattendu des dégâts et des coûts." data-en="Regular maintenance of your vehicle helps avoid major problems. By replacing mechanical parts regularly, we detect invisible signs of wear, minimizing unexpected damage and costs.">L'entretien régulier de votre véhicule automobile permet d'éviter les problèmes majeurs. En remplaçant une pièce mécanique toutes les années on détecte des signes invisibles de fatigue, pour minimiser l'inattendu des dégâts et des coûts.</p>
+                    <div class="service-list">
+                        <div class="service-list-item" data-fr="Inspection de transmission" data-en="Transmission inspection">Inspection de transmission</div>
+                        <div class="service-list-item" data-fr="Pneus et pneus" data-en="Tires">Pneus et pneus</div>
+                        <div class="service-list-item" data-fr="Freins et direction" data-en="Brakes and steering">Freins et direction</div>
+                        <div class="service-list-item" data-fr="Diagnostic du véhicule" data-en="Vehicle diagnostics">Diagnostic du véhicule</div>
+                        <div class="service-list-item" data-fr="Inspection de véhicule certifié" data-en="Certified vehicle inspection">Inspection de véhicule certifié</div>
+                        <div class="service-list-item" data-fr="Système de refroidissement" data-en="Cooling system">Système de refroidissement</div>
+                        <div class="service-list-item" data-fr="Vidange d'huile en moins de 30 min" data-en="Oil change in under 30 min">Vidange d'huile en moins de 30 min</div>
+                        <div class="service-list-item" data-fr="Amortisseurs & suspension" data-en="Shocks & suspension">Amortisseurs & suspension</div>
+                    </div>
+                </div>
+                <div class="service-image">
+                    <div class="image-placeholder" data-icon="wrench">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service: Mécanique générale - Réparation -->
+            <div class="service-block service-block--reverse reveal">
+                <div class="service-content">
+                    <h3 data-fr="Mécanique générale – Réparation" data-en="General Mechanics – Repair">Mécanique générale – Réparation</h3>
+                    <p data-fr="Notre personnel est outillé pour identifier une pièce problème, remplacer les pièces et les composants défectueux et effectuer des réparations majeures. Faites-nous confiance en ce qui concerne :" data-en="Our team is equipped to identify problem parts, replace defective pieces and components, and perform major repairs. Trust us for:">Notre personnel est outillé pour identifier une pièce problème, remplacer les pièces et les composants défectueux et effectuer des réparations majeures. Faites-nous confiance en ce qui concerne :</p>
+                    <div class="service-list">
+                        <div class="service-list-item" data-fr="Reconditionnement de moteurs" data-en="Engine reconditioning">Reconditionnement de moteurs</div>
+                        <div class="service-list-item" data-fr="Réparation de transmission automatique" data-en="Automatic transmission repair">Réparation de transmission automatique</div>
+                        <div class="service-list-item" data-fr="Diagnostic complet" data-en="Complete diagnostics">Diagnostic complet</div>
+                        <div class="service-list-item" data-fr="Direction/suspension" data-en="Steering/suspension">Direction/suspension</div>
+                        <div class="service-list-item" data-fr="Système d'échappement" data-en="Exhaust system">Système d'échappement</div>
+                        <div class="service-list-item" data-fr="Climatisation" data-en="Air conditioning">Climatisation</div>
+                        <div class="service-list-item" data-fr="Problèmes électroniques et électriques" data-en="Electronic and electrical problems">Problèmes électroniques et électriques</div>
+                        <div class="service-list-item" data-fr="Système de refroidissement" data-en="Cooling system">Système de refroidissement</div>
+                    </div>
+                </div>
+                <div class="service-image">
+                    <div class="image-placeholder" data-icon="engine">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 6V4m4 2V4m4 2V4m4 2V4M6 18v2m4-2v2m4-2v2m4-2v2"/><circle cx="12" cy="12" r="3"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service: Diagnostic électronique avancé -->
+            <div class="service-block reveal">
+                <div class="service-content">
+                    <h3 data-fr="Diagnostic électronique avancé" data-en="Advanced Electronic Diagnostics">Diagnostic électronique avancé</h3>
+                    <p data-fr="Notre système de diagnostic avancé permet d'identifier efficacement l'origine de problèmes électroniques, incluant :" data-en="Our advanced diagnostics system efficiently identifies the origin of electronic problems, including:">Notre système de diagnostic avancé permet d'identifier efficacement l'origine de problèmes électroniques, incluant :</p>
+                    <div class="service-list">
+                        <div class="service-list-item" data-fr="Vérification des problèmes d'admission et de combustion" data-en="Intake and combustion problem verification">Vérification des problèmes d'admission et de combustion</div>
+                        <div class="service-list-item" data-fr="Évaluation des composants et des systèmes électroniques" data-en="Electronic component and system evaluation">Évaluation des composants et des systèmes électroniques</div>
+                        <div class="service-list-item" data-fr="Mesure des paramètres" data-en="Parameter measurement">Mesure des paramètres</div>
+                        <div class="service-list-item" data-fr="Tests des équipements électroniques" data-en="Electronic equipment testing">Tests des équipements électroniques</div>
+                    </div>
+                </div>
+                <div class="service-image">
+                    <div class="image-placeholder" data-icon="diagnostic">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/><path d="M7 10l3 3 4-5 3 2"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service: Reprogrammation -->
+            <div class="service-block service-block--reverse reveal">
+                <div class="service-content">
+                    <h3 data-fr="Reprogrammation de modules électroniques" data-en="Electronic Module Reprogramming">Reprogrammation de modules électroniques</h3>
+                    <p data-fr="Lors d'un remplacement de pièces de véhicule moderne, une reprogrammation ou une mise à jour du système d'exploitation est souvent nécessaire. Notre expertise dans ce domaine, ce qui fait de nous l'atelier de référence à Québec." data-en="When replacing parts on modern vehicles, reprogramming or an operating system update is often required. Our expertise in this field makes us the reference workshop in Quebec City.">Lors d'un remplacement de pièces de véhicule moderne, une reprogrammation ou une mise à jour du système d'exploitation est souvent nécessaire. Notre expertise dans ce domaine, ce qui fait de nous l'atelier de référence à Québec.</p>
+                </div>
+                <div class="service-image">
+                    <div class="image-placeholder" data-icon="chip">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="14" height="14" rx="2"/><path d="M9 2v3m6-3v3M9 19v3m6-3v3M2 9h3m-3 6h3M19 9h3m-3 6h3"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service: Dynamomètre -->
+            <div class="service-block reveal">
+                <div class="service-content">
+                    <h3 data-fr="Ajustement sur dynamomètre pour véhicule de performance" data-en="Dynamometer Tuning for Performance Vehicles">Ajustement sur dynamomètre pour véhicule de performance</h3>
+                    <p data-fr="Le réglage de performance vise à tirer le meilleur d'un véhicule à tous les niveaux, fiabilité et puissance. L'ordre de réglage chronique et les différentes étapes et règles du domaine que nous respectons font que les voitures de course, les voitures de rue et les véhicules à fibre accélèrent." data-en="Performance tuning aims to get the best out of a vehicle at all levels, reliability and power. The chronological tuning order and the different stages and rules that we follow ensure that race cars, street cars, and performance vehicles accelerate optimally.">Le réglage de performance vise à tirer le meilleur d'un véhicule à tous les niveaux, fiabilité et puissance. L'ordre de réglage chronique et les différentes étapes et règles du domaine que nous respectons font que les voitures de course, les voitures de rue et les véhicules à fibre accélèrent.</p>
+                </div>
+                <div class="service-image">
+                    <div class="image-placeholder" data-icon="gauge">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M12 12l4-4"/><path d="M12 7v1"/><path d="M7 12h1"/><path d="M17 12h1"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service: Comptoir de pièces -->
+            <div class="service-block service-block--alt reveal">
+                <div class="service-content" style="text-align:center; max-width: 700px; margin: 0 auto;">
+                    <h3 data-fr="Comptoir de pièces et d'accessoires" data-en="Parts and Accessories Counter">Comptoir de pièces et d'accessoires</h3>
+                    <p data-fr="Nous disposons d'un accès rapide à l'ensemble des pièces nécessaires à l'entretien et la réparation des véhicules de toutes marques." data-en="We have quick access to all the parts needed for the maintenance and repair of vehicles of all brands.">Nous disposons d'un accès rapide à l'ensemble des pièces nécessaires à l'entretien et la réparation des véhicules de toutes marques.</p>
+                    <p class="highlight-text" data-fr="Communiquez avec nous pour nous soumettre votre besoin et nous vous aiderons à trouver la solution." data-en="Contact us with your needs and we'll help you find the solution.">Communiquez avec nous pour nous soumettre votre besoin et nous vous aiderons à trouver la solution.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         À PROPOS
+         ============================================ -->
+    <section id="apropos" class="section section--dark">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2 data-fr="À Propos" data-en="About Us">À Propos</h2>
+                <div class="divider"></div>
+            </div>
+
+            <div class="about-block reveal">
+                <div class="about-content">
+                    <h3 data-fr="Une entreprise familiale depuis 2004" data-en="A family business since 2004">Une entreprise familiale depuis 2004</h3>
+                    <p data-fr="Notre mission est d'optimiser le rendement des véhicules automobiles en fonction des attentes de la clientèle. Nous avons constitué une équipe fière et dynamique ayant à cœur de vous offrir un service de mécanique courtois et transparent depuis plus de 15 ans." data-en="Our mission is to optimize vehicle performance according to customer expectations. We have built a proud and dynamic team dedicated to providing courteous and transparent mechanical service for over 15 years.">Notre mission est d'optimiser le rendement des véhicules automobiles en fonction des attentes de la clientèle. Nous avons constitué une équipe fière et dynamique ayant à cœur de vous offrir un service de mécanique courtois et transparent depuis plus de 15 ans.</p>
+                    <p data-fr="Électr'auto est aussi une entreprise spécialisée dans les systèmes électriques et électroniques et nous sommes en mesure d'effectuer le calibrage des performances de votre voiture." data-en="Électr'auto is also a company specialized in electrical and electronic systems and we are able to calibrate the performance of your car.">Électr'auto est aussi une entreprise spécialisée dans les systèmes électriques et électroniques et nous sommes en mesure d'effectuer le calibrage des performances de votre voiture.</p>
+                    <p data-fr="Notre désir sincère est de nous classer parmi les meilleurs et d'offrir les services en atelier les plus complets et les plus expérimentés de la grande région de Québec." data-en="Our sincere desire is to rank among the best and offer the most complete and experienced workshop services in the greater Quebec City area.">Notre désir sincère est de nous classer parmi les meilleurs et d'offrir les services en atelier les plus complets et les plus expérimentés de la grande région de Québec.</p>
+                </div>
+                <div class="about-image">
+                    <div class="image-placeholder image-placeholder--large" data-icon="shop">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21h18M3 7v1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7M5 21V10.85M19 21V10.85M9 21v-5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v5M2 7l2-4h16l2 4"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="about-passion reveal">
+                <p data-fr="Oui, notre passion c'est les voitures, la mécanique automobile et les systèmes électriques, mais notre bonheur c'est de bien servir notre clientèle. C'est pourquoi, nous sommes constamment à l'affût de nouvelles technologies et de nouvelles méthodes de travail permettant de vous faire profiter des meilleures performances que peut vous offrir votre véhicule." data-en="Yes, our passion is cars, automotive mechanics and electrical systems, but our joy is serving our customers well. That's why we are constantly on the lookout for new technologies and working methods to help you get the best performance from your vehicle.">Oui, notre passion c'est les voitures, la mécanique automobile et les systèmes électriques, mais notre bonheur c'est de bien servir notre clientèle. C'est pourquoi, nous sommes constamment à l'affût de nouvelles technologies et de nouvelles méthodes de travail permettant de vous faire profiter des meilleures performances que peut vous offrir votre véhicule.</p>
+                <p data-fr="Spécialisés dans les problèmes électriques et électroniques, nous pouvons aisément programmer votre ordinateur de bord, mais aussi effectuer le reconditionnement des moteurs, réparer ou remplacer votre système de freinage, le système de refroidissement et tout autre dispositif de votre automobile." data-en="Specialized in electrical and electronic problems, we can easily program your on-board computer, as well as recondition engines, repair or replace your braking system, cooling system, and any other device in your automobile.">Spécialisés dans les problèmes électriques et électroniques, nous pouvons aisément programmer votre ordinateur de bord, mais aussi effectuer le reconditionnement des moteurs, réparer ou remplacer votre système de freinage, le système de refroidissement et tout autre dispositif de votre automobile.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         BLOG APERÇU
+         ============================================ -->
+    <section id="blog" class="section">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2 data-fr="Dernières nouvelles" data-en="Latest News">Dernières nouvelles</h2>
+                <div class="divider"></div>
+            </div>
+
+            <div class="blog-grid" id="blog-preview">
+                <!-- Articles chargés dynamiquement depuis Supabase -->
+                <div class="blog-empty reveal" id="blog-empty">
+                    <p data-fr="Aucun article pour le moment. Revenez bientôt!" data-en="No articles yet. Check back soon!">Aucun article pour le moment. Revenez bientôt!</p>
+                </div>
+            </div>
+
+            <div class="text-center reveal" style="margin-top: 32px;">
+                <a href="blog.html" class="btn btn-outline" data-fr="Voir tous les articles" data-en="View all articles">Voir tous les articles</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         CONTACT
+         ============================================ -->
+    <section id="contact" class="section section--dark">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2 data-fr="Contactez-nous" data-en="Contact Us">Contactez-nous</h2>
+                <div class="divider"></div>
+            </div>
+
+            <div class="contact-layout">
+                <!-- Contact Cards -->
+                <div class="contact-cards reveal">
+                    <!-- Phone -->
+                    <a href="tel:+14186669769" class="card card-phone">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        </div>
+                        <div class="card-body">
+                            <h3 data-fr="Téléphone" data-en="Phone">Téléphone</h3>
+                            <p>1.418.666.9769</p>
+                        </div>
+                        <div class="card-arrow">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                        </div>
+                    </a>
+
+                    <!-- Fax -->
+                    <div class="card">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3h-8v4h8z"/><circle cx="12" cy="14" r="2"/></svg>
+                        </div>
+                        <div class="card-body">
+                            <h3 data-fr="Télécopieur" data-en="Fax">Télécopieur</h3>
+                            <p>(418) 666-8920</p>
+                        </div>
+                    </div>
+
+                    <!-- Address -->
+                    <a href="https://maps.google.com/?q=2485+Boulevard+Wilfrid-Hamel+Quebec+QC+G1P+2H9" target="_blank" rel="noopener" class="card">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        </div>
+                        <div class="card-body">
+                            <h3 data-fr="Adresse" data-en="Address">Adresse</h3>
+                            <p>2485, boul. Wilfrid-Hamel<br>Québec (QC) G1P 2H9</p>
+                        </div>
+                        <div class="card-arrow">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                        </div>
+                    </a>
+
+                    <!-- Email -->
+                    <a href="mailto:info@electrautoquebec.com" class="card">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        </div>
+                        <div class="card-body">
+                            <h3 data-fr="Courriel" data-en="Email">Courriel</h3>
+                            <p>info@electrautoquebec.com</p>
+                        </div>
+                        <div class="card-arrow">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                        </div>
+                    </a>
+
+                    <!-- Hours -->
+                    <div class="card hours-card">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        </div>
+                        <div class="card-body">
+                            <h3 data-fr="Heures d'ouverture" data-en="Business Hours">Heures d'ouverture</h3>
+                            <div class="hours-rows">
+                                <div class="hours-row">
+                                    <span class="day" data-fr="Lundi au vendredi" data-en="Monday to Friday">Lundi au vendredi</span>
+                                    <span class="time">8h &ndash; 17h</span>
+                                </div>
+                                <div class="hours-row">
+                                    <span class="day" data-fr="Samedi et dimanche" data-en="Saturday &amp; Sunday">Samedi et dimanche</span>
+                                    <span class="time closed" data-fr="Fermé" data-en="Closed">Fermé</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Facebook -->
+                    <a href="https://www.facebook.com/electrautoquebec" target="_blank" rel="noopener" class="card card-facebook">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        </div>
+                        <div class="card-body">
+                            <h3>Facebook</h3>
+                            <p data-fr="Suivez-nous" data-en="Follow us">Suivez-nous</p>
+                        </div>
+                        <div class="card-arrow">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="contact-form-wrapper reveal">
+                    <h3 data-fr="Envoyez-nous un message" data-en="Send us a message">Envoyez-nous un message</h3>
+                    <form id="contact-form" class="contact-form">
+                        <div class="form-group">
+                            <label for="contact-name" data-fr="Nom" data-en="Name">Nom</label>
+                            <input type="text" id="contact-name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-email" data-fr="Courriel" data-en="Email">Courriel</label>
+                            <input type="email" id="contact-email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-phone" data-fr="Téléphone" data-en="Phone">Téléphone</label>
+                            <input type="tel" id="contact-phone" name="phone">
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-message" data-fr="Message" data-en="Message">Message</label>
+                            <textarea id="contact-message" name="message" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full" data-fr="Envoyer" data-en="Send">Envoyer</button>
+                        <div class="form-status" id="form-status"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         FOOTER
+         ============================================ -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="footer-logo">ELECTR<span class="apostrophe">'</span>AUTO</div>
+                    <p data-fr="Mécanique Générale" data-en="General Mechanics">Mécanique Générale</p>
+                    <p class="footer-address">2485, boul. Wilfrid-Hamel<br>Québec (QC) G1P 2H9</p>
+                </div>
+                <div class="footer-links">
+                    <h4 data-fr="Navigation" data-en="Navigation">Navigation</h4>
+                    <ul>
+                        <li><a href="#accueil" data-fr="Accueil" data-en="Home">Accueil</a></li>
+                        <li><a href="#services" data-fr="Services" data-en="Services">Services</a></li>
+                        <li><a href="#apropos" data-fr="À Propos" data-en="About">À Propos</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="#contact" data-fr="Contact" data-en="Contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4 data-fr="Contact" data-en="Contact">Contact</h4>
+                    <p><a href="tel:+14186669769">1.418.666.9769</a></p>
+                    <p><a href="mailto:info@electrautoquebec.com">info@electrautoquebec.com</a></p>
+                    <p data-fr="Lun-Ven : 8h – 17h" data-en="Mon-Fri: 8am – 5pm">Lun-Ven : 8h – 17h</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 <strong>Électr'auto Québec</strong> &middot; <span data-fr="Tous droits réservés" data-en="All rights reserved">Tous droits réservés</span></p>
+                <a href="admin.html" class="admin-link" data-fr="Administration" data-en="Administration">Administration</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/supabase-config.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
