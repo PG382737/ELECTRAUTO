@@ -1999,6 +1999,9 @@ a.contact__item--phone:hover .contact__arrow {
 [data-theme="light"] .contact__item svg {
     color: var(--accent);
 }
+[data-theme="light"] .contact__item--fb svg {
+    color: #1877F2;
+}
 [data-theme="light"] a.contact__item:hover {
     box-shadow: 0 6px 24px rgba(0,0,0,0.12);
     transform: translateY(-2px) translateX(4px);
