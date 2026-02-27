@@ -2027,7 +2027,7 @@ a.contact__item--phone:hover .contact__arrow {
 [data-theme="light"] .field input:not(:placeholder-shown) + label,
 [data-theme="light"] .field textarea:focus + label,
 [data-theme="light"] .field textarea:not(:placeholder-shown) + label {
-    color: #888;
+    color: var(--accent);
 }
 
 /* ---- Hide sparks in light mode (causes yellow tint) ---- */
