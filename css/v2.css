@@ -735,16 +735,17 @@ img { max-width:100%; height:auto; display:block; }
     color: var(--accent);
 }
 .scard__badge {
-    align-self: flex-start;
+    position: absolute;
+    top: 20px;
+    right: 20px;
     background: var(--accent);
     color: #fff;
     font-size: 0.65rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1.5px;
-    padding: 3px 10px;
+    padding: 4px 12px;
     border-radius: 20px;
-    margin-bottom: 10px;
 }
 .scard--featured:hover {
     transform: none;
