@@ -90,14 +90,25 @@
 
     // Handle hash on page load (from other pages), then clean URL
     if (window.location.hash) {
-        var target = document.querySelector(window.location.hash);
-        if (target) {
-            setTimeout(function() {
-                var navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 72;
-                var top = target.getBoundingClientRect().top + window.scrollY - navH;
-                window.scrollTo({ top: top, behavior: 'smooth' });
-                history.replaceState(null, '', window.location.pathname);
-            }, 100);
+        var hashTarget = window.location.hash;
+        // Prevent browser default jump
+        history.scrollRestoration = 'manual';
+        window.scrollTo(0, 0);
+
+        function scrollToHash() {
+            var el = document.querySelector(hashTarget);
+            if (!el) return;
+            var navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 72;
+            var top = el.getBoundingClientRect().top + window.scrollY - navH;
+            window.scrollTo({ top: top, behavior: 'smooth' });
+            history.replaceState(null, '', window.location.pathname);
+        }
+
+        // Wait for full page load (fonts, images) before scrolling
+        if (document.readyState === 'complete') {
+            scrollToHash();
+        } else {
+            window.addEventListener('load', scrollToHash);
         }
     }
 
