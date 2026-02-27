@@ -160,7 +160,9 @@
 
         if (!wasExpanded) {
             card.classList.add('expanded');
-            servicesGrid.classList.add('has-expanded');
+            if (!card.classList.contains('scard--featured')) {
+                servicesGrid.classList.add('has-expanded');
+            }
 
             // Scroll the expanded card into view smoothly
             var navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 72;
