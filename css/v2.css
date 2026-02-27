@@ -1750,7 +1750,7 @@ a.contact__item--phone:hover .contact__arrow {
     --text-dark-muted: #888888;
     --border: rgba(0,0,0,0.06);
     --border-light: rgba(0,0,0,0.06);
-    --bg-field: #f0f0f0;
+    --bg-field: #ffffff;
 }
 
 /* ---- Navbar ---- */
