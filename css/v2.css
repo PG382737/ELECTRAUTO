@@ -747,6 +747,13 @@ img { max-width:100%; height:auto; display:block; }
     padding: 4px 12px;
     border-radius: 20px;
 }
+.scard--featured .scard__details {
+    display: block;
+}
+.scard--featured .scard__more,
+.scard--featured .scard__close {
+    display: none !important;
+}
 .scard--featured:hover {
     transform: none;
     border-color: rgba(207,138,46,0.5);
