@@ -946,6 +946,24 @@ img { max-width:100%; height:auto; display:block; }
     background: var(--bg-elevated);
 }
 
+.blog-card-placeholder {
+    width: 100%;
+    height: 200px;
+    background: #1e1e24;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: #3a3a44;
+    user-select: none;
+}
+.blog-card-placeholder span {
+    color: #5a4a2a;
+}
+
 .blog-card-body {
     padding: 24px;
     flex: 1;
@@ -1030,6 +1048,26 @@ img { max-width:100%; height:auto; display:block; }
     aspect-ratio: 16/9;
     object-fit: cover;
     background: var(--card);
+}
+
+.article-hero-placeholder {
+    width: 100%;
+    border-radius: var(--radius);
+    margin-bottom: 32px;
+    aspect-ratio: 16/9;
+    background: #1e1e24;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: 5px;
+    color: #3a3a44;
+    user-select: none;
+}
+.article-hero-placeholder span {
+    color: #5a4a2a;
 }
 
 .article-body {

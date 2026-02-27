@@ -137,6 +137,11 @@ document.addEventListener('DOMContentLoaded', function() {
             img.src = article.image_url;
             img.alt = title;
             img.style.display = 'block';
+        } else {
+            var placeholder = document.createElement('div');
+            placeholder.className = 'article-hero-placeholder';
+            placeholder.innerHTML = 'ELECTR<span>\u2019</span>AUTO';
+            img.parentNode.insertBefore(placeholder, img);
         }
 
         document.getElementById('article-body').innerHTML = articleContent;

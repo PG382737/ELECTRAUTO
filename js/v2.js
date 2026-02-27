@@ -240,7 +240,7 @@
 
                 var logoHtml = a.logo_overlay ? '<span class="blog-card-logo">ELECTR<span class="o">&#8217;</span>AUTO</span>' : '';
                 card.innerHTML =
-                    (a.image_url ? '<div class="blog-card-img' + (a.logo_overlay ? ' blog-card-img--logo' : '') + '"><img class="blog-card-image" src="' + a.image_url + '" alt="">' + logoHtml + '</div>' : '<div class="blog-card-image"></div>') +
+                    (a.image_url ? '<div class="blog-card-img' + (a.logo_overlay ? ' blog-card-img--logo' : '') + '"><img class="blog-card-image" src="' + a.image_url + '" alt="">' + logoHtml + '</div>' : '<div class="blog-card-placeholder">ELECTR<span>\u2019</span>AUTO</div>') +
                     '<div class="blog-card-body">' +
                         '<div class="blog-card-date">' + date + '</div>' +
                         '<div class="blog-card-title">' + a.title + '</div>' +

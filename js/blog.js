@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 card.innerHTML =
                     (article.image_url
                         ? '<img class="blog-card-image" src="' + article.image_url + '" alt="' + escapeHtml(title) + '" loading="lazy">'
-                        : '<div class="blog-card-image"></div>') +
+                        : '<div class="blog-card-placeholder">ELECTR<span>\u2019</span>AUTO</div>') +
                     '<div class="blog-card-body">' +
                         '<div class="blog-card-date">' + dateStr + '</div>' +
                         '<div class="blog-card-title">' + escapeHtml(title) + '</div>' +
