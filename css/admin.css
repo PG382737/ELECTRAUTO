@@ -824,6 +824,7 @@ html::-webkit-scrollbar { display: none; }
     align-items: center;
     color: var(--text-muted);
     font-size: 0.82rem;
+    pointer-events: none;
 }
 #image-preview img {
     width: 100%;
