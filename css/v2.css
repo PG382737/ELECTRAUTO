@@ -2837,9 +2837,19 @@ a.contact__item--phone:hover .contact__arrow {
 }
 
 /* Animated dots for loading buttons */
+.btn-loading {
+    pointer-events: none;
+    color: transparent !important;
+    position: relative;
+}
 .btn-loading::after {
     content: '';
     animation: dots 1.2s steps(4, end) infinite;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
 }
 @keyframes dots {
     0%  { content: ''; }

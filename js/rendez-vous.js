@@ -450,9 +450,7 @@
         }
 
         var btn = form.querySelector('[type="submit"]');
-        var origHTML = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '';
         btn.classList.add('btn-loading');
 
         var errorDiv = document.getElementById('appt-error');
