@@ -72,6 +72,35 @@
         });
     });
 
+    // ---- Smooth scroll for anchor links + clean URL ----
+    document.querySelectorAll('a[href^="#"], a[href^="index.html#"]').forEach(function(a) {
+        a.addEventListener('click', function(e) {
+            var href = this.getAttribute('href');
+            var hash = href.indexOf('#') !== -1 ? href.substring(href.indexOf('#')) : '';
+            if (!hash) return;
+            var target = document.querySelector(hash);
+            if (!target) return;
+            e.preventDefault();
+            var navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 72;
+            var top = target.getBoundingClientRect().top + window.scrollY - navH;
+            window.scrollTo({ top: top, behavior: 'smooth' });
+            history.replaceState(null, '', window.location.pathname);
+        });
+    });
+
+    // Handle hash on page load (from other pages), then clean URL
+    if (window.location.hash) {
+        var target = document.querySelector(window.location.hash);
+        if (target) {
+            setTimeout(function() {
+                var navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 72;
+                var top = target.getBoundingClientRect().top + window.scrollY - navH;
+                window.scrollTo({ top: top, behavior: 'smooth' });
+                history.replaceState(null, '', window.location.pathname);
+            }, 100);
+        }
+    }
+
     // ---- Active link on scroll ----
     var sections = document.querySelectorAll('section[id]');
     var navAnchors = document.querySelectorAll('.nav__links a[href^="#"]');
