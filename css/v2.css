@@ -2842,6 +2842,9 @@ a.contact__item--phone:hover .contact__arrow {
     color: transparent !important;
     position: relative;
 }
+.btn-loading svg {
+    opacity: 0;
+}
 .btn-loading::after {
     content: '';
     animation: dots 1.2s steps(4, end) infinite;
