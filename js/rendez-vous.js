@@ -500,7 +500,7 @@
                 + '<p>' + (lang === 'en'
                     ? 'We have received your appointment request. A team member will contact you shortly to confirm your appointment.'
                     : 'Nous avons bien reçu votre demande de rendez-vous. Un membre de notre équipe communiquera avec vous sous peu pour confirmer votre rendez-vous.') + '</p>'
-                + '<a href="index-v2.html" class="btn btn--ghost">' + (lang === 'en' ? 'Back to home' : 'Retour à l\'accueil') + '</a>'
+                + '<a href="index.html" class="btn btn--ghost">' + (lang === 'en' ? 'Back to home' : 'Retour à l\'accueil') + '</a>'
                 + '</div></div>';
             form.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
