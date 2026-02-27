@@ -89,27 +89,22 @@
     });
 
     // Handle hash on page load (from other pages), then clean URL
-    if (window.location.hash) {
-        var hashTarget = window.location.hash;
-        // Prevent browser default jump
+    var _pendingHash = window.location.hash || null;
+
+    function scrollToHash() {
+        if (!_pendingHash) return;
+        var el = document.querySelector(_pendingHash);
+        if (!el) return;
+        var navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 72;
+        var top = el.getBoundingClientRect().top + window.scrollY - navH;
+        window.scrollTo({ top: top, behavior: 'smooth' });
+        history.replaceState(null, '', window.location.pathname);
+        _pendingHash = null;
+    }
+
+    if (_pendingHash) {
         history.scrollRestoration = 'manual';
         window.scrollTo(0, 0);
-
-        function scrollToHash() {
-            var el = document.querySelector(hashTarget);
-            if (!el) return;
-            var navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 72;
-            var top = el.getBoundingClientRect().top + window.scrollY - navH;
-            window.scrollTo({ top: top, behavior: 'smooth' });
-            history.replaceState(null, '', window.location.pathname);
-        }
-
-        // Wait for full page load (fonts, images) before scrolling
-        if (document.readyState === 'complete') {
-            scrollToHash();
-        } else {
-            window.addEventListener('load', scrollToHash);
-        }
     }
 
     // ---- Active link on scroll ----
@@ -295,8 +290,15 @@
     if (blogPreview) {
         fetch('/api/articles?limit=4&offset=0')
             .then(function(res) { return res.json(); })
-            .then(renderBlogPreview)
-            .catch(function() {});
+            .then(function(articles) {
+                renderBlogPreview(articles);
+                scrollToHash();
+            })
+            .catch(function() { scrollToHash(); });
+    } else {
+        // No blog section — scroll on load
+        if (document.readyState === 'complete') { scrollToHash(); }
+        else { window.addEventListener('load', scrollToHash); }
     }
 
 })();
