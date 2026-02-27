@@ -1946,9 +1946,10 @@ a.contact__item--phone:hover .contact__arrow {
 
 /* ---- Passion box ---- */
 [data-theme="light"] .about__passion {
-    background: #ffffff;
-    border-color: transparent;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    background: #fff;
+    border-color: #eee;
+    border-left-color: var(--accent);
+    box-shadow: 0 1px 8px rgba(0,0,0,0.05);
 }
 [data-theme="light"] .about__passion p {
     color: #555;
@@ -2342,11 +2343,6 @@ a.contact__item--phone:hover .contact__arrow {
     .bg-selector__label { font-size: 0.7rem; }
 }
 
-/* About passion in light mode */
-[data-theme="light"] .about__passion {
-    background: rgba(207,138,46,0.06);
-    border-color: rgba(207,138,46,0.12);
-}
 
 /* ============================================
    APPOINTMENT PAGE
