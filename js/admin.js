@@ -570,7 +570,11 @@ document.getElementById('crop-confirm').addEventListener('click', async function
             })
         });
 
-        if (!res.ok) throw new Error('Upload failed');
+        if (!res.ok) {
+            var errData = {};
+            try { errData = await res.json(); } catch(e) {}
+            throw new Error(errData.error || 'Upload failed (status ' + res.status + ')');
+        }
         var result = await res.json();
         document.getElementById('edit-image-url').value = result.url;
         updateRemoveImageBtn();

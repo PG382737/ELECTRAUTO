@@ -68,6 +68,11 @@ exports.handler = async (event) => {
 
         if (!uploadRes.ok) {
             const text = await uploadRes.text();
+            console.error('Supabase Storage error:', uploadRes.status, text);
+            // If bucket doesn't exist, provide a clear message
+            if (uploadRes.status === 404 || text.includes('not found')) {
+                throw new Error('Le bucket "article-images" n\'existe pas dans Supabase Storage. Créez-le dans le Dashboard.');
+            }
             throw new Error(`Upload failed: ${uploadRes.status} ${text}`);
         }
 
