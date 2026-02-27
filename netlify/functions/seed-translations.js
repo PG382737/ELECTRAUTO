@@ -80,7 +80,7 @@ const TRANSLATIONS = {
 exports.handler = async (event) => {
     const headers = {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Origin': 'https://electrautoquebec.com'
     };
 
     if (event.httpMethod !== 'GET') {
