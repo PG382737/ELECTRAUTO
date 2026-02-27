@@ -1359,7 +1359,7 @@ a.contact__item--phone:hover .contact__arrow {
     justify-content: center;
     text-align: center;
     padding: 48px 24px;
-    min-height: 360px;
+    flex: 1;
     animation: fadeInDetails 0.5s ease;
 }
 

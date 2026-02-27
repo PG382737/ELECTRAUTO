@@ -212,7 +212,6 @@
             var orig = btn.textContent;
 
             btn.disabled = true;
-            btn.textContent = '';
             btn.classList.add('btn-loading');
             status.textContent = '';
             status.className = 'form-status';
