@@ -1248,6 +1248,7 @@ a.contact__item--phone:hover .contact__arrow {
 .contact__form form {
     display: flex;
     flex-direction: column;
+    flex: 1;
 }
 
 .field--grow {
@@ -1255,8 +1256,12 @@ a.contact__item--phone:hover .contact__arrow {
     flex-direction: column;
 }
 
+.field--grow {
+    flex: 1;
+}
 .field--grow textarea {
     min-height: 120px;
+    flex: 1;
 }
 
 .contact__form h3 {
