@@ -721,6 +721,43 @@ img { max-width:100%; height:auto; display:block; }
     }
 }
 
+/* Featured service card */
+.scard--featured {
+    grid-column: 1 / -1;
+    border-color: rgba(207,138,46,0.35);
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba(207,138,46,0.06) 100%);
+}
+.scard--featured .scard__icon {
+    background: var(--accent-glow);
+    border-color: rgba(207,138,46,0.25);
+}
+.scard--featured .scard__icon svg {
+    color: var(--accent);
+}
+.scard__badge {
+    align-self: flex-start;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+}
+.scard--featured:hover {
+    transform: none;
+    border-color: rgba(207,138,46,0.5);
+}
+[data-theme="light"] .scard--featured {
+    background: linear-gradient(135deg, #fff 0%, rgba(207,138,46,0.06) 100%);
+    border-color: rgba(207,138,46,0.3);
+}
+[data-theme="light"] .scard--featured:hover {
+    border-color: rgba(207,138,46,0.5);
+}
+
 /* ============================================
    PERFORMANCE BANNER
    ============================================ */

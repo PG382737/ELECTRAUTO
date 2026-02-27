@@ -95,6 +95,29 @@
             <!-- Services Grid — 6 cards (expand fullwidth) -->
             <div class="services-grid" id="services-grid">
 
+                <div class="scard scard--featured reveal">
+                    <div class="scard__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                    </div>
+                    <span class="scard__badge" data-fr="Service vedette" data-en="Featured Service">Service vedette</span>
+                    <h3 data-fr="Programmation de clés" data-en="Key Programming">Programmation de clés</h3>
+                    <p data-fr="Perte de clé, clé endommagée ou ajout d'une clé supplémentaire ? Nous programmons les clés et télécommandes pour toutes les marques de véhicules, directement à notre atelier." data-en="Lost key, damaged key, or need an extra? We program keys and remotes for all vehicle brands, right at our workshop.">Perte de clé, clé endommagée ou ajout d'une clé supplémentaire ? Nous programmons les clés et télécommandes pour toutes les marques de véhicules, directement à notre atelier.</p>
+                    <button class="scard__more" onclick="toggleService(this.parentElement)" data-fr="Détails" data-en="Details">Détails <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+                    <button class="scard__close" onclick="event.stopPropagation(); toggleService(this.closest('.scard'))" aria-label="Fermer">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                    <div class="scard__details">
+                        <ul class="scard__list">
+                            <li data-fr="Programmation de clés neuves" data-en="New key programming">Programmation de clés neuves</li>
+                            <li data-fr="Remplacement de clés perdues (toutes marques)" data-en="Lost key replacement (all brands)">Remplacement de clés perdues (toutes marques)</li>
+                            <li data-fr="Programmation de télécommandes" data-en="Remote programming">Programmation de télécommandes</li>
+                            <li data-fr="Réparation du système antidémarrage" data-en="Immobilizer system repair">Réparation du système antidémarrage</li>
+                            <li data-fr="Copie et duplication de clés à puce" data-en="Transponder key copy and duplication">Copie et duplication de clés à puce</li>
+                            <li data-fr="Clés intelligentes (smart key / proximity)" data-en="Smart keys (smart key / proximity)">Clés intelligentes (smart key / proximity)</li>
+                        </ul>
+                    </div>
+                </div>
+
                 <div class="scard reveal">
                     <div class="scard__icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9m-6-6h15m-6 0V6"/></svg>
