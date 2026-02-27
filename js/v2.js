@@ -12,7 +12,7 @@
 
         document.querySelectorAll('[data-fr][data-en]').forEach(function(el) {
             var val = el.getAttribute('data-' + lang);
-            if (el.innerHTML.includes('<br') || el.innerHTML.includes('<a')) {
+            if (el.innerHTML.includes('<br') || el.innerHTML.includes('<a') || el.innerHTML.includes('<em')) {
                 el.innerHTML = val;
             } else {
                 el.textContent = val;
