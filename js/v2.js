@@ -209,7 +209,6 @@
             e.preventDefault();
             var status = document.getElementById('form-status');
             var btn = form.querySelector('button[type="submit"]');
-            var orig = btn.textContent;
 
             btn.disabled = true;
             btn.classList.add('btn-loading');
@@ -249,7 +248,6 @@
 
             btn.disabled = false;
             btn.classList.remove('btn-loading');
-            btn.textContent = orig;
         });
     }
 

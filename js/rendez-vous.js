@@ -512,7 +512,6 @@
 
         btn.disabled = false;
         btn.classList.remove('btn-loading');
-        btn.innerHTML = origHTML;
     });
 
 })();
