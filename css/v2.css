@@ -656,8 +656,8 @@ img { max-width:100%; height:auto; display:block; }
     border-color: rgba(207,138,46,0.25);
 }
 
-/* Hide non-expanded cards when one is expanded */
-.services-grid.has-expanded .scard:not(.expanded) {
+/* Hide non-expanded cards when one is expanded (keep featured visible) */
+.services-grid.has-expanded .scard:not(.expanded):not(.scard--featured) {
     display: none;
 }
 

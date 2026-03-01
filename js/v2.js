@@ -149,34 +149,16 @@
     window.toggleService = function(card) {
         var wasExpanded = card.classList.contains('expanded');
 
-        // Anchor: save the section heading position relative to viewport
-        var anchor = servicesSection || servicesGrid;
-        var anchorTop = anchor.getBoundingClientRect().top;
-
-        // Close all cards first
-        document.querySelectorAll('.scard.expanded').forEach(function(c) {
+        // Close all non-featured expanded cards
+        document.querySelectorAll('.scard.expanded:not(.scard--featured)').forEach(function(c) {
             c.classList.remove('expanded');
         });
 
         if (!wasExpanded) {
             card.classList.add('expanded');
-            if (!card.classList.contains('scard--featured')) {
-                servicesGrid.classList.add('has-expanded');
-            }
-
-            // Scroll the expanded card into view smoothly
-            var navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 72;
-            var cardTop = card.getBoundingClientRect().top + window.scrollY - navH - 20;
-            window.scrollTo({ top: cardTop, behavior: 'smooth' });
+            servicesGrid.classList.add('has-expanded');
         } else {
             servicesGrid.classList.remove('has-expanded');
-
-            // Restore scroll so the section stays at same viewport position
-            var newAnchorTop = anchor.getBoundingClientRect().top;
-            var drift = newAnchorTop - anchorTop;
-            if (Math.abs(drift) > 1) {
-                window.scrollBy(0, drift);
-            }
         }
     };
 
