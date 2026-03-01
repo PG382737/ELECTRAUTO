@@ -1021,6 +1021,25 @@ img { max-width:100%; height:auto; display:block; }
     padding: 0 0 48px;
 }
 
+.blog-loader {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+.blog-loader__spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 14px;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 .blog-empty {
     grid-column: 1 / -1;
     text-align: center;

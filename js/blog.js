@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ---- Load Articles ----
     var blogList = document.getElementById('blog-list');
     var blogEmpty = document.getElementById('blog-empty');
+    var blogLoader = document.getElementById('blog-loader');
     var loadMoreWrapper = document.getElementById('load-more-wrapper');
     var loadMoreBtn = document.getElementById('load-more');
     var LIMIT = 9;
@@ -83,6 +84,8 @@ document.addEventListener('DOMContentLoaded', function() {
             var res = await fetch('/api/articles?limit=' + LIMIT + '&offset=' + offset);
             if (!res.ok) throw new Error('Failed to load articles');
             var articles = await res.json();
+
+            if (blogLoader) blogLoader.style.display = 'none';
 
             if (articles.length === 0 && offset === 0) {
                 blogEmpty.style.display = 'block';
@@ -126,6 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
         } catch(e) {
+            if (blogLoader) blogLoader.style.display = 'none';
             blogEmpty.style.display = 'block';
         }
     }
