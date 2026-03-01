@@ -146,7 +146,8 @@
     var servicesGrid = document.getElementById('services-grid');
     var servicesSection = servicesGrid ? servicesGrid.closest('section') : null;
 
-    var mobileQuery = window.matchMedia('(max-width: 600px)');
+    var mobileQuery = window.matchMedia('(max-width: 768px)');
+    var tabletQuery = window.matchMedia('(min-width: 769px) and (max-width: 1024px)');
 
     window.toggleService = function(card) {
         var wasExpanded = card.classList.contains('expanded');
@@ -154,8 +155,31 @@
         if (mobileQuery.matches) {
             // Mobile: toggle individually, no hiding others
             card.classList.toggle('expanded');
+
+        } else if (tabletQuery.matches) {
+            // Tablet (2 cols): hide only the row partner
+            var cards = Array.from(servicesGrid.querySelectorAll('.scard:not(.scard--featured)'));
+            var idx = cards.indexOf(card);
+
+            // Clear previous row-hidden
+            cards.forEach(function(c) { c.classList.remove('row-hidden'); });
+
+            // Close all non-featured expanded cards
+            document.querySelectorAll('.scard.expanded:not(.scard--featured)').forEach(function(c) {
+                c.classList.remove('expanded');
+            });
+
+            if (!wasExpanded) {
+                card.classList.add('expanded');
+                // Hide only the row partner
+                var partnerIdx = (idx % 2 === 0) ? idx + 1 : idx - 1;
+                if (partnerIdx >= 0 && partnerIdx < cards.length) {
+                    cards[partnerIdx].classList.add('row-hidden');
+                }
+            }
+
         } else {
-            // Desktop: close others, hide non-expanded
+            // Desktop (3 cols): close others, hide non-expanded
             document.querySelectorAll('.scard.expanded:not(.scard--featured)').forEach(function(c) {
                 c.classList.remove('expanded');
             });

@@ -661,6 +661,11 @@ img { max-width:100%; height:auto; display:block; }
     display: none;
 }
 
+/* Tablet: hide row partner only */
+.scard.row-hidden {
+    display: none;
+}
+
 /* Remove hover lift on expanded card */
 .scard.expanded:hover {
     transform: none;
