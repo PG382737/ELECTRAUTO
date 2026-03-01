@@ -157,24 +157,20 @@
             card.classList.toggle('expanded');
 
         } else if (tabletQuery.matches) {
-            // Tablet (2 cols): hide only the row partner
+            // Tablet (2 cols): toggle individually, hide/show row partner
             var cards = Array.from(servicesGrid.querySelectorAll('.scard:not(.scard--featured)'));
             var idx = cards.indexOf(card);
-
-            // Clear previous row-hidden
-            cards.forEach(function(c) { c.classList.remove('row-hidden'); });
-
-            // Close all non-featured expanded cards
-            document.querySelectorAll('.scard.expanded:not(.scard--featured)').forEach(function(c) {
-                c.classList.remove('expanded');
-            });
+            var partnerIdx = (idx % 2 === 0) ? idx + 1 : idx - 1;
 
             if (!wasExpanded) {
                 card.classList.add('expanded');
-                // Hide only the row partner
-                var partnerIdx = (idx % 2 === 0) ? idx + 1 : idx - 1;
                 if (partnerIdx >= 0 && partnerIdx < cards.length) {
                     cards[partnerIdx].classList.add('row-hidden');
+                }
+            } else {
+                card.classList.remove('expanded');
+                if (partnerIdx >= 0 && partnerIdx < cards.length) {
+                    cards[partnerIdx].classList.remove('row-hidden');
                 }
             }
 
