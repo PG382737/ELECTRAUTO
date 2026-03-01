@@ -146,19 +146,26 @@
     var servicesGrid = document.getElementById('services-grid');
     var servicesSection = servicesGrid ? servicesGrid.closest('section') : null;
 
+    var mobileQuery = window.matchMedia('(max-width: 600px)');
+
     window.toggleService = function(card) {
         var wasExpanded = card.classList.contains('expanded');
 
-        // Close all non-featured expanded cards
-        document.querySelectorAll('.scard.expanded:not(.scard--featured)').forEach(function(c) {
-            c.classList.remove('expanded');
-        });
-
-        if (!wasExpanded) {
-            card.classList.add('expanded');
-            servicesGrid.classList.add('has-expanded');
+        if (mobileQuery.matches) {
+            // Mobile: toggle individually, no hiding others
+            card.classList.toggle('expanded');
         } else {
-            servicesGrid.classList.remove('has-expanded');
+            // Desktop: close others, hide non-expanded
+            document.querySelectorAll('.scard.expanded:not(.scard--featured)').forEach(function(c) {
+                c.classList.remove('expanded');
+            });
+
+            if (!wasExpanded) {
+                card.classList.add('expanded');
+                servicesGrid.classList.add('has-expanded');
+            } else {
+                servicesGrid.classList.remove('has-expanded');
+            }
         }
     };
 
