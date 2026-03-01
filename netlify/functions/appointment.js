@@ -57,7 +57,7 @@ exports.handler = async (event) => {
         }
 
         const clientTypeLabel = clientType === 'existing' ? 'Client existant' : 'Nouveau client';
-        const serviceTypeLabel = serviceType === 'repair' ? 'Réparation' : 'Service (entretien)';
+        const serviceTypeLabel = serviceType === 'repair' ? 'Réparation' : 'Service';
         const contactPrefLabel = contactPref === 'phone' ? 'Téléphone' : 'Courriel';
         const courtesyLabels = {
             'none': 'Non merci',
