@@ -19,6 +19,72 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
+# Old WordPress blog slugs -> current article pages
+[[redirects]]
+  from = "/reparation-air-climatise/"
+  to = "/article.html?slug=reparation-air-climatise-sur-les-voitures"
+  status = 301
+
+[[redirects]]
+  from = "/reparation-air-climatise-automobile/"
+  to = "/article.html?slug=reparation-air-climatise-sur-les-voitures"
+  status = 301
+
+[[redirects]]
+  from = "/reparation-air-climatise-sur-les-voitures/"
+  to = "/article.html?slug=reparation-air-climatise-sur-les-voitures"
+  status = 301
+
+[[redirects]]
+  from = "/reparation-de-climatiseurs-automobiles/"
+  to = "/article.html?slug=reparation-de-climatiseurs-automobiles"
+  status = 301
+
+[[redirects]]
+  from = "/reparation-de-lair-climatise-auto-a-quebec-trouvez-le-meilleur-prix-sans-compromettre-la-qualite/"
+  to = "/article.html?slug=reparation-de-lair-climatise-auto-a-quebec-trouvez-le-meilleur-prix-sans-compromettre-la-qualite"
+  status = 301
+
+[[redirects]]
+  from = "/reparation-de-mecanismes-de-toits-cabriolet-pour-voitures-decapotables/"
+  to = "/article.html?slug=reparation-de-mecanismes-de-toits-cabriolet-pour-voitures-decapotables"
+  status = 301
+
+[[redirects]]
+  from = "/entretien-vehicule-hybride/"
+  to = "/article.html?slug=entretien-vehicule-hybride"
+  status = 301
+
+[[redirects]]
+  from = "/entretien-bmw-a-quebec/"
+  to = "/article.html?slug=entretien-de-votre-bmw-a-quebec"
+  status = 301
+
+[[redirects]]
+  from = "/entretien-de-votre-bmw-a-quebec/"
+  to = "/article.html?slug=entretien-de-votre-bmw-a-quebec"
+  status = 301
+
+[[redirects]]
+  from = "/entretien-des-freins-sur-voiture-electrique/"
+  to = "/article.html?slug=entretien-des-freins-sur-voiture-electrique"
+  status = 301
+
+[[redirects]]
+  from = "/diagnostic-electronique-avance/"
+  to = "/article.html?slug=diagnostic-electronique-avance"
+  status = 301
+
+[[redirects]]
+  from = "/garage-bmw/"
+  to = "/article.html?slug=garage-bmw"
+  status = 301
+
+[[redirects]]
+  from = "/entretien-de-voiture-dans-atelier-de-mecanique-automobile/"
+  to = "/article.html?slug=ce-que-vous-devez-faire-lorsque-vous-recherchez-un-atelier-de-reparation-automobile"
+  status = 301
+
 # Redirect unknown paths to homepage (old blog slugs, 404s, etc.)
 [[redirects]]
   from = "/*"
