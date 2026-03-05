@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réparation Mitsubishi Québec - Électr'auto Québec - Mécanique Générale et Performance</title>
+    <meta name="description" content="Réparation de véhicules Mitsubishi à Québec. Électr'auto dispose de tout l'équipement et des pièces de qualité pour effectuer une réparation fiable de votre Mitsubishi. Depuis 2006.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="css/v2.css">
+    <style>
+        .seo-article {
+            padding: 80px 0 100px;
+        }
+        .seo-article__hero-img {
+            width: 100%;
+            border-radius: var(--radius);
+            margin-bottom: 48px;
+        }
+        .seo-article__content {
+            max-width: 780px;
+        }
+        .seo-article__content h2 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 40px 0 16px;
+            color: var(--text);
+        }
+        .seo-article__content p {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+        .seo-article__content strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+        .seo-article__content a:not(.btn) {
+            color: var(--accent);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .seo-article__content a:not(.btn):hover {
+            color: var(--accent-light);
+        }
+        .seo-article__cta {
+            margin-top: 48px;
+            padding: 32px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .seo-article__cta h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        .seo-article__cta p {
+            color: var(--text-muted);
+            margin-bottom: 0;
+        }
+        .seo-article__cta-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .seo-article__meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .seo-article__meta svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--accent);
+        }
+        .seo-article__meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        [data-theme="light"] .seo-article__content h2 {
+            color: var(--text-dark);
+        }
+        [data-theme="light"] .seo-article__content strong {
+            color: var(--text-dark);
+        }
+        [data-theme="light"] .seo-article__cta {
+            background: var(--bg-light-alt);
+            border-color: var(--border-light);
+        }
+        @media (max-width: 768px) {
+            .seo-article { padding: 48px 0 64px; }
+            .seo-article__hero-img { max-height: 260px; margin-bottom: 32px; }
+            .seo-article__content h2 { font-size: 1.25rem; }
+            .seo-article__content p { font-size: 0.95rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== NAVBAR ========== -->
+    <nav class="nav" id="nav">
+        <div class="nav__inner">
+            <a href="index.html" class="nav__brand">
+                ELECTR<span class="o">&#8217;</span>AUTO
+            </a>
+            <ul class="nav__links" id="nav-links">
+                <li><a href="index.html#hero" data-fr="Accueil" data-en="Home">Accueil</a></li>
+                <li><a href="index.html#services" data-fr="Services" data-en="Services">Services</a></li>
+                <li><a href="index.html#about" data-fr="À Propos" data-en="About">À Propos</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li class="nav__links--mobile-only"><a href="rendez-vous.html" data-fr="Rendez-vous" data-en="Appointment">Rendez-vous</a></li>
+                <li class="nav__links--mobile-only"><a href="index.html#contact" data-fr="Contact" data-en="Contact">Contact</a></li>
+                <li class="nav__theme-menu">
+                    <div class="theme-toggle" id="theme-toggle-menu" role="switch" aria-label="Changer le thème">
+                        <span class="theme-toggle__opt theme-toggle__opt--sun">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                        </span>
+                        <span class="theme-toggle__opt theme-toggle__opt--moon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                        </span>
+                    </div>
+                </li>
+            </ul>
+            <div class="nav__actions">
+                <a href="rendez-vous.html" class="nav__shortcut" data-fr="Rendez-vous" data-en="Appointment">Rendez-vous</a>
+                <a href="index.html#contact" class="nav__shortcut" data-fr="Contact" data-en="Contact">Contact</a>
+                <div class="theme-toggle" id="theme-toggle" role="switch" aria-label="Changer le thème">
+                    <span class="theme-toggle__opt theme-toggle__opt--sun">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    </span>
+                    <span class="theme-toggle__opt theme-toggle__opt--moon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    </span>
+                </div>
+                <div class="lang" role="group">
+                    <button class="lang__btn active" id="btn-fr" onclick="setLang('fr')">FR</button>
+                    <button class="lang__btn" id="btn-en" onclick="setLang('en')">EN</button>
+                </div>
+                <button class="burger" id="burger" aria-label="Menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========== PAGE HEADER ========== -->
+    <section class="appt-hero appt-hero--wide">
+        <div class="appt-hero__bg"></div>
+        <div class="wrap">
+            <span class="section__tag" data-fr="Réparation automobile" data-en="Auto Repair">Réparation automobile</span>
+            <h1 data-fr="Réparation Mitsubishi Québec" data-en="Mitsubishi Repair Quebec City">Réparation Mitsubishi Québec</h1>
+            <p class="appt-hero__desc" data-fr="Votre spécialiste Mitsubishi dans la région de Québec depuis 2006." data-en="Your Mitsubishi specialist in the Quebec City area since 2006.">Votre spécialiste Mitsubishi dans la région de Québec depuis 2006.</p>
+        </div>
+    </section>
+
+    <!-- ========== ARTICLE ========== -->
+    <main class="section section--dark seo-article">
+        <div class="wrap">
+            <img class="seo-article__hero-img" src="Images/seo/mitsubishi.jpg" alt="Réparation Mitsubishi Québec - Électr'auto Québec">
+
+            <div class="seo-article__content">
+                <div class="seo-article__meta">
+                    <span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                        <span data-fr="10 février 2017" data-en="February 10, 2017">10 février 2017</span>
+                    </span>
+                    <span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        <span data-fr="2 min de lecture" data-en="2 min read">2 min de lecture</span>
+                    </span>
+                </div>
+
+                <p data-fr="Vous recherchez un atelier fiable pour confier la réparation de votre véhicule Mitsubishi à Québec? Ne cherchez plus." data-en="Looking for a reliable shop to entrust the repair of your Mitsubishi vehicle in Quebec City? Look no further.">Vous recherchez un atelier fiable pour confier la réparation de votre véhicule Mitsubishi à Québec? Ne cherchez plus.</p>
+
+                <p data-fr="Électr'auto dispose de tout l'équipement et des pièces de qualité pour effectuer une réparation fiable sur votre Mitsubishi. Il est important d'avoir confiance en l'atelier à qui vous confiez votre véhicule, et c'est exactement ce que nous offrons depuis maintenant près de 20 ans." data-en="Électr'auto has all the equipment and quality parts to perform a reliable repair on your Mitsubishi. It's important to trust the shop you entrust your vehicle to, and that's exactly what we've been offering for nearly 20 years.">Électr'auto dispose de tout l'équipement et des pièces de qualité pour effectuer une réparation fiable sur votre Mitsubishi. Il est important d'avoir confiance en l'atelier à qui vous confiez votre véhicule, et c'est exactement ce que nous offrons depuis maintenant près de 20 ans.</p>
+
+                <h2 data-fr="Pourquoi choisir Électr'auto pour votre Mitsubishi?" data-en="Why choose Électr'auto for your Mitsubishi?">Pourquoi choisir Électr'auto pour votre Mitsubishi?</h2>
+
+                <p data-fr="Depuis 2006, Électr'auto se spécialise dans la réparation de véhicules Mitsubishi à Québec. Notre équipe possède l'expertise nécessaire pour diagnostiquer et réparer tous les modèles Mitsubishi, des plus classiques aux plus récents." data-en="Since 2006, Électr'auto has specialized in Mitsubishi vehicle repair in Quebec City. Our team has the expertise to diagnose and repair all Mitsubishi models, from the classics to the newest.">Depuis 2006, Électr'auto se spécialise dans la réparation de véhicules Mitsubishi à Québec. Notre équipe possède l'expertise nécessaire pour diagnostiquer et réparer tous les modèles Mitsubishi, des plus classiques aux plus récents.</p>
+
+                <p data-fr="Si vous voulez un rendez-vous rapidement et une réparation qui ne traîne pas, c'est l'atelier qu'il vous faut. N'hésitez surtout pas à communiquer avec nous pour une soumission, il nous fera plaisir de vous répondre rapidement." data-en="If you want a quick appointment and a repair that doesn't drag on, this is the shop for you. Don't hesitate to contact us for a quote — we'll be happy to get back to you promptly.">Si vous voulez un rendez-vous rapidement et une réparation qui ne traîne pas, c'est l'atelier qu'il vous faut. N'hésitez surtout pas à communiquer avec nous pour une soumission, il nous fera plaisir de vous répondre rapidement.</p>
+
+                <h2 data-fr="Nos services pour véhicules Mitsubishi" data-en="Our services for Mitsubishi vehicles">Nos services pour véhicules Mitsubishi</h2>
+
+                <p data-fr="Nous offrons une gamme complète de services pour votre Mitsubishi, incluant la mécanique générale, l'entretien préventif, le diagnostic électronique, la réparation de systèmes électriques et électroniques, ainsi que la réparation de freins, suspension et direction." data-en="We offer a full range of services for your Mitsubishi, including general mechanics, preventive maintenance, electronic diagnostics, electrical and electronic system repair, as well as brake, suspension and steering repair.">Nous offrons une gamme complète de services pour votre Mitsubishi, incluant la mécanique générale, l'entretien préventif, le diagnostic électronique, la réparation de systèmes électriques et électroniques, ainsi que la réparation de freins, suspension et direction.</p>
+
+                <p data-fr="Pour une réparation Mitsubishi à Québec, communiquez avec nous par téléphone au <strong>418 666-9769</strong> ou par courriel à <a href='mailto:info@electrautoquebec.com'>info@electrautoquebec.com</a>." data-en="For a Mitsubishi repair in Quebec City, contact us by phone at <strong>418 666-9769</strong> or by email at <a href='mailto:info@electrautoquebec.com'>info@electrautoquebec.com</a>.">Pour une réparation Mitsubishi à Québec, communiquez avec nous par téléphone au <strong>418 666-9769</strong> ou par courriel à <a href="mailto:info@electrautoquebec.com">info@electrautoquebec.com</a>.</p>
+
+                <!-- CTA BOX -->
+                <div class="seo-article__cta">
+                    <h3 data-fr="Prenez rendez-vous dès maintenant" data-en="Book an appointment now">Prenez rendez-vous dès maintenant</h3>
+                    <p data-fr="Réparation rapide et fiable de votre Mitsubishi chez Électr'auto Québec." data-en="Fast and reliable repair for your Mitsubishi at Électr'auto Quebec.">Réparation rapide et fiable de votre Mitsubishi chez Électr'auto Québec.</p>
+                    <div class="seo-article__cta-actions">
+                        <a href="rendez-vous.html" class="btn btn--primary">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                            <span data-fr="Prendre rendez-vous" data-en="Book an Appointment">Prendre rendez-vous</span>
+                        </a>
+                        <a href="tel:+14186669769" class="btn btn--ghost">418 666-9769</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+        <div class="wrap">
+            <div class="footer__top">
+                <div class="footer__brand">
+                    <span class="footer__logo">ELECTR<span class="o">&#8217;</span>AUTO</span>
+                    <p data-fr="Mécanique Générale" data-en="General Mechanics">Mécanique Générale</p>
+                </div>
+                <div class="footer__col">
+                    <h4 data-fr="Navigation" data-en="Navigation">Navigation</h4>
+                    <a href="index.html#hero" data-fr="Accueil" data-en="Home">Accueil</a>
+                    <a href="index.html#services" data-fr="Services" data-en="Services">Services</a>
+                    <a href="index.html#about" data-fr="À Propos" data-en="About">À Propos</a>
+                    <a href="blog.html">Blog</a>
+                    <a href="rendez-vous.html" data-fr="Rendez-vous" data-en="Appointment">Rendez-vous</a>
+                    <a href="index.html#contact" data-fr="Contact" data-en="Contact">Contact</a>
+                </div>
+                <div class="footer__col">
+                    <h4 data-fr="Coordonnées" data-en="Contact Info">Coordonnées</h4>
+                    <a href="tel:+14186669769">1.418.666.9769</a>
+                    <a href="mailto:info@electrautoquebec.com">info@electrautoquebec.com</a>
+                    <span>2485, boul. Wilfrid-Hamel</span>
+                    <span>Québec (QC) G1P 2H9</span>
+                </div>
+            </div>
+            <div class="footer__bottom">
+                <p>&copy; 2026 Électr'auto Québec <span data-fr="Tous droits réservés" data-en="All rights reserved">Tous droits réservés</span></p>
+                <a href="admin.html" class="footer__admin">Admin</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/v2.js"></script>
+</body>
+</html>
