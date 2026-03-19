@@ -136,11 +136,33 @@
     var contactPrefInput = form.querySelector('[name="contactPref"]');
     var contactPrefBtns = document.querySelectorAll('#contact-pref-toggle .appt-toggle__btn');
 
+    var phoneLabel = form.querySelector('[name="phone"]').parentElement.querySelector('label');
+    var emailLabel = form.querySelector('[name="email"]').parentElement.querySelector('label');
+
+    function updateContactPrefLabels(pref) {
+        if (pref === 'phone') {
+            phoneLabel.setAttribute('data-fr', 'Téléphone *');
+            phoneLabel.setAttribute('data-en', 'Phone *');
+            phoneLabel.textContent = document.documentElement.lang === 'en' ? 'Phone *' : 'Téléphone *';
+            emailLabel.setAttribute('data-fr', 'Courriel');
+            emailLabel.setAttribute('data-en', 'Email');
+            emailLabel.textContent = document.documentElement.lang === 'en' ? 'Email' : 'Courriel';
+        } else {
+            phoneLabel.setAttribute('data-fr', 'Téléphone');
+            phoneLabel.setAttribute('data-en', 'Phone');
+            phoneLabel.textContent = document.documentElement.lang === 'en' ? 'Phone' : 'Téléphone';
+            emailLabel.setAttribute('data-fr', 'Courriel *');
+            emailLabel.setAttribute('data-en', 'Email *');
+            emailLabel.textContent = document.documentElement.lang === 'en' ? 'Email *' : 'Courriel *';
+        }
+    }
+
     contactPrefBtns.forEach(function(btn) {
         btn.addEventListener('click', function() {
             contactPrefBtns.forEach(function(b) { b.classList.remove('active'); });
             btn.classList.add('active');
             contactPrefInput.value = btn.getAttribute('data-value');
+            updateContactPrefLabels(btn.getAttribute('data-value'));
         });
     });
 
