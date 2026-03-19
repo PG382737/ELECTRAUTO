@@ -41,7 +41,8 @@ exports.handler = async (event) => {
         }
 
         const body = JSON.parse(event.body);
-        const { data, filename, contentType } = body;
+        const { data, filename, contentType, bucket } = body;
+        const targetBucket = bucket || 'article-images';
 
         if (!data || !filename) {
             return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing data or filename' }) };
@@ -54,7 +55,7 @@ exports.handler = async (event) => {
 
         // Upload to Supabase Storage
         const uploadRes = await fetch(
-            `${SUPABASE_URL}/storage/v1/object/article-images/${safeName}`,
+            `${SUPABASE_URL}/storage/v1/object/${targetBucket}/${safeName}`,
             {
                 method: 'POST',
                 headers: {
@@ -72,12 +73,12 @@ exports.handler = async (event) => {
             console.error('Supabase Storage error:', uploadRes.status, text);
             // If bucket doesn't exist, provide a clear message
             if (uploadRes.status === 404 || text.includes('not found')) {
-                throw new Error('Le bucket "article-images" n\'existe pas dans Supabase Storage. Créez-le dans le Dashboard.');
+                throw new Error(`Le bucket "${targetBucket}" n'existe pas dans Supabase Storage. Créez-le dans le Dashboard.`);
             }
             throw new Error(`Upload failed: ${uploadRes.status} ${text}`);
         }
 
-        const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/article-images/${safeName}`;
+        const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/${targetBucket}/${safeName}`;
 
         return {
             statusCode: 200,

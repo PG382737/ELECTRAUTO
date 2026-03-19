@@ -77,6 +77,10 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                     Notes
                 </button>
+                <button class="sidebar__link" data-tab="control">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    Control
+                </button>
             </nav>
             <div class="sidebar__bottom">
                 <button class="sidebar__link sidebar__link--muted" id="btn-logout">
@@ -171,7 +175,266 @@
                 </div>
             </div>
 
+            <!-- ===== CONTROL TAB ===== -->
+            <div class="tab" id="tab-control">
+
+                <!-- Password gate -->
+                <div id="control-gate" class="control-gate">
+                    <div class="control-gate__box">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:48px;height:48px;color:var(--accent);margin-bottom:16px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <h2>Accès Control</h2>
+                        <p style="color:var(--text-muted);margin:8px 0 20px;">Entrez le mot de passe pour accéder au module Control.</p>
+                        <div class="form-group">
+                            <input type="password" id="control-pwd" placeholder="Mot de passe">
+                        </div>
+                        <button class="btn btn--primary btn--full" id="control-pwd-btn">Accéder</button>
+                        <div class="control-gate__error" id="control-pwd-error"></div>
+                    </div>
+                </div>
+
+                <!-- Control content (hidden until password entered) -->
+                <div id="control-content" style="display:none;">
+                    <div class="control-subtabs">
+                        <button class="control-subtab active" data-subtab="employees">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            Employés
+                        </button>
+                        <button class="control-subtab" data-subtab="vehicles">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/></svg>
+                            Voitures
+                        </button>
+                        <button class="control-subtab" data-subtab="scanner">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M12 6v12M6 12h12"/></svg>
+                            Dashboard
+                        </button>
+                    </div>
+
+                    <!-- Employees panel -->
+                    <div class="control-panel active" id="panel-employees">
+                        <div class="main__header">
+                            <h1>Employés</h1>
+                            <button class="btn btn--primary" id="btn-new-employee">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M12 5v14m-7-7h14"/></svg>
+                                Nouvel employé
+                            </button>
+                        </div>
+                        <div id="employees-list"></div>
+                    </div>
+
+                    <!-- Vehicles panel -->
+                    <div class="control-panel" id="panel-vehicles">
+                        <div class="main__header">
+                            <h1>Voitures</h1>
+                            <button class="btn btn--primary" id="btn-new-vehicle">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M12 5v14m-7-7h14"/></svg>
+                                Nouveau véhicule
+                            </button>
+                        </div>
+                        <div id="vehicles-list"></div>
+                    </div>
+
+                    <!-- Scanner panel (triggers fullscreen) -->
+                    <div class="control-panel" id="panel-scanner">
+                        <div class="control-scanner-intro">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="width:80px;height:80px;color:var(--accent);margin-bottom:24px;"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M7 7h3v3H7zM14 7h3v3h-3zM7 14h3v3H7z"/><path d="M14 14h3v3h-3z"/></svg>
+                            <h2>Scanner NFC</h2>
+                            <p style="color:var(--text-muted);margin:12px 0 24px;">Ouvrez le scanner plein écran pour commencer à puncher les bons de travail.</p>
+                            <button class="btn btn--primary" id="btn-open-scanner" style="font-size:1.1rem;padding:14px 32px;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M23 7V1h-6M1 17v6h6M23 17v6h-6M1 7V1h6"/></svg>
+                                Ouvrir le scanner
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </main>
+    </div>
+
+    <!-- ===== EMPLOYEE MODAL ===== -->
+    <div class="modal-overlay" id="employee-modal">
+        <div class="modal">
+            <div class="modal__header">
+                <h2 id="employee-modal-title">Nouvel employé</h2>
+                <button class="modal__close" id="employee-modal-close">&times;</button>
+            </div>
+            <div class="modal__body">
+                <input type="hidden" id="emp-edit-id">
+                <div class="form-group">
+                    <label>Prénom</label>
+                    <input type="text" id="emp-first-name" placeholder="Prénom">
+                </div>
+                <div class="form-group">
+                    <label>Nom</label>
+                    <input type="text" id="emp-last-name" placeholder="Nom de famille">
+                </div>
+                <div class="form-group">
+                    <label>Date d'embauche</label>
+                    <input type="date" id="emp-hire-date">
+                </div>
+                <div class="form-group">
+                    <label>Badge NFC</label>
+                    <div class="nfc-assign-row">
+                        <input type="text" id="emp-nfc-tag" placeholder="Aucun badge assigné" readonly>
+                        <button type="button" class="btn btn--ghost btn--sm" id="emp-assign-nfc">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M23 7V1h-6M1 17v6h6M23 17v6h-6M1 7V1h6"/></svg>
+                            Scanner
+                        </button>
+                        <button type="button" class="btn btn--ghost btn--sm" id="emp-clear-nfc" style="display:none;">Retirer</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal__footer">
+                <button class="btn btn--ghost" id="emp-cancel">Annuler</button>
+                <button class="btn btn--primary" id="emp-save">Sauvegarder</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== EMPLOYEE STATS MODAL ===== -->
+    <div class="modal-overlay" id="employee-stats-modal">
+        <div class="modal modal--wide">
+            <div class="modal__header">
+                <h2 id="emp-stats-title">Statistiques</h2>
+                <button class="modal__close" id="emp-stats-close">&times;</button>
+            </div>
+            <div class="modal__body">
+                <div class="period-filters" id="emp-stats-periods">
+                    <button class="period-btn" data-period="day">Aujourd'hui</button>
+                    <button class="period-btn" data-period="week">Semaine</button>
+                    <button class="period-btn active" data-period="month">Mois</button>
+                    <button class="period-btn" data-period="year">Année</button>
+                    <button class="period-btn" data-period="all">Tout</button>
+                </div>
+                <div class="stats-grid" id="emp-stats-cards">
+                    <div class="stat-card">
+                        <div class="stat-card__value" id="emp-stat-hours">—</div>
+                        <div class="stat-card__label">Heures travaillées</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card__value" id="emp-stat-vehicles">—</div>
+                        <div class="stat-card__label">Véhicules</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card__value" id="emp-stat-avg">—</div>
+                        <div class="stat-card__label">Temps moyen / véhicule</div>
+                    </div>
+                </div>
+                <h3 style="margin:28px 0 14px;font-size:0.95rem;">Historique récent</h3>
+                <div id="emp-stats-history"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== VEHICLE MODAL ===== -->
+    <div class="modal-overlay" id="vehicle-modal">
+        <div class="modal modal--wide">
+            <div class="modal__header">
+                <h2 id="vehicle-modal-title">Nouveau véhicule</h2>
+                <button class="modal__close" id="vehicle-modal-close">&times;</button>
+            </div>
+            <div class="modal__body">
+                <input type="hidden" id="veh-edit-id">
+                <div class="form-row">
+                    <div class="form-group form-group--half">
+                        <label>Propriétaire *</label>
+                        <input type="text" id="veh-owner" placeholder="Nom du propriétaire">
+                    </div>
+                    <div class="form-group form-group--half">
+                        <label>Téléphone</label>
+                        <input type="tel" id="veh-phone" placeholder="418-555-1234">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group form-group--half">
+                        <label>Marque *</label>
+                        <input type="text" id="veh-make" placeholder="Ex: Honda Civic">
+                    </div>
+                    <div class="form-group form-group--half">
+                        <label>Couleur</label>
+                        <input type="text" id="veh-color" placeholder="Ex: Blanc">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group form-group--half">
+                        <label>Plaque</label>
+                        <input type="text" id="veh-plate" placeholder="ABC 1234" style="text-transform:uppercase;">
+                    </div>
+                    <div class="form-group form-group--half">
+                        <label>Année</label>
+                        <input type="text" id="veh-year" placeholder="2024" maxlength="4">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>NIV (VIN)</label>
+                    <input type="text" id="veh-vin" placeholder="17 caractères" maxlength="17" style="text-transform:uppercase;">
+                </div>
+                <div class="form-group">
+                    <label>Photo du véhicule</label>
+                    <div class="image-upload" id="veh-photo-upload" style="position:relative;">
+                        <input type="file" id="veh-photo-file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;">
+                        <div id="veh-photo-preview">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="width:40px;height:40px;color:var(--text-muted);"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                            <p style="color:var(--text-muted);font-size:0.85rem;margin-top:8px;">Cliquez pour ajouter une photo</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Badge NFC</label>
+                    <div class="nfc-assign-row">
+                        <input type="text" id="veh-nfc-tag" placeholder="Aucun badge assigné" readonly>
+                        <button type="button" class="btn btn--ghost btn--sm" id="veh-assign-nfc">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M23 7V1h-6M1 17v6h6M23 17v6h-6M1 7V1h6"/></svg>
+                            Scanner
+                        </button>
+                        <button type="button" class="btn btn--ghost btn--sm" id="veh-clear-nfc" style="display:none;">Retirer</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal__footer">
+                <button class="btn btn--ghost" id="veh-cancel">Annuler</button>
+                <button class="btn btn--primary" id="veh-save">Sauvegarder</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== VEHICLE DETAIL MODAL ===== -->
+    <div class="modal-overlay" id="vehicle-detail-modal">
+        <div class="modal modal--wide">
+            <div class="modal__header">
+                <h2 id="veh-detail-title">Détail du véhicule</h2>
+                <button class="modal__close" id="veh-detail-close">&times;</button>
+            </div>
+            <div class="modal__body" id="veh-detail-body">
+                <!-- Dynamically populated by control.js -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== CONTROL CONFIRM DELETE ===== -->
+    <div class="modal-overlay" id="control-confirm-modal">
+        <div class="modal modal--sm">
+            <div class="modal__header">
+                <h2 id="control-confirm-title">Confirmer la suppression ?</h2>
+                <button class="modal__close" id="control-confirm-close">&times;</button>
+            </div>
+            <div class="modal__body">
+                <p id="control-confirm-msg">Cette action est irréversible.</p>
+            </div>
+            <div class="modal__footer">
+                <button class="btn btn--ghost" id="control-cancel-delete">Annuler</button>
+                <button class="btn btn--danger" id="control-confirm-delete">Supprimer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== NFC SCANNER FULLSCREEN ===== -->
+    <div id="nfc-scanner-overlay" class="nfc-scanner">
+        <button class="nfc-scanner__close" id="scanner-close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Fermer
+        </button>
+        <div id="scanner-content"></div>
     </div>
 
     <!-- ===== ARTICLE MODAL ===== -->
@@ -323,5 +586,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
     <script src="js/admin.js"></script>
+    <script src="js/control.js"></script>
 </body>
 </html>

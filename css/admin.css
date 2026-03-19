@@ -846,3 +846,470 @@ html::-webkit-scrollbar { display: none; }
     font-family: var(--font);
 }
 .btn-remove-image:hover { color: var(--danger-hover); }
+
+/* ========================================
+   CONTROL MODULE
+   ======================================== */
+
+/* Password gate */
+.control-gate {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 100px);
+}
+.control-gate__box {
+    text-align: center;
+    max-width: 380px;
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 40px 32px;
+}
+.control-gate__box h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.control-gate__error {
+    color: var(--danger);
+    font-size: 0.85rem;
+    margin-top: 12px;
+    min-height: 20px;
+}
+
+/* Sub-tabs */
+.control-subtabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+}
+.control-subtab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 24px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-muted);
+    font-family: var(--font);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.control-subtab:hover { color: var(--text); }
+.control-subtab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+.control-panel { display: none; }
+.control-panel.active { display: block; }
+
+/* Scanner intro */
+.control-scanner-intro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 50vh;
+}
+
+/* Control tables (employees, vehicles) */
+.control-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.control-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+}
+.control-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    font-size: 0.9rem;
+}
+.control-table tr:hover td { background: var(--bg-hover); }
+.control-table .col-name { font-weight: 600; }
+.control-table .col-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    align-items: center;
+}
+.control-table .clickable-row { cursor: pointer; }
+
+/* NFC badge indicator */
+.nfc-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.nfc-badge--assigned { background: rgba(34,197,94,0.12); color: var(--success); }
+.nfc-badge--unassigned { background: rgba(138,138,150,0.12); color: var(--text-muted); }
+
+/* NFC assign row in modals */
+.nfc-assign-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.nfc-assign-row input { flex: 1; }
+
+/* Stats cards */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 8px;
+}
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: center;
+}
+.stat-card__value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+}
+.stat-card__label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* Period filter buttons */
+.period-filters {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 20px;
+}
+.period-btn {
+    padding: 7px 16px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-family: var(--font);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.period-btn:hover { border-color: var(--text-muted); color: var(--text); }
+.period-btn.active {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* Live indicator (active work order) */
+.live-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+    animation: livePulse 1.5s ease-in-out infinite;
+}
+@keyframes livePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+.live-timer {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--success);
+}
+
+/* Vehicle detail sections */
+.veh-detail-header {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+    align-items: flex-start;
+}
+.veh-detail-header img {
+    width: 160px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+}
+.veh-detail-info { flex: 1; }
+.veh-detail-info h3 { font-size: 1.2rem; margin-bottom: 8px; }
+.veh-detail-info p { color: var(--text-muted); font-size: 0.88rem; margin: 3px 0; }
+
+.veh-detail-active {
+    background: rgba(34,197,94,0.08);
+    border: 1px solid rgba(34,197,94,0.25);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.veh-detail-active__timer {
+    font-size: 2rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--success);
+}
+
+/* Vehicle notes in detail */
+.veh-notes {
+    margin-top: 24px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+}
+.veh-notes__input {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+.veh-notes__input textarea {
+    flex: 1;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    padding: 10px 12px;
+    resize: none;
+    outline: none;
+    font-family: var(--font);
+    font-size: 0.88rem;
+}
+.veh-notes__input textarea:focus { border-color: var(--accent); }
+.veh-note-item {
+    padding: 10px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    position: relative;
+}
+.veh-note-item__date {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+.veh-note-item__text {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+.veh-note-item__delete {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s;
+    font-size: 1.1rem;
+}
+.veh-note-item:hover .veh-note-item__delete { opacity: 1; }
+.veh-note-item__delete:hover { color: var(--danger); }
+
+/* Empty state */
+.control-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+}
+.control-empty svg {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 12px;
+    opacity: 0.4;
+}
+
+/* ========================================
+   NFC SCANNER FULLSCREEN
+   ======================================== */
+.nfc-scanner {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: #0a0a0c;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-family: var(--font);
+}
+.nfc-scanner.active { display: flex; }
+
+.nfc-scanner__close {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.5);
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-family: var(--font);
+    font-size: 0.88rem;
+    transition: all 0.2s;
+    z-index: 10;
+}
+.nfc-scanner__close:hover {
+    border-color: rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.8);
+}
+
+.nfc-scanner__title {
+    font-size: 7rem;
+    font-weight: 900;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: #f0f0f0;
+    margin-bottom: 32px;
+    line-height: 1;
+}
+
+.nfc-scanner__icon {
+    width: 100px;
+    height: 100px;
+    color: var(--accent);
+    animation: nfcPulse 2s ease-in-out infinite;
+    margin-bottom: 24px;
+}
+@keyframes nfcPulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.12); opacity: 1; }
+}
+
+.nfc-scanner__subtitle {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 40px;
+}
+
+.nfc-scanner__info {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius);
+    padding: 28px 40px;
+    margin: 20px 0;
+    min-width: 380px;
+}
+.nfc-scanner__info p {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.9rem;
+    margin: 4px 0;
+}
+.nfc-scanner__info strong {
+    color: #f0f0f0;
+}
+
+.nfc-scanner__success {
+    color: var(--success);
+    font-size: 2.5rem;
+    font-weight: 800;
+}
+
+.nfc-scanner__error {
+    color: var(--danger);
+    font-size: 2rem;
+    font-weight: 700;
+    animation: scannerShake 0.4s ease;
+}
+@keyframes scannerShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+}
+
+.nfc-scanner__elapsed {
+    font-size: 4rem;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
+    margin: 16px 0;
+}
+
+.nfc-scanner__countdown {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.3);
+    margin-top: 20px;
+}
+
+/* Scanner simulation input (for testing without NFC hardware) */
+.nfc-sim-input {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    opacity: 0.3;
+    transition: opacity 0.2s;
+}
+.nfc-sim-input:hover, .nfc-sim-input:focus-within { opacity: 1; }
+.nfc-sim-input input {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: var(--radius-sm);
+    color: #f0f0f0;
+    padding: 8px 14px;
+    font-family: var(--font);
+    font-size: 0.82rem;
+    outline: none;
+    width: 200px;
+}
+.nfc-sim-input button {
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #fff;
+    padding: 8px 14px;
+    font-family: var(--font);
+    font-size: 0.82rem;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .nfc-scanner__title { font-size: 3.5rem; letter-spacing: 2px; }
+    .nfc-scanner__elapsed { font-size: 2.5rem; }
+    .nfc-scanner__icon { width: 60px; height: 60px; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .period-filters { flex-wrap: wrap; }
+    .veh-detail-header { flex-direction: column; }
+    .veh-detail-header img { width: 100%; height: auto; max-height: 200px; }
+}
