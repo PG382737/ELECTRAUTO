@@ -5,7 +5,7 @@
 (function() {
     'use strict';
 
-    var CONTROL_HASH = 'ae68befdfacb2f673e29172c478339b819ca8d7dafcef247033b90c1039787f1';
+    var CONTROL_HASH = 'a0daef58a503654eda4b9a42226ac19838dbb66aa3d90c4458f42df729bd2aaa';
     var controlUnlocked = false;
     var currentEmpStatsId = null;
     var currentVehDetailId = null;
