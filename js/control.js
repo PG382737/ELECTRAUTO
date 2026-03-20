@@ -18,6 +18,12 @@
     var scannerActiveOrder = null;
     var nfcReader = null;
     var nfcAssignCallback = null;
+    var empPage = 0;
+    var vehPage = 0;
+    var vehSearchQuery = '';
+    var allEmployees = [];
+    var allVehicles = [];
+    var PAGE_SIZE = 20;
 
     // ---- Helpers ----
 
@@ -55,6 +61,66 @@
         var d = new Date(iso);
         return d.toLocaleDateString('fr-CA', { year: 'numeric', month: 'short', day: 'numeric' }) + ' à ' +
                d.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // dd-mm-yyyy <-> yyyy-mm-dd
+    function hireDateToDisplay(isoDate) {
+        if (!isoDate) return '';
+        var p = isoDate.substring(0, 10).split('-');
+        return p[2] + '-' + p[1] + '-' + p[0];
+    }
+    function hireDateToApi(displayDate) {
+        if (!displayDate) return '';
+        var p = displayDate.split('-');
+        if (p.length !== 3) return displayDate;
+        return p[2] + '-' + p[1] + '-' + p[0];
+    }
+
+    // Auto-format hire date input (add dashes)
+    function initHireDateFormat() {
+        var input = document.getElementById('emp-hire-date');
+        if (!input) return;
+        input.addEventListener('input', function() {
+            var v = input.value.replace(/[^\d]/g, '');
+            if (v.length > 2) v = v.substring(0, 2) + '-' + v.substring(2);
+            if (v.length > 5) v = v.substring(0, 5) + '-' + v.substring(5);
+            if (v.length > 10) v = v.substring(0, 10);
+            input.value = v;
+        });
+    }
+
+    // Input validation for vehicle fields
+    function initVehicleValidation() {
+        var yearInput = document.getElementById('veh-year');
+        if (yearInput) {
+            yearInput.addEventListener('input', function() {
+                this.value = this.value.replace(/[^\d]/g, '');
+            });
+        }
+        var phoneInput = document.getElementById('veh-phone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function() {
+                var v = this.value.replace(/[^\d]/g, '');
+                if (v.length > 3 && v.length <= 6) v = v.substring(0, 3) + '-' + v.substring(3);
+                else if (v.length > 6) v = v.substring(0, 3) + '-' + v.substring(3, 6) + '-' + v.substring(6, 10);
+                this.value = v;
+            });
+        }
+        var vinInput = document.getElementById('veh-vin');
+        if (vinInput) {
+            vinInput.addEventListener('input', function() {
+                this.value = this.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '');
+            });
+        }
+    }
+
+    function renderPagination(currentPage, totalPages, fnName) {
+        var html = '<div class="control-pagination">';
+        html += '<button class="btn btn--ghost btn--sm" ' + (currentPage === 0 ? 'disabled' : 'onclick="' + fnName + '(' + (currentPage - 1) + ')"') + '>&laquo; Précédent</button>';
+        html += '<span class="control-pagination__info">Page ' + (currentPage + 1) + ' / ' + totalPages + '</span>';
+        html += '<button class="btn btn--ghost btn--sm" ' + (currentPage >= totalPages - 1 ? 'disabled' : 'onclick="' + fnName + '(' + (currentPage + 1) + ')"') + '>Suivant &raquo;</button>';
+        html += '</div>';
+        return html;
     }
 
     async function sha256(str) {
@@ -142,40 +208,58 @@
         var container = document.getElementById('employees-list');
         if (!container) return;
         try {
-            var data = await api('GET', '/api/control-employees');
-            if (!data || data.length === 0) {
-                container.innerHTML = '<div class="control-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>Aucun employé. Ajoutez votre premier employé.</p></div>';
-                return;
-            }
-            var html = '<table class="control-table"><thead><tr><th>Nom</th><th>Date d\'embauche</th><th>Badge NFC</th><th style="text-align:right;">Actions</th></tr></thead><tbody>';
-            data.forEach(function(emp) {
-                var nfcBadge = emp.nfc_tag_id
-                    ? '<span class="nfc-badge nfc-badge--assigned">Assigné</span>'
-                    : '<span class="nfc-badge nfc-badge--unassigned">Non assigné</span>';
-                html += '<tr>';
-                html += '<td class="col-name clickable-row" onclick="Control.openEmployeeStats(\'' + emp.id + '\')">' + escHtml(emp.first_name + ' ' + emp.last_name) + '</td>';
-                html += '<td>' + formatDate(emp.hire_date) + '</td>';
-                html += '<td>' + nfcBadge + '</td>';
-                html += '<td><div class="col-actions">';
-                html += '<button class="btn btn--ghost btn--sm" onclick="Control.openEmployeeStats(\'' + emp.id + '\')">Stats</button>';
-                html += '<button class="btn btn--ghost btn--sm" onclick="Control.editEmployee(\'' + emp.id + '\')">Modifier</button>';
-                html += '<button class="btn btn--danger btn--sm" onclick="Control.deleteEmployee(\'' + emp.id + '\')">Supprimer</button>';
-                html += '</div></td>';
-                html += '</tr>';
-            });
-            html += '</tbody></table>';
-            container.innerHTML = html;
+            allEmployees = await api('GET', '/api/control-employees');
+            empPage = 0;
+            renderEmployees();
         } catch(e) {
             container.innerHTML = '<div class="control-empty"><p>Erreur: ' + escHtml(e.message) + '</p></div>';
         }
     }
+
+    function renderEmployees() {
+        var container = document.getElementById('employees-list');
+        var data = allEmployees;
+        if (!data || data.length === 0) {
+            container.innerHTML = '<div class="control-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>Aucun employé. Ajoutez votre premier employé.</p></div>';
+            return;
+        }
+        var totalPages = Math.ceil(data.length / PAGE_SIZE);
+        var page = Math.min(empPage, totalPages - 1);
+        var start = page * PAGE_SIZE;
+        var pageData = data.slice(start, start + PAGE_SIZE);
+
+        var html = '<table class="control-table"><thead><tr><th>Nom</th><th>Date d\'embauche</th><th>Badge NFC</th><th style="text-align:right;">Actions</th></tr></thead><tbody>';
+        pageData.forEach(function(emp) {
+            var nfcBadge = emp.nfc_tag_id
+                ? '<span class="nfc-badge nfc-badge--assigned">Assigné</span>'
+                : '<span class="nfc-badge nfc-badge--unassigned">Non assigné</span>';
+            html += '<tr>';
+            html += '<td class="col-name clickable-row" onclick="Control.openEmployeeStats(\'' + emp.id + '\')">' + escHtml(emp.first_name + ' ' + emp.last_name) + '</td>';
+            html += '<td>' + formatDate(emp.hire_date) + '</td>';
+            html += '<td>' + nfcBadge + '</td>';
+            html += '<td><div class="col-actions">';
+            html += '<button class="btn btn--ghost btn--sm" onclick="Control.openEmployeeStats(\'' + emp.id + '\')">Stats</button>';
+            html += '<button class="btn btn--ghost btn--sm" onclick="Control.editEmployee(\'' + emp.id + '\')">Modifier</button>';
+            html += '<button class="btn btn--danger btn--sm" onclick="Control.deleteEmployee(\'' + emp.id + '\')">Supprimer</button>';
+            html += '</div></td>';
+            html += '</tr>';
+        });
+        html += '</tbody></table>';
+
+        if (totalPages > 1) {
+            html += renderPagination(page, totalPages, 'Control.empGoTo');
+        }
+        container.innerHTML = html;
+    }
+
+    function empGoTo(p) { empPage = p; renderEmployees(); }
 
     function openEmployeeModal(emp) {
         document.getElementById('employee-modal-title').textContent = emp ? 'Modifier l\'employé' : 'Nouvel employé';
         document.getElementById('emp-edit-id').value = emp ? emp.id : '';
         document.getElementById('emp-first-name').value = emp ? emp.first_name : '';
         document.getElementById('emp-last-name').value = emp ? emp.last_name : '';
-        document.getElementById('emp-hire-date').value = emp ? emp.hire_date : '';
+        document.getElementById('emp-hire-date').value = emp && emp.hire_date ? hireDateToDisplay(emp.hire_date) : '';
         document.getElementById('emp-nfc-tag').value = emp && emp.nfc_tag_id ? emp.nfc_tag_id : '';
         document.getElementById('emp-clear-nfc').style.display = emp && emp.nfc_tag_id ? 'inline-flex' : 'none';
         document.getElementById('employee-modal').classList.add('active');
@@ -186,7 +270,7 @@
         var body = {
             first_name: document.getElementById('emp-first-name').value.trim(),
             last_name: document.getElementById('emp-last-name').value.trim(),
-            hire_date: document.getElementById('emp-hire-date').value,
+            hire_date: hireDateToApi(document.getElementById('emp-hire-date').value),
             nfc_tag_id: document.getElementById('emp-nfc-tag').value || null
         };
 
@@ -280,49 +364,104 @@
         if (!container) return;
         clearAllTimers();
         try {
-            var data = await api('GET', '/api/control-vehicles');
-            if (!data || data.length === 0) {
-                container.innerHTML = '<div class="control-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/></svg><p>Aucun véhicule. Ajoutez votre premier véhicule.</p></div>';
-                return;
-            }
-
-            var html = '<table class="control-table"><thead><tr><th>Véhicule</th><th>Propriétaire</th><th>Plaque</th><th>Badge NFC</th><th>Statut</th><th style="text-align:right;">Actions</th></tr></thead><tbody>';
-            data.forEach(function(v) {
-                var nfcBadge = v.nfc_tag_id
-                    ? '<span class="nfc-badge nfc-badge--assigned">Assigné</span>'
-                    : '<span class="nfc-badge nfc-badge--unassigned">Non assigné</span>';
-
-                var statusHtml = '';
-                if (v.active_order) {
-                    var timerId = 'live-veh-' + v.id;
-                    var aoEmp = v.active_order.employee;
-                    var aoEmpName = aoEmp ? (aoEmp.first_name + ' ' + aoEmp.last_name) : '';
-                    statusHtml = '<span class="live-indicator"><span class="live-dot"></span><span class="live-timer" id="' + timerId + '">...</span>' + (aoEmpName ? '<span style="font-size:0.85rem;">' + escHtml(aoEmpName) + '</span>' : '') + '</span>';
-                    // Start live timer after render
-                    setTimeout(function() { startLiveTimer(timerId, v.active_order.started_at); }, 50);
-                } else {
-                    statusHtml = '<span style="color:var(--text-muted);font-size:0.85rem;">—</span>';
-                }
-
-                html += '<tr>';
-                html += '<td class="col-name clickable-row" onclick="Control.openVehicleDetail(\'' + v.id + '\')">' + escHtml(v.make) + (v.year ? ' ' + v.year : '') + (v.color ? ' <span style="color:var(--text-muted);">(' + escHtml(v.color) + ')</span>' : '') + '</td>';
-                html += '<td>' + escHtml(v.owner_name) + '</td>';
-                html += '<td>' + escHtml(v.plate || '—') + '</td>';
-                html += '<td>' + nfcBadge + '</td>';
-                html += '<td>' + statusHtml + '</td>';
-                html += '<td><div class="col-actions">';
-                html += '<button class="btn btn--ghost btn--sm" onclick="Control.openVehicleDetail(\'' + v.id + '\')">Détail</button>';
-                html += '<button class="btn btn--ghost btn--sm" onclick="Control.editVehicle(\'' + v.id + '\')">Modifier</button>';
-                html += '<button class="btn btn--danger btn--sm" onclick="Control.deleteVehicle(\'' + v.id + '\')">Supprimer</button>';
-                html += '</div></td>';
-                html += '</tr>';
-            });
-            html += '</tbody></table>';
-            container.innerHTML = html;
+            allVehicles = await api('GET', '/api/control-vehicles');
+            vehPage = 0;
+            renderVehicles();
         } catch(e) {
             container.innerHTML = '<div class="control-empty"><p>Erreur: ' + escHtml(e.message) + '</p></div>';
         }
     }
+
+    function filterVehicles() {
+        var q = vehSearchQuery.toLowerCase().trim();
+        if (!q) return allVehicles;
+        return allVehicles.filter(function(v) {
+            return (v.make || '').toLowerCase().indexOf(q) !== -1 ||
+                   (v.owner_name || '').toLowerCase().indexOf(q) !== -1 ||
+                   (v.phone || '').toLowerCase().indexOf(q) !== -1 ||
+                   (v.plate || '').toLowerCase().indexOf(q) !== -1 ||
+                   (v.vin || '').toLowerCase().indexOf(q) !== -1 ||
+                   (v.reference || '').toLowerCase().indexOf(q) !== -1;
+        });
+    }
+
+    function renderVehicles() {
+        var container = document.getElementById('vehicles-list');
+        clearAllTimers();
+        var filtered = filterVehicles();
+
+        // Search bar
+        var html = '<div class="control-search"><input type="text" id="veh-search-input" placeholder="Rechercher par véhicule, propriétaire, téléphone, plaque, NIV, référence..." value="' + escHtml(vehSearchQuery) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>';
+
+        if (!filtered || filtered.length === 0) {
+            if (vehSearchQuery) {
+                html += '<div class="control-empty"><p>Aucun résultat pour « ' + escHtml(vehSearchQuery) + ' »</p></div>';
+            } else {
+                html += '<div class="control-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/></svg><p>Aucun véhicule. Ajoutez votre premier véhicule.</p></div>';
+            }
+            container.innerHTML = html;
+            bindVehicleSearch();
+            return;
+        }
+
+        var totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+        var page = Math.min(vehPage, totalPages - 1);
+        var start = page * PAGE_SIZE;
+        var pageData = filtered.slice(start, start + PAGE_SIZE);
+
+        html += '<table class="control-table"><thead><tr><th>Véhicule</th><th>Propriétaire</th><th>Plaque</th><th>Badge NFC</th><th>Statut</th><th style="text-align:right;">Actions</th></tr></thead><tbody>';
+        pageData.forEach(function(v) {
+            var nfcBadge = v.nfc_tag_id
+                ? '<span class="nfc-badge nfc-badge--assigned">Assigné</span>'
+                : '<span class="nfc-badge nfc-badge--unassigned">Non assigné</span>';
+
+            var statusHtml = '';
+            if (v.active_order) {
+                var timerId = 'live-veh-' + v.id;
+                var aoEmp = v.active_order.employee;
+                var aoEmpName = aoEmp ? (aoEmp.first_name + ' ' + aoEmp.last_name) : '';
+                statusHtml = '<span class="live-indicator"><span class="live-dot"></span><span class="live-timer" id="' + timerId + '">...</span>' + (aoEmpName ? '<span style="font-size:0.85rem;">' + escHtml(aoEmpName) + '</span>' : '') + '</span>';
+                setTimeout(function() { startLiveTimer(timerId, v.active_order.started_at); }, 50);
+            } else {
+                statusHtml = '<span style="color:var(--text-muted);font-size:0.85rem;">—</span>';
+            }
+
+            html += '<tr>';
+            html += '<td class="col-name clickable-row" onclick="Control.openVehicleDetail(\'' + v.id + '\')">' + escHtml(v.make) + (v.year ? ' ' + v.year : '') + (v.color ? ' <span style="color:var(--text-muted);">(' + escHtml(v.color) + ')</span>' : '') + '</td>';
+            html += '<td>' + escHtml(v.owner_name) + '</td>';
+            html += '<td>' + escHtml(v.plate || '—') + '</td>';
+            html += '<td>' + nfcBadge + '</td>';
+            html += '<td>' + statusHtml + '</td>';
+            html += '<td><div class="col-actions">';
+            html += '<button class="btn btn--ghost btn--sm" onclick="Control.openVehicleDetail(\'' + v.id + '\')">Détail</button>';
+            html += '<button class="btn btn--ghost btn--sm" onclick="Control.editVehicle(\'' + v.id + '\')">Modifier</button>';
+            html += '<button class="btn btn--danger btn--sm" onclick="Control.deleteVehicle(\'' + v.id + '\')">Supprimer</button>';
+            html += '</div></td>';
+            html += '</tr>';
+        });
+        html += '</tbody></table>';
+
+        if (totalPages > 1) {
+            html += renderPagination(page, totalPages, 'Control.vehGoTo');
+        }
+        container.innerHTML = html;
+        bindVehicleSearch();
+    }
+
+    function bindVehicleSearch() {
+        var input = document.getElementById('veh-search-input');
+        if (!input) return;
+        input.addEventListener('input', function() {
+            vehSearchQuery = input.value;
+            vehPage = 0;
+            renderVehicles();
+            // Re-focus and set cursor position
+            var el = document.getElementById('veh-search-input');
+            if (el) { el.focus(); el.selectionStart = el.selectionEnd = el.value.length; }
+        });
+    }
+
+    function vehGoTo(p) { vehPage = p; renderVehicles(); }
 
     function startLiveTimer(elementId, startedAt) {
         var el = document.getElementById(elementId);
@@ -788,6 +927,8 @@
         initGate();
         initSubtabs();
         initPhotoUpload();
+        initHireDateFormat();
+        initVehicleValidation();
 
         // Employee modal buttons
         var empModal = document.getElementById('employee-modal');
@@ -878,9 +1019,11 @@
         openEmployeeStats: openEmployeeStats,
         editEmployee: editEmployee,
         deleteEmployee: deleteEmployee,
+        empGoTo: empGoTo,
         openVehicleDetail: openVehicleDetail,
         editVehicle: editVehicle,
         deleteVehicle: deleteVehicle,
+        vehGoTo: vehGoTo,
         addVehicleNote: addVehicleNote,
         deleteVehicleNote: deleteVehicleNote,
         simulateNfc: simulateNfc

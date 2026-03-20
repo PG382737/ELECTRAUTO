@@ -1181,6 +1181,49 @@ html::-webkit-scrollbar { display: none; }
     opacity: 0.4;
 }
 
+/* Search bar */
+.control-search {
+    position: relative;
+    margin-bottom: 20px;
+}
+.control-search input {
+    width: 100%;
+    padding: 11px 16px 11px 42px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.control-search input:focus { border-color: var(--accent); }
+.control-search svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+/* Pagination */
+.control-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 20px 0 4px;
+}
+.control-pagination__info {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
 /* ========================================
    NFC SCANNER FULLSCREEN
    ======================================== */
