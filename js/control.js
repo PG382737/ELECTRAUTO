@@ -194,13 +194,7 @@
 
         if (!pwdBtn) return;
 
-        // Check if already unlocked this session
-        if (sessionStorage.getItem('control-unlocked') === '1') {
-            unlockControl();
-            return;
-        }
-
-        // Ensure gate is visible and content hidden on init
+        // Always start locked
         document.getElementById('control-gate').style.display = '';
         document.getElementById('control-content').style.display = 'none';
         controlUnlocked = false;
@@ -210,7 +204,6 @@
             if (!pwd) return;
             var hash = await sha256(pwd);
             if (hash === CONTROL_HASH) {
-                sessionStorage.setItem('control-unlocked', '1');
                 unlockControl();
             } else {
                 pwdError.textContent = 'Mot de passe incorrect.';

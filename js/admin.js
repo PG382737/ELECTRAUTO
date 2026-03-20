@@ -96,12 +96,9 @@ function enterDashboard(password) {
     loadArticles();
     loadDelays();
 
-    // Always require control password on new login
-    sessionStorage.removeItem('control-unlocked');
-
-    // Restore last active tab
+    // Restore last active tab (but never restore to control — require password each time)
     var savedTab = sessionStorage.getItem('admin-tab');
-    if (savedTab && document.getElementById('tab-' + savedTab)) {
+    if (savedTab && savedTab !== 'control' && document.getElementById('tab-' + savedTab)) {
         switchToTab(savedTab);
     }
 }
@@ -335,7 +332,6 @@ document.getElementById('btn-logout').addEventListener('click', function() {
     setLockout({});
     clearSession();
     stopNotesPolling();
-    sessionStorage.removeItem('control-unlocked');
     document.getElementById('dashboard').style.display = 'none';
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('login-form').style.display = 'block';
