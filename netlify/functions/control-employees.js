@@ -45,6 +45,19 @@ async function supaFetch(endpoint, options = {}) {
     return null;
 }
 
+// Get UTC offset for Eastern Time (handles EST/EDT automatically)
+function getETOffset(date) {
+    const jan = new Date(date.getFullYear(), 0, 1);
+    const jul = new Date(date.getFullYear(), 6, 1);
+    const stdOffset = Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+    // Check if date is in DST
+    const dateStr = date.toLocaleString('en-US', { timeZone: 'America/Toronto' });
+    const utcStr = date.toLocaleString('en-US', { timeZone: 'UTC' });
+    const diffMs = new Date(utcStr) - new Date(dateStr);
+    const diffHours = diffMs / (1000 * 60 * 60);
+    return diffHours; // Returns 4 (EDT) or 5 (EST)
+}
+
 exports.handler = async (event) => {
     if (event.httpMethod === 'OPTIONS') {
         return { statusCode: 200, headers, body: '' };
@@ -64,19 +77,28 @@ exports.handler = async (event) => {
             if (params.stats === 'true' && params.id) {
                 const period = params.period || 'all';
                 let dateFrom = '1970-01-01T00:00:00Z';
-                const now = new Date();
+                // Use Eastern Time (America/Toronto) for date calculations
+                const nowET = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Toronto' }));
 
                 if (period === 'day') {
-                    dateFrom = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+                    const todayET = new Date(nowET.getFullYear(), nowET.getMonth(), nowET.getDate());
+                    // Convert back: Eastern is UTC-5 (EST) or UTC-4 (EDT)
+                    const offset = getETOffset(todayET);
+                    dateFrom = new Date(todayET.getTime() + offset * 60 * 60 * 1000).toISOString();
                 } else if (period === 'week') {
-                    const day = now.getDay();
-                    const diff = day === 0 ? 6 : day - 1; // Monday start
-                    const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - diff);
-                    dateFrom = monday.toISOString();
+                    const day = nowET.getDay();
+                    const diff = day === 0 ? 6 : day - 1;
+                    const mondayET = new Date(nowET.getFullYear(), nowET.getMonth(), nowET.getDate() - diff);
+                    const offset = getETOffset(mondayET);
+                    dateFrom = new Date(mondayET.getTime() + offset * 60 * 60 * 1000).toISOString();
                 } else if (period === 'month') {
-                    dateFrom = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+                    const firstET = new Date(nowET.getFullYear(), nowET.getMonth(), 1);
+                    const offset = getETOffset(firstET);
+                    dateFrom = new Date(firstET.getTime() + offset * 60 * 60 * 1000).toISOString();
                 } else if (period === 'year') {
-                    dateFrom = new Date(now.getFullYear(), 0, 1).toISOString();
+                    const janET = new Date(nowET.getFullYear(), 0, 1);
+                    const offset = getETOffset(janET);
+                    dateFrom = new Date(janET.getTime() + offset * 60 * 60 * 1000).toISOString();
                 }
 
                 const stats = await supaFetch('rpc/control_employee_stats', {
