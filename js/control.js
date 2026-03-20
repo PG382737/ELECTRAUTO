@@ -67,9 +67,19 @@
     function shakeField(inputId) {
         var el = document.getElementById(inputId);
         if (!el) return;
+        el.classList.remove('field-error');
+        void el.offsetWidth; // force reflow to restart animation
         el.classList.add('field-error');
-        el.addEventListener('animationend', function() { el.classList.remove('field-error'); }, { once: true });
-        el.addEventListener('input', function() { el.classList.remove('field-error'); }, { once: true });
+    }
+
+    function isFieldValid(f) {
+        var el = document.getElementById(f.id);
+        if (!el) return true;
+        var val = el.value.trim();
+        if (f.required && !val) return false;
+        if (f.minLength && val && val.length < f.minLength) return false;
+        if (f.pattern && val && !f.pattern.test(val)) return false;
+        return true;
     }
 
     function validateFields(fields) {
@@ -77,12 +87,23 @@
         fields.forEach(function(f) {
             var el = document.getElementById(f.id);
             if (!el) return;
-            var val = el.value.trim();
-            var fail = false;
-            if (f.required && !val) fail = true;
-            if (f.minLength && val && val.length < f.minLength) fail = true;
-            if (f.pattern && val && !f.pattern.test(val)) fail = true;
-            if (fail) { shakeField(f.id); valid = false; }
+            if (!isFieldValid(f)) {
+                shakeField(f.id);
+                valid = false;
+                // Add live re-validation listener
+                if (!el._validating) {
+                    el._validating = true;
+                    el.addEventListener('input', function handler() {
+                        if (isFieldValid(f)) {
+                            el.classList.remove('field-error');
+                            el.removeEventListener('input', handler);
+                            el._validating = false;
+                        }
+                    });
+                }
+            } else {
+                el.classList.remove('field-error');
+            }
         });
         return valid;
     }
