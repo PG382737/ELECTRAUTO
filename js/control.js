@@ -46,8 +46,8 @@
 
     function formatDate(iso) {
         if (!iso) return '—';
-        var d = new Date(iso);
-        return d.toLocaleDateString('fr-CA', { year: 'numeric', month: 'short', day: 'numeric' });
+        var parts = iso.substring(0, 10).split('-');
+        return parts[2] + '-' + parts[1] + '-' + parts[0];
     }
 
     function formatDateTime(iso) {
