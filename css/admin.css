@@ -965,9 +965,10 @@ html::-webkit-scrollbar { display: none; }
 .nfc-assign-row {
     display: flex;
     gap: 8px;
-    align-items: center;
+    align-items: stretch;
 }
 .nfc-assign-row input { flex: 1; }
+.nfc-assign-row .btn { padding-top: 0; padding-bottom: 0; }
 
 /* Stats cards */
 .stats-grid {
