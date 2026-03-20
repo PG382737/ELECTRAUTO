@@ -129,10 +129,22 @@ exports.handler = async (event) => {
             const activeMap = {};
             activeOrders.forEach(o => { activeMap[o.vehicle_id] = o; });
 
-            const enriched = data.map(v => ({
-                ...v,
-                active_order: activeMap[v.id] || null
-            }));
+            // Get employee names for active orders
+            const activeEmpIds = [...new Set(activeOrders.map(o => o.employee_id))];
+            let activeEmps = [];
+            if (activeEmpIds.length > 0) {
+                activeEmps = await supaFetch(`control_employees?id=in.(${activeEmpIds.join(',')})`);
+            }
+            const activeEmpMap = {};
+            activeEmps.forEach(e => { activeEmpMap[e.id] = e; });
+
+            const enriched = data.map(v => {
+                const ao = activeMap[v.id] || null;
+                return {
+                    ...v,
+                    active_order: ao ? { ...ao, employee: activeEmpMap[ao.employee_id] || null } : null
+                };
+            });
 
             return { statusCode: 200, headers, body: JSON.stringify(enriched) };
         }

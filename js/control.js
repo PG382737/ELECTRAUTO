@@ -295,7 +295,9 @@
                 var statusHtml = '';
                 if (v.active_order) {
                     var timerId = 'live-veh-' + v.id;
-                    statusHtml = '<span class="live-indicator"><span class="live-dot"></span><span class="live-timer" id="' + timerId + '">...</span></span>';
+                    var aoEmp = v.active_order.employee;
+                    var aoEmpName = aoEmp ? (aoEmp.first_name + ' ' + aoEmp.last_name) : '';
+                    statusHtml = '<span class="live-indicator"><span class="live-dot"></span>' + (aoEmpName ? '<span style="font-size:0.85rem;margin-right:4px;">' + escHtml(aoEmpName) + '</span>' : '') + '<span class="live-timer" id="' + timerId + '">...</span></span>';
                     // Start live timer after render
                     setTimeout(function() { startLiveTimer(timerId, v.active_order.started_at); }, 50);
                 } else {
