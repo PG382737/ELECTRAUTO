@@ -388,8 +388,13 @@
         }
     }
 
+    var empStatsOrders = [];
+    var empStatsPage = 0;
+    var HISTORY_PAGE_SIZE = 10;
+
     async function loadEmployeeStats(period) {
         if (!currentEmpStatsId) return;
+        empStatsPage = 0;
         try {
             var data = await api('GET', '/api/control-employees?stats=true&id=' + currentEmpStatsId + '&period=' + period);
             var stats = data.stats;
@@ -398,24 +403,66 @@
             document.getElementById('emp-stat-vehicles').textContent = stats.vehicle_count;
             document.getElementById('emp-stat-avg').textContent = formatDuration(stats.avg_seconds_per_vehicle);
 
-            // Render orders history
-            var historyEl = document.getElementById('emp-stats-history');
-            if (!data.orders || data.orders.length === 0) {
-                historyEl.innerHTML = '<p style="color:var(--text-muted);font-size:0.88rem;">Aucun bon de travail pour cette période.</p>';
-                return;
-            }
-
-            var html = '<table class="control-table"><thead><tr><th>Date</th><th>Véhicule</th><th>Durée</th></tr></thead><tbody>';
-            data.orders.forEach(function(o) {
-                var vehName = o.vehicle ? (o.vehicle.make + (o.vehicle.plate ? ' — ' + o.vehicle.plate : '')) : 'Inconnu';
-                html += '<tr><td>' + formatDateTime(o.started_at) + '</td><td>' + escHtml(vehName) + '</td><td>' + formatDuration(o.duration_seconds) + '</td></tr>';
-            });
-            html += '</tbody></table>';
-            historyEl.innerHTML = html;
+            empStatsOrders = data.orders || [];
+            renderEmpStatsHistory();
         } catch(e) {
             document.getElementById('emp-stats-history').innerHTML = '<p style="color:var(--danger);">Erreur: ' + escHtml(e.message) + '</p>';
         }
     }
+
+    function renderEmpStatsHistory() {
+        var historyEl = document.getElementById('emp-stats-history');
+        if (empStatsOrders.length === 0) {
+            historyEl.innerHTML = '<p style="color:var(--text-muted);font-size:0.88rem;">Aucun bon de travail pour cette période.</p>';
+            return;
+        }
+        var totalPages = Math.ceil(empStatsOrders.length / HISTORY_PAGE_SIZE);
+        var page = Math.min(empStatsPage, totalPages - 1);
+        var start = page * HISTORY_PAGE_SIZE;
+        var pageData = empStatsOrders.slice(start, start + HISTORY_PAGE_SIZE);
+
+        var html = '<table class="control-table"><thead><tr><th>Date</th><th>Véhicule</th><th>Durée</th></tr></thead><tbody>';
+        pageData.forEach(function(o) {
+            var vehName = o.vehicle ? (o.vehicle.make + (o.vehicle.plate ? ' — ' + o.vehicle.plate : '')) : 'Inconnu';
+            html += '<tr><td>' + formatDateTime(o.started_at) + '</td><td>' + escHtml(vehName) + '</td><td>' + formatDuration(o.duration_seconds) + '</td></tr>';
+        });
+        html += '</tbody></table>';
+        if (totalPages > 1) {
+            html += renderPagination(page, totalPages, 'Control.empStatsGoTo');
+        }
+        historyEl.innerHTML = html;
+    }
+
+    function empStatsGoTo(p) { empStatsPage = p; renderEmpStatsHistory(); }
+
+    var vehDetailOrders = [];
+    var vehDetailPage = 0;
+
+    function renderVehDetailHistory() {
+        var el = document.getElementById('veh-detail-history');
+        if (!el) return;
+        if (vehDetailOrders.length === 0) {
+            el.innerHTML = '<p style="color:var(--text-muted);font-size:0.88rem;">Aucun historique.</p>';
+            return;
+        }
+        var totalPages = Math.ceil(vehDetailOrders.length / HISTORY_PAGE_SIZE);
+        var page = Math.min(vehDetailPage, totalPages - 1);
+        var start = page * HISTORY_PAGE_SIZE;
+        var pageData = vehDetailOrders.slice(start, start + HISTORY_PAGE_SIZE);
+
+        var html = '<table class="control-table"><thead><tr><th>Date</th><th>Employé</th><th>Durée</th></tr></thead><tbody>';
+        pageData.forEach(function(o) {
+            var empName = o.employee ? (o.employee.first_name + ' ' + o.employee.last_name) : 'Inconnu';
+            html += '<tr><td>' + formatDateTime(o.started_at) + '</td><td>' + escHtml(empName) + '</td><td>' + formatDuration(o.duration_seconds) + '</td></tr>';
+        });
+        html += '</tbody></table>';
+        if (totalPages > 1) {
+            html += renderPagination(page, totalPages, 'Control.vehDetailGoTo');
+        }
+        el.innerHTML = html;
+    }
+
+    function vehDetailGoTo(p) { vehDetailPage = p; renderVehDetailHistory(); }
 
     // ---- VEHICLES ----
 
@@ -689,17 +736,9 @@
 
             // Work history
             html += '<h3 style="font-size:0.95rem;margin-bottom:12px;">Historique des travaux</h3>';
-            var closedOrders = data.orders.filter(function(o) { return o.ended_at; });
-            if (closedOrders.length === 0) {
-                html += '<p style="color:var(--text-muted);font-size:0.88rem;">Aucun historique.</p>';
-            } else {
-                html += '<table class="control-table"><thead><tr><th>Date</th><th>Employé</th><th>Durée</th></tr></thead><tbody>';
-                closedOrders.forEach(function(o) {
-                    var empName = o.employee ? (o.employee.first_name + ' ' + o.employee.last_name) : 'Inconnu';
-                    html += '<tr><td>' + formatDateTime(o.started_at) + '</td><td>' + escHtml(empName) + '</td><td>' + formatDuration(o.duration_seconds) + '</td></tr>';
-                });
-                html += '</tbody></table>';
-            }
+            vehDetailOrders = data.orders.filter(function(o) { return o.ended_at; });
+            vehDetailPage = 0;
+            html += '<div id="veh-detail-history"></div>';
 
             // Notes
             html += '<div class="veh-notes">';
@@ -719,6 +758,7 @@
             html += '</div></div>';
 
             detailBody.innerHTML = html;
+            renderVehDetailHistory();
             document.getElementById('vehicle-detail-modal').classList.add('active');
 
             // Note input enter
@@ -1264,10 +1304,12 @@
         editEmployee: editEmployee,
         deleteEmployee: deleteEmployee,
         empGoTo: empGoTo,
+        empStatsGoTo: empStatsGoTo,
         openVehicleDetail: openVehicleDetail,
         editVehicle: editVehicle,
         deleteVehicle: deleteVehicle,
         vehGoTo: vehGoTo,
+        vehDetailGoTo: vehDetailGoTo,
         addVehicleNote: addVehicleNote,
         deleteVehicleNote: deleteVehicleNote,
         simulateNfc: simulateNfc
