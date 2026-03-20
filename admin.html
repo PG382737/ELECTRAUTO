@@ -194,19 +194,33 @@
 
                 <!-- Control content (hidden until password entered) -->
                 <div id="control-content" style="display:none;">
-                    <div class="control-subtabs">
-                        <button class="control-subtab active" data-subtab="employees">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                            Employés
-                        </button>
-                        <button class="control-subtab" data-subtab="vehicles">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/></svg>
-                            Voitures
-                        </button>
-                        <button class="control-subtab" data-subtab="scanner">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M12 6v12M6 12h12"/></svg>
-                            Dashboard
-                        </button>
+                    <div class="control-topbar">
+                        <div class="control-subtabs">
+                            <button class="control-subtab active" data-subtab="employees">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                Employés
+                            </button>
+                            <button class="control-subtab" data-subtab="vehicles">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/></svg>
+                                Voitures
+                            </button>
+                            <button class="control-subtab" data-subtab="scanner">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M12 6v12M6 12h12"/></svg>
+                                Dashboard
+                            </button>
+                        </div>
+                        <div class="control-notif-toggle" id="notif-toggle">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:20px;height:20px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                            <span class="control-notif-badge" id="notif-badge" style="display:none;">0</span>
+                        </div>
+                    </div>
+                    <!-- Notifications panel -->
+                    <div class="control-notif-panel" id="notif-panel" style="display:none;">
+                        <div class="control-notif-panel__header">
+                            <h3>Notifications</h3>
+                            <button class="btn btn--ghost btn--sm" id="notif-clear">Tout effacer</button>
+                        </div>
+                        <div class="control-notif-list" id="notif-list"></div>
                     </div>
 
                     <!-- Employees panel -->

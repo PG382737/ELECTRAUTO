@@ -24,6 +24,10 @@
     var allEmployees = [];
     var allVehicles = [];
     var PAGE_SIZE = 20;
+    var notifications = [];
+    var notifPanelOpen = false;
+    var knownOrderIds = {};
+    var notifPollingInterval = null;
 
     // ---- Helpers ----
 
@@ -223,6 +227,7 @@
         if (gate) gate.style.display = 'none';
         if (content) content.style.display = 'block';
         loadEmployees();
+        startNotifPolling();
     }
 
     // ---- SUB-TAB SWITCHING ----
@@ -981,6 +986,160 @@
         });
     }
 
+    // ---- NOTIFICATIONS ----
+
+    function addNotification(type, title, detail) {
+        notifications.unshift({
+            type: type, // 'start' or 'end'
+            title: title,
+            detail: detail,
+            time: new Date()
+        });
+        if (notifications.length > 50) notifications.pop();
+        updateNotifBadge();
+        if (notifPanelOpen) renderNotifications();
+    }
+
+    function updateNotifBadge() {
+        var badge = document.getElementById('notif-badge');
+        var toggle = document.getElementById('notif-toggle');
+        var count = notifications.length;
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.style.display = 'flex';
+            toggle.classList.add('has-new');
+        } else {
+            badge.style.display = 'none';
+            toggle.classList.remove('has-new');
+        }
+    }
+
+    function renderNotifications() {
+        var list = document.getElementById('notif-list');
+        if (!list) return;
+        if (notifications.length === 0) {
+            list.innerHTML = '<div class="control-notif-empty">Aucune notification</div>';
+            return;
+        }
+        var html = '';
+        notifications.forEach(function(n) {
+            var iconClass = n.type === 'start' ? 'control-notif-item__icon--start' : 'control-notif-item__icon--end';
+            var iconSvg = n.type === 'start'
+                ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>'
+                : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+            var timeAgo = formatTimeAgo(n.time);
+            html += '<div class="control-notif-item">';
+            html += '<div class="control-notif-item__icon ' + iconClass + '">' + iconSvg + '</div>';
+            html += '<div class="control-notif-item__body"><div class="control-notif-item__title">' + escHtml(n.title) + '</div><div class="control-notif-item__detail">' + escHtml(n.detail) + '</div></div>';
+            html += '<div class="control-notif-item__time">' + timeAgo + '</div>';
+            html += '</div>';
+        });
+        list.innerHTML = html;
+    }
+
+    function formatTimeAgo(date) {
+        var seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+        if (seconds < 60) return 'À l\'instant';
+        var minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return minutes + ' min';
+        var hours = Math.floor(minutes / 60);
+        if (hours < 24) return hours + 'h';
+        return Math.floor(hours / 24) + 'j';
+    }
+
+    function toggleNotifPanel() {
+        notifPanelOpen = !notifPanelOpen;
+        var panel = document.getElementById('notif-panel');
+        if (notifPanelOpen) {
+            panel.style.display = 'block';
+            renderNotifications();
+        } else {
+            panel.style.display = 'none';
+        }
+    }
+
+    function clearNotifications() {
+        notifications = [];
+        updateNotifBadge();
+        renderNotifications();
+    }
+
+    // Poll for work order changes
+    async function pollWorkOrders() {
+        try {
+            var active = await api('GET', '/api/control-work-orders?active=true');
+            if (!active) return;
+
+            var currentIds = {};
+            active.forEach(function(o) { currentIds[o.id] = o; });
+
+            // Detect new work orders (started)
+            active.forEach(function(o) {
+                if (!knownOrderIds[o.id]) {
+                    // New work order — fetch details
+                    fetchOrderNotif(o, 'start');
+                }
+            });
+
+            // Detect closed work orders (were known, now gone)
+            Object.keys(knownOrderIds).forEach(function(id) {
+                if (!currentIds[id]) {
+                    // Order was closed — fetch details
+                    fetchClosedOrderNotif(id);
+                }
+            });
+
+            knownOrderIds = currentIds;
+        } catch(e) {}
+    }
+
+    async function fetchOrderNotif(order) {
+        var empName = '?';
+        var vehName = '?';
+        try {
+            var empData = await api('GET', '/api/control-employees?id=' + order.employee_id);
+            empName = empData.first_name + ' ' + empData.last_name;
+        } catch(e) {}
+        try {
+            var vehData = await api('GET', '/api/control-vehicles?id=' + order.vehicle_id);
+            vehName = vehData.vehicle ? vehData.vehicle.make + (vehData.vehicle.plate ? ' — ' + vehData.vehicle.plate : '') : '?';
+        } catch(e) {}
+
+        addNotification('start', 'Bon de travail commencé', empName + ' → ' + vehName);
+    }
+
+    async function fetchClosedOrderNotif(orderId) {
+        // The order is already closed, get info from the stored data
+        var order = knownOrderIds[orderId];
+        if (!order) return;
+
+        var empName = '?';
+        var vehName = '?';
+        try {
+            var empData = await api('GET', '/api/control-employees?id=' + order.employee_id);
+            empName = empData.first_name + ' ' + empData.last_name;
+        } catch(e) {}
+        try {
+            var vehData = await api('GET', '/api/control-vehicles?id=' + order.vehicle_id);
+            vehName = vehData.vehicle ? vehData.vehicle.make + (vehData.vehicle.plate ? ' — ' + vehData.vehicle.plate : '') : '?';
+        } catch(e) {}
+
+        // Estimate duration from started_at to now
+        var duration = order.started_at ? formatDuration(Math.floor((Date.now() - new Date(order.started_at).getTime()) / 1000)) : '';
+        var detail = empName + ' → ' + vehName + (duration ? ' (' + duration + ')' : '');
+        addNotification('end', 'Bon de travail terminé', detail);
+    }
+
+    function startNotifPolling() {
+        if (notifPollingInterval) return;
+        // Initial load of known orders (no notification on first load)
+        api('GET', '/api/control-work-orders?active=true').then(function(active) {
+            if (active) active.forEach(function(o) { knownOrderIds[o.id] = o; });
+        }).catch(function() {});
+        // Poll every 10 seconds
+        notifPollingInterval = setInterval(pollWorkOrders, 10000);
+    }
+
     // ---- INIT ----
 
     function init() {
@@ -989,6 +1148,10 @@
         initPhotoUpload();
         initHireDateFormat();
         initVehicleValidation();
+
+        // Notifications
+        document.getElementById('notif-toggle').addEventListener('click', toggleNotifPanel);
+        document.getElementById('notif-clear').addEventListener('click', clearNotifications);
 
         // Employee modal buttons
         var empModal = document.getElementById('employee-modal');
