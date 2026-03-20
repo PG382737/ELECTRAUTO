@@ -299,6 +299,13 @@
 
     function empGoTo(p) { empPage = p; renderEmployees(); }
 
+    function clearFieldErrors(ids) {
+        ids.forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) { el.classList.remove('field-error'); el._validating = false; }
+        });
+    }
+
     function openEmployeeModal(emp) {
         document.getElementById('employee-modal-title').textContent = emp ? 'Modifier l\'employé' : 'Nouvel employé';
         document.getElementById('emp-edit-id').value = emp ? emp.id : '';
@@ -307,6 +314,7 @@
         document.getElementById('emp-hire-date').value = emp && emp.hire_date ? hireDateToDisplay(emp.hire_date) : '';
         document.getElementById('emp-nfc-tag').value = emp && emp.nfc_tag_id ? emp.nfc_tag_id : '';
         document.getElementById('emp-clear-nfc').style.display = emp && emp.nfc_tag_id ? 'inline-flex' : 'none';
+        clearFieldErrors(['emp-first-name', 'emp-last-name', 'emp-hire-date']);
         document.getElementById('employee-modal').classList.add('active');
     }
 
@@ -545,6 +553,7 @@
         }
         document.getElementById('veh-photo-file').value = '';
 
+        clearFieldErrors(['veh-owner', 'veh-make', 'veh-phone', 'veh-year', 'veh-vin']);
         document.getElementById('vehicle-modal').classList.add('active');
     }
 
