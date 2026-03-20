@@ -95,6 +95,12 @@ function enterDashboard(password) {
     document.getElementById('dashboard').style.display = 'flex';
     loadArticles();
     loadDelays();
+
+    // Restore last active tab
+    var savedTab = sessionStorage.getItem('admin-tab');
+    if (savedTab && document.getElementById('tab-' + savedTab)) {
+        switchToTab(savedTab);
+    }
 }
 
 // ---- Check session / lockout on page load ----
@@ -292,20 +298,29 @@ async function api(method, url, body) {
 // ============================================
 // SIDEBAR TABS
 // ============================================
+function switchToTab(tabName) {
+    document.querySelectorAll('.sidebar__link[data-tab]').forEach(function(l) { l.classList.remove('active'); });
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    var link = document.querySelector('.sidebar__link[data-tab="' + tabName + '"]');
+    if (link) link.classList.add('active');
+    var tab = document.getElementById('tab-' + tabName);
+    if (tab) tab.classList.add('active');
+
+    // Save to sessionStorage
+    sessionStorage.setItem('admin-tab', tabName);
+
+    // Start/stop notes polling based on active tab
+    if (tabName === 'notes') {
+        loadNotes();
+        startNotesPolling();
+    } else {
+        stopNotesPolling();
+    }
+}
+
 document.querySelectorAll('.sidebar__link[data-tab]').forEach(function(link) {
     link.addEventListener('click', function() {
-        document.querySelectorAll('.sidebar__link[data-tab]').forEach(function(l) { l.classList.remove('active'); });
-        document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-        link.classList.add('active');
-        document.getElementById('tab-' + link.dataset.tab).classList.add('active');
-
-        // Start/stop notes polling based on active tab
-        if (link.dataset.tab === 'notes') {
-            loadNotes();
-            startNotesPolling();
-        } else {
-            stopNotesPolling();
-        }
+        switchToTab(link.dataset.tab);
     });
 });
 

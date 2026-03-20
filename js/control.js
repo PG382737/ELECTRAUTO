@@ -226,7 +226,15 @@
         var content = document.getElementById('control-content');
         if (gate) gate.style.display = 'none';
         if (content) content.style.display = 'block';
-        loadEmployees();
+
+        // Restore saved subtab
+        var savedSubtab = sessionStorage.getItem('control-subtab');
+        if (savedSubtab) {
+            var btn = document.querySelector('.control-subtab[data-subtab="' + savedSubtab + '"]');
+            if (btn) btn.click();
+        } else {
+            loadEmployees();
+        }
         startNotifPolling();
     }
 
@@ -239,6 +247,7 @@
                 document.querySelectorAll('.control-panel').forEach(function(p) { p.classList.remove('active'); });
                 btn.classList.add('active');
                 var target = btn.getAttribute('data-subtab');
+                sessionStorage.setItem('control-subtab', target);
                 if (target === 'employees') {
                     document.getElementById('panel-employees').classList.add('active');
                     loadEmployees();
