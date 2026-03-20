@@ -63,6 +63,30 @@
                d.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' });
     }
 
+    // ---- Field validation with shake ----
+    function shakeField(inputId) {
+        var el = document.getElementById(inputId);
+        if (!el) return;
+        el.classList.add('field-error');
+        el.addEventListener('animationend', function() { el.classList.remove('field-error'); }, { once: true });
+        el.addEventListener('input', function() { el.classList.remove('field-error'); }, { once: true });
+    }
+
+    function validateFields(fields) {
+        var valid = true;
+        fields.forEach(function(f) {
+            var el = document.getElementById(f.id);
+            if (!el) return;
+            var val = el.value.trim();
+            var fail = false;
+            if (f.required && !val) fail = true;
+            if (f.minLength && val && val.length < f.minLength) fail = true;
+            if (f.pattern && val && !f.pattern.test(val)) fail = true;
+            if (fail) { shakeField(f.id); valid = false; }
+        });
+        return valid;
+    }
+
     // dd-mm-yyyy <-> yyyy-mm-dd
     function hireDateToDisplay(isoDate) {
         if (!isoDate) return '';
@@ -274,10 +298,12 @@
             nfc_tag_id: document.getElementById('emp-nfc-tag').value || null
         };
 
-        if (!body.first_name || !body.last_name || !body.hire_date) {
-            alert('Veuillez remplir tous les champs obligatoires.');
-            return;
-        }
+        var isValid = validateFields([
+            { id: 'emp-first-name', required: true },
+            { id: 'emp-last-name', required: true },
+            { id: 'emp-hire-date', required: true, pattern: /^\d{2}-\d{2}-\d{4}$/ }
+        ]);
+        if (!isValid) return;
 
         try {
             if (id) {
@@ -515,10 +541,14 @@
             nfc_tag_id: document.getElementById('veh-nfc-tag').value || null
         };
 
-        if (!body.owner_name || !body.make) {
-            alert('Veuillez remplir le propriétaire et la marque.');
-            return;
-        }
+        var isValid = validateFields([
+            { id: 'veh-owner', required: true },
+            { id: 'veh-make', required: true },
+            { id: 'veh-phone', pattern: /^(\d{3}-\d{3}-\d{4})?$/ },
+            { id: 'veh-year', pattern: /^(\d{4})?$/ },
+            { id: 'veh-vin', minLength: 17 }
+        ]);
+        if (!isValid) return;
 
         // Handle photo upload
         var fileInput = document.getElementById('veh-photo-file');
