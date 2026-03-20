@@ -1065,20 +1065,49 @@ html::-webkit-scrollbar { display: none; }
 .veh-detail-info p { color: var(--text-muted); font-size: 0.88rem; margin: 3px 0; }
 
 .veh-detail-active {
-    background: rgba(34,197,94,0.08);
-    border: 1px solid rgba(34,197,94,0.25);
+    background: rgba(34,197,94,0.06);
+    border: 1px solid rgba(34,197,94,0.2);
     border-radius: var(--radius);
-    padding: 20px;
+    padding: 0;
     margin-bottom: 24px;
     display: flex;
+    align-items: stretch;
+    overflow: hidden;
+}
+.veh-detail-active__timer-box {
+    background: rgba(34,197,94,0.12);
+    padding: 18px 24px;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 16px;
+    justify-content: center;
+    min-width: 160px;
+}
+.veh-detail-active__timer-box span {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--success);
+    margin-top: 4px;
+    text-transform: uppercase;
 }
 .veh-detail-active__timer {
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
     color: var(--success);
+    line-height: 1;
+}
+.veh-detail-active__sep {
+    width: 1px;
+    background: rgba(34,197,94,0.2);
+}
+.veh-detail-active__info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 24px;
+    flex: 1;
 }
 
 /* Vehicle notes in detail */

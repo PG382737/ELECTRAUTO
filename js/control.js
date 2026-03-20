@@ -467,9 +467,9 @@
                 var ao = data.active_order;
                 var empName = ao.employee ? (ao.employee.first_name + ' ' + ao.employee.last_name) : 'Inconnu';
                 html += '<div class="veh-detail-active">';
-                html += '<span class="live-dot"></span>';
-                html += '<div><strong>Travail en cours</strong> — ' + escHtml(empName) + ' depuis ' + formatDateTime(ao.started_at) + '</div>';
-                html += '<div class="veh-detail-active__timer" id="veh-detail-timer">...</div>';
+                html += '<div class="veh-detail-active__timer-box"><div class="veh-detail-active__timer" id="veh-detail-timer">...</div><span>EN COURS</span></div>';
+                html += '<div class="veh-detail-active__sep"></div>';
+                html += '<div class="veh-detail-active__info"><span class="live-dot"></span><div><strong>' + escHtml(empName) + '</strong><p style="margin:4px 0 0;font-size:0.82rem;color:rgba(255,255,255,0.5);">Depuis ' + formatDateTime(ao.started_at) + '</p></div></div>';
                 html += '</div>';
                 setTimeout(function() { startLiveTimer('veh-detail-timer', ao.started_at); }, 50);
             }
