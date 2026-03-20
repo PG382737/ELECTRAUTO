@@ -1005,7 +1005,18 @@
                 document.getElementById('emp-clear-nfc').style.display = 'inline-flex';
             });
         });
-        document.getElementById('emp-clear-nfc').addEventListener('click', function() {
+        document.getElementById('emp-clear-nfc').addEventListener('click', async function() {
+            var empId = document.getElementById('emp-edit-id').value;
+            if (empId) {
+                try {
+                    var active = await api('GET', '/api/control-work-orders?active=true');
+                    var hasOpen = active && active.some(function(o) { return o.employee_id === empId; });
+                    if (hasOpen) {
+                        alert('Impossible de retirer le badge : cet employé a un bon de travail ouvert.');
+                        return;
+                    }
+                } catch(e) {}
+            }
             document.getElementById('emp-nfc-tag').value = '';
             this.style.display = 'none';
         });
@@ -1037,7 +1048,17 @@
                 document.getElementById('veh-clear-nfc').style.display = 'inline-flex';
             });
         });
-        document.getElementById('veh-clear-nfc').addEventListener('click', function() {
+        document.getElementById('veh-clear-nfc').addEventListener('click', async function() {
+            var vehId = document.getElementById('veh-edit-id').value;
+            if (vehId) {
+                try {
+                    var active = await api('GET', '/api/control-work-orders?vehicle_id=' + vehId);
+                    if (active) {
+                        alert('Impossible de retirer le badge : ce véhicule a un bon de travail ouvert.');
+                        return;
+                    }
+                } catch(e) {}
+            }
             document.getElementById('veh-nfc-tag').value = '';
             this.style.display = 'none';
         });
