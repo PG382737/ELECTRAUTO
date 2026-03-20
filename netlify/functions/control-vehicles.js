@@ -160,6 +160,7 @@ exports.handler = async (event) => {
                 plate: (body.plate || '').trim().toUpperCase(),
                 year: body.year ? parseInt(body.year) : null,
                 vin: (body.vin || '').trim().toUpperCase(),
+                reference: (body.reference || '').trim(),
                 photo_url: body.photo_url || null,
                 nfc_tag_id: body.nfc_tag_id || null,
                 created_at: new Date().toISOString(),
@@ -182,7 +183,7 @@ exports.handler = async (event) => {
             }
 
             const updates = { updated_at: new Date().toISOString() };
-            const fields = ['owner_name', 'phone', 'make', 'color', 'plate', 'year', 'vin', 'photo_url', 'nfc_tag_id'];
+            const fields = ['owner_name', 'phone', 'make', 'color', 'plate', 'year', 'vin', 'reference', 'photo_url', 'nfc_tag_id'];
             fields.forEach(f => {
                 if (body[f] !== undefined) {
                     if (f === 'year') updates[f] = body[f] ? parseInt(body[f]) : null;

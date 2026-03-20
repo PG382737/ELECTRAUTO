@@ -346,6 +346,7 @@
         document.getElementById('veh-plate').value = veh ? (veh.plate || '') : '';
         document.getElementById('veh-year').value = veh ? (veh.year || '') : '';
         document.getElementById('veh-vin').value = veh ? (veh.vin || '') : '';
+        document.getElementById('veh-reference').value = veh ? (veh.reference || '') : '';
         document.getElementById('veh-nfc-tag').value = veh && veh.nfc_tag_id ? veh.nfc_tag_id : '';
         document.getElementById('veh-clear-nfc').style.display = veh && veh.nfc_tag_id ? 'inline-flex' : 'none';
 
@@ -371,6 +372,7 @@
             plate: document.getElementById('veh-plate').value.trim(),
             year: document.getElementById('veh-year').value.trim(),
             vin: document.getElementById('veh-vin').value.trim(),
+            reference: document.getElementById('veh-reference').value.trim(),
             nfc_tag_id: document.getElementById('veh-nfc-tag').value || null
         };
 
