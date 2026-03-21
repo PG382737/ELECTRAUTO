@@ -215,9 +215,9 @@
         var startWeekday = (firstDay.getDay() + 6) % 7; // Monday=0
 
         var html = '<div class="datepicker-header">';
-        html += '<button type="button" onclick="window._dpPrev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>';
+        html += '<button type="button" onclick="window._dpPrev(event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>';
         html += '<span class="datepicker-month-year">' + MONTHS_FR[month] + ' ' + year + '</span>';
-        html += '<button type="button" onclick="window._dpNext()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>';
+        html += '<button type="button" onclick="window._dpNext(event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>';
         html += '</div>';
 
         html += '<div class="datepicker-weekdays">';
@@ -250,13 +250,14 @@
         }
 
         html += '</div>';
-        html += '<button type="button" class="datepicker-today-btn" onclick="window._dpToday()">Aujourd\'hui</button>';
+        html += '<button type="button" class="datepicker-today-btn" onclick="window._dpToday(event)">Aujourd\'hui</button>';
 
         picker.innerHTML = html;
 
         // Attach click handlers to day buttons
         picker.querySelectorAll('.datepicker-day').forEach(function(btn) {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
                 var parts = btn.getAttribute('data-date').split('-');
                 var selDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
                 datepickerState.selectedDate = selDate;
@@ -274,17 +275,20 @@
     }
 
     // Global nav functions for datepicker
-    window._dpPrev = function() {
+    window._dpPrev = function(e) {
+        if (e) { e.stopPropagation(); e.preventDefault(); }
         datepickerState.month--;
         if (datepickerState.month < 0) { datepickerState.month = 11; datepickerState.year--; }
         renderDatepicker();
     };
-    window._dpNext = function() {
+    window._dpNext = function(e) {
+        if (e) { e.stopPropagation(); e.preventDefault(); }
         datepickerState.month++;
         if (datepickerState.month > 11) { datepickerState.month = 0; datepickerState.year++; }
         renderDatepicker();
     };
-    window._dpToday = function() {
+    window._dpToday = function(e) {
+        if (e) { e.stopPropagation(); e.preventDefault(); }
         var today = new Date();
         datepickerState.year = today.getFullYear();
         datepickerState.month = today.getMonth();
