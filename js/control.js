@@ -1024,7 +1024,7 @@
     }
 
     function getScannerSimHtml() {
-        return '<div class="nfc-sim-input"><input type="text" id="nfc-sim-tag" placeholder="Tag NFC (simulation)"><button onclick="Control.simulateNfc()">Simuler</button></div>';
+        return '';
     }
 
     function startScannerTimer(startedAt) {
