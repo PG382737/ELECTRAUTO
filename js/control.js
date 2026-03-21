@@ -11,6 +11,8 @@
     var currentVehDetailId = null;
     var deleteCallback = null;
     var liveTimers = {};
+    var dashboardOrderTimers = [];
+    var dashboardOrdersInterval = null;
     var scannerInterval = null;
     var scannerTimeout = null;
     var scannerState = null;
@@ -975,6 +977,7 @@
     function clearScannerTimers() {
         if (scannerInterval) { clearInterval(scannerInterval); scannerInterval = null; }
         if (scannerTimeout) { clearTimeout(scannerTimeout); scannerTimeout = null; }
+        stopDashboardOrderTimers();
     }
 
     function setScannerState(state) {
@@ -985,7 +988,9 @@
         if (state === 'WAITING_VEHICLE') {
             scannerVehicle = null;
             scannerActiveOrder = null;
-            content.innerHTML = '<div class="nfc-scanner__title">VÉHICULE</div>' + SCANNER_NFC_ICON + '<div class="nfc-scanner__subtitle">Scannez la carte NFC du véhicule</div>' + getScannerSimHtml();
+            stopDashboardOrderTimers();
+            content.innerHTML = '<div class="nfc-scanner__title">VÉHICULE</div>' + SCANNER_NFC_ICON + '<div class="nfc-scanner__subtitle">Scannez la carte NFC du véhicule</div>' + getScannerSimHtml() + '<div class="nfc-scanner__orders" id="dashboard-orders"><div class="nfc-scanner__orders-title">Bons de travail en cours</div><div id="dashboard-orders-list" class="nfc-scanner__orders-grid"><div class="nfc-scanner__orders-empty">Chargement...</div></div></div>';
+            loadDashboardOrders();
 
         } else if (state === 'WAITING_EMPLOYEE') {
             var v = scannerVehicle;
@@ -999,6 +1004,7 @@
             setTimeout(function() { startScannerTimer(ao.started_at); }, 50);
 
         } else if (state === 'SUCCESS_OPEN') {
+            stopDashboardOrderTimers();
             content.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:80px;height:80px;color:var(--success);margin-bottom:20px;"><path d="M20 6L9 17l-5-5"/></svg><div class="nfc-scanner__success">Bon de travail commencé</div><div class="nfc-scanner__countdown" id="scanner-countdown">Retour dans 5 secondes...</div>';
             var countdown = 5;
             scannerInterval = setInterval(function() {
@@ -1009,6 +1015,7 @@
             }, 1000);
 
         } else if (state === 'SUCCESS_CLOSE') {
+            stopDashboardOrderTimers();
             content.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:80px;height:80px;color:var(--success);margin-bottom:20px;"><path d="M20 6L9 17l-5-5"/></svg><div class="nfc-scanner__success">Bon de travail terminé</div><div class="nfc-scanner__countdown" id="scanner-countdown">Retour dans 5 secondes...</div>';
             var countdown2 = 5;
             scannerInterval = setInterval(function() {
@@ -1021,6 +1028,77 @@
         } else if (state === 'ERROR') {
             // Error state is set with custom content before calling this
         }
+    }
+
+    function stopDashboardOrderTimers() {
+        dashboardOrderTimers.forEach(function(t) { clearInterval(t); });
+        dashboardOrderTimers = [];
+        if (dashboardOrdersInterval) { clearInterval(dashboardOrdersInterval); dashboardOrdersInterval = null; }
+    }
+
+    async function loadDashboardOrders() {
+        try {
+            var orders = await api('GET', '/api/control-work-orders?active=true');
+            renderDashboardOrders(orders || []);
+            // Refresh every 30s
+            if (!dashboardOrdersInterval) {
+                dashboardOrdersInterval = setInterval(function() { loadDashboardOrders(); }, 30000);
+            }
+        } catch(e) {
+            var list = document.getElementById('dashboard-orders-list');
+            if (list) list.innerHTML = '<div class="nfc-scanner__orders-empty">Impossible de charger les bons de travail</div>';
+        }
+    }
+
+    function renderDashboardOrders(orders) {
+        var list = document.getElementById('dashboard-orders-list');
+        if (!list) return;
+
+        // Clear old timers
+        dashboardOrderTimers.forEach(function(t) { clearInterval(t); });
+        dashboardOrderTimers = [];
+
+        if (!orders || orders.length === 0) {
+            list.innerHTML = '<div class="nfc-scanner__orders-empty">Aucun bon de travail en cours</div>';
+            return;
+        }
+
+        var html = '';
+        orders.forEach(function(order, i) {
+            var v = order.vehicle || {};
+            var e = order.employee || {};
+            var vehicleName = escHtml(v.make || 'Véhicule') + (v.year ? ' ' + v.year : '');
+            var plate = v.plate ? ' — ' + escHtml(v.plate) : '';
+            var empName = escHtml((e.first_name || '') + ' ' + (e.last_name || ''));
+            var ownerName = v.owner_name ? ' — ' + escHtml(v.owner_name) : '';
+
+            html += '<div class="nfc-scanner__order-card">' +
+                '<div class="nfc-scanner__order-dot"></div>' +
+                '<div class="nfc-scanner__order-info">' +
+                    '<div class="nfc-scanner__order-vehicle">' + vehicleName + plate + '</div>' +
+                    '<div class="nfc-scanner__order-employee">' + empName + ownerName + '</div>' +
+                '</div>' +
+                '<div class="nfc-scanner__order-timer" id="dash-order-timer-' + i + '">00:00:00</div>' +
+            '</div>';
+        });
+
+        list.innerHTML = html;
+
+        // Start live timers
+        orders.forEach(function(order, i) {
+            var el = document.getElementById('dash-order-timer-' + i);
+            if (!el) return;
+            var start = new Date(order.started_at).getTime();
+            function updateTimer() {
+                var elapsed = Math.floor((Date.now() - start) / 1000);
+                var h = Math.floor(elapsed / 3600);
+                var m = Math.floor((elapsed % 3600) / 60);
+                var s = elapsed % 60;
+                el.textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+            }
+            updateTimer();
+            dashboardOrderTimers.push(setInterval(updateTimer, 1000));
+        });
     }
 
     function getScannerSimHtml() {

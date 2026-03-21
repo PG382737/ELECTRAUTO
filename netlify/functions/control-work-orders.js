@@ -74,9 +74,9 @@ exports.handler = async (event) => {
                 return { statusCode: 200, headers, body: JSON.stringify(null) };
             }
 
-            // All active orders
+            // All active orders (with employee + vehicle details)
             if (params.active === 'true') {
-                const data = await supaFetch('control_work_orders?ended_at=is.null&order=started_at.desc');
+                const data = await supaFetch('control_work_orders?ended_at=is.null&order=started_at.desc&select=id,started_at,vehicle_id,employee_id,vehicle:control_vehicles(id,make,year,plate,owner_name,color),employee:control_employees(id,first_name,last_name)');
                 return { statusCode: 200, headers, body: JSON.stringify(data) };
             }
 
