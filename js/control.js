@@ -1570,7 +1570,7 @@
         document.getElementById('employee-modal-close').addEventListener('click', function() { empModal.classList.remove('active'); });
         document.getElementById('emp-save').addEventListener('click', saveEmployee);
         document.getElementById('btn-new-employee').addEventListener('click', function() { openEmployeeModal(null); });
-        empModal.addEventListener('click', function(e) { if (e.target === empModal) empModal.classList.remove('active'); });
+        // empModal overlay click disabled — close only via X button
 
         // Employee NFC assign
         document.getElementById('emp-assign-nfc').addEventListener('click', function() {
@@ -1603,7 +1603,7 @@
         // Employee stats modal
         var empStatsModal = document.getElementById('employee-stats-modal');
         document.getElementById('emp-stats-close').addEventListener('click', function() { empStatsModal.classList.remove('active'); });
-        empStatsModal.addEventListener('click', function(e) { if (e.target === empStatsModal) empStatsModal.classList.remove('active'); });
+        // empStatsModal overlay click disabled — close only via X button
         document.querySelectorAll('#emp-stats-periods .period-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('#emp-stats-periods .period-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -1618,7 +1618,7 @@
         document.getElementById('vehicle-modal-close').addEventListener('click', function() { vehModal.classList.remove('active'); });
         document.getElementById('veh-save').addEventListener('click', saveVehicle);
         document.getElementById('btn-new-vehicle').addEventListener('click', function() { openVehicleModal(null); });
-        vehModal.addEventListener('click', function(e) { if (e.target === vehModal) vehModal.classList.remove('active'); });
+        // vehModal overlay click disabled — close only via X button
 
         // Vehicle NFC assign
         document.getElementById('veh-assign-nfc').addEventListener('click', function() {
@@ -1650,7 +1650,7 @@
         // Vehicle detail modal
         var vehDetailModal = document.getElementById('vehicle-detail-modal');
         document.getElementById('veh-detail-close').addEventListener('click', function() { vehDetailModal.classList.remove('active'); clearAllTimers(); });
-        vehDetailModal.addEventListener('click', function(e) { if (e.target === vehDetailModal) { vehDetailModal.classList.remove('active'); clearAllTimers(); } });
+        // vehDetailModal overlay click disabled — close only via X button
 
         // Confirm delete modal
         var confirmModal = document.getElementById('control-confirm-modal');
@@ -1660,7 +1660,7 @@
             confirmModal.classList.remove('active');
             if (deleteCallback) { deleteCallback(); deleteCallback = null; }
         });
-        confirmModal.addEventListener('click', function(e) { if (e.target === confirmModal) confirmModal.classList.remove('active'); });
+        // confirmModal overlay click disabled — close only via X button
 
         // Scanner
         document.getElementById('btn-open-scanner').addEventListener('click', openScanner);

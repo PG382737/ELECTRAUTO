@@ -446,9 +446,7 @@ function closeArticleModal() {
 
 document.getElementById('modal-close').addEventListener('click', closeArticleModal);
 document.getElementById('btn-cancel').addEventListener('click', closeArticleModal);
-articleModal.addEventListener('click', function(e) {
-    if (e.target === articleModal) closeArticleModal();
-});
+// articleModal overlay click disabled — close only via X button
 
 // ---- Language Tabs ----
 document.querySelectorAll('.lang-tab').forEach(function(tab) {
@@ -686,9 +684,7 @@ function closeConfirm() {
 
 document.getElementById('confirm-close').addEventListener('click', closeConfirm);
 document.getElementById('btn-cancel-delete').addEventListener('click', closeConfirm);
-confirmModal.addEventListener('click', function(e) {
-    if (e.target === confirmModal) closeConfirm();
-});
+// confirmModal overlay click disabled — close only via X button
 
 document.getElementById('btn-confirm-delete').addEventListener('click', async function() {
     if (!deleteTargetId) return;
