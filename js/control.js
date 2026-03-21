@@ -939,6 +939,26 @@
 
     // ---- NFC ASSIGNMENT ----
 
+    async function checkNfcConflict(tagId, type, currentId) {
+        try {
+            // Check employees
+            var emps = allEmployees.filter(function(e) { return e.nfc_tag_id === tagId; });
+            for (var i = 0; i < emps.length; i++) {
+                if (type === 'employee' && currentId && emps[i].id === currentId) continue;
+                return 'Ce badge est déjà assigné à l\'employé ' + emps[i].first_name + ' ' + emps[i].last_name + '.';
+            }
+            // Check vehicles
+            var vehs = allVehicles.filter(function(v) { return v.nfc_tag_id === tagId; });
+            for (var j = 0; j < vehs.length; j++) {
+                if (type === 'vehicle' && currentId && vehs[j].id === currentId) continue;
+                return 'Ce badge est déjà assigné au véhicule ' + vehs[j].make + (vehs[j].year ? ' ' + vehs[j].year : '') + (vehs[j].plate ? ' (' + vehs[j].plate + ')' : '') + '.';
+            }
+            return null;
+        } catch(e) {
+            return null;
+        }
+    }
+
     function assignNfc(callback) {
         if (nfcWsConnected && nfcReaderReady) {
             nfcAssignCallback = callback;
@@ -1395,7 +1415,12 @@
 
         // Employee NFC assign
         document.getElementById('emp-assign-nfc').addEventListener('click', function() {
-            assignNfc(function(tagId) {
+            assignNfc(async function(tagId) {
+                var conflict = await checkNfcConflict(tagId, 'employee', document.getElementById('emp-edit-id').value);
+                if (conflict) {
+                    alert(conflict);
+                    return;
+                }
                 document.getElementById('emp-nfc-tag').value = tagId;
                 document.getElementById('emp-clear-nfc').style.display = 'inline-flex';
             });
@@ -1438,7 +1463,12 @@
 
         // Vehicle NFC assign
         document.getElementById('veh-assign-nfc').addEventListener('click', function() {
-            assignNfc(function(tagId) {
+            assignNfc(async function(tagId) {
+                var conflict = await checkNfcConflict(tagId, 'vehicle', document.getElementById('veh-edit-id').value);
+                if (conflict) {
+                    alert(conflict);
+                    return;
+                }
                 document.getElementById('veh-nfc-tag').value = tagId;
                 document.getElementById('veh-clear-nfc').style.display = 'inline-flex';
             });
