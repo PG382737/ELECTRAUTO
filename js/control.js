@@ -818,6 +818,32 @@
     var nfcWsConnected = false;
     var nfcReaderReady = false;
 
+    function updateNfcStatusPanel() {
+        var dot = document.getElementById('nfc-status-dot');
+        var label = document.getElementById('nfc-status-label');
+        var detail = document.getElementById('nfc-status-detail');
+        if (!dot) return;
+        if (nfcWsConnected && nfcReaderReady) {
+            dot.style.background = '#22c55e';
+            dot.style.boxShadow = '0 0 8px #22c55e80';
+            label.textContent = 'Lecteur NFC connecté';
+            label.style.color = '#22c55e';
+            detail.textContent = 'Le lecteur est prêt à scanner.';
+        } else if (nfcWsConnected && !nfcReaderReady) {
+            dot.style.background = '#f59e0b';
+            dot.style.boxShadow = '0 0 8px #f59e0b80';
+            label.textContent = 'Serveur connecté — lecteur non détecté';
+            label.style.color = '#f59e0b';
+            detail.textContent = 'Le serveur NFC fonctionne mais aucun lecteur USB n\'est branché.';
+        } else {
+            dot.style.background = '#ef4444';
+            dot.style.boxShadow = '0 0 8px #ef444480';
+            label.textContent = 'Serveur NFC déconnecté';
+            label.style.color = '#ef4444';
+            detail.textContent = 'Lancez ElectrAuto-NFC.exe pour connecter le lecteur.';
+        }
+    }
+
     function connectNfcWebSocket() {
         if (nfcWs && nfcWs.readyState <= 1) return;
         try {
@@ -825,12 +851,14 @@
             nfcWs.onopen = function() {
                 nfcWsConnected = true;
                 console.log('[NFC] WebSocket connecté');
+                updateNfcStatusPanel();
             };
             nfcWs.onmessage = function(event) {
                 var data = JSON.parse(event.data);
                 if (data.type === 'status') {
                     nfcReaderReady = data.reader;
                     console.log('[NFC] Lecteur ' + (data.reader ? 'connecté' : 'déconnecté'));
+                    updateNfcStatusPanel();
                 } else if (data.type === 'nfc_tag') {
                     console.log('[NFC] Tag scanné: ' + data.uid);
                     // If assigning a badge
@@ -851,6 +879,7 @@
                 nfcWsConnected = false;
                 nfcReaderReady = false;
                 console.log('[NFC] WebSocket déconnecté, reconnexion dans 3s...');
+                updateNfcStatusPanel();
                 setTimeout(connectNfcWebSocket, 3000);
             };
             nfcWs.onerror = function() {

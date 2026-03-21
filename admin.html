@@ -258,24 +258,80 @@
                                 Ouvrir le scanner
                             </button>
                             <div style="margin-top:40px;padding-top:24px;border-top:1px solid var(--border);">
+
+                                <!-- NFC Status indicator -->
+                                <div id="nfc-status-panel" style="display:flex;align-items:center;gap:12px;padding:14px 20px;border-radius:var(--radius);margin-bottom:24px;border:1px solid var(--border);background:var(--glass);">
+                                    <div id="nfc-status-dot" style="width:12px;height:12px;border-radius:50%;background:#ef4444;flex-shrink:0;"></div>
+                                    <div style="flex:1;">
+                                        <strong id="nfc-status-label" style="font-size:.9rem;">Serveur NFC déconnecté</strong>
+                                        <p id="nfc-status-detail" style="color:var(--text-muted);font-size:.8rem;margin-top:2px;">Lancez ElectrAuto-NFC.exe pour connecter le lecteur.</p>
+                                    </div>
+                                </div>
+
                                 <h3 style="margin-bottom:16px;font-size:1rem;">Installation du lecteur NFC</h3>
-                                <div style="background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;">
-                                    <p style="color:var(--text-muted);margin-bottom:16px;font-size:.85rem;line-height:1.6;">
-                                        <strong style="color:var(--text);">Étape 1</strong> — Installer le driver du lecteur ACR122U (une seule fois par ordinateur).<br>
-                                        <strong style="color:var(--text);">Étape 2</strong> — Brancher le lecteur USB.<br>
-                                        <strong style="color:var(--text);">Étape 3</strong> — Lancer ElectrAuto-NFC.exe (à chaque utilisation).
-                                    </p>
+                                <div style="background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;">
+                                    <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:20px;">
+                                        <div style="display:flex;align-items:flex-start;gap:12px;">
+                                            <span style="background:var(--accent);color:#000;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0;">1</span>
+                                            <div>
+                                                <strong style="font-size:.9rem;">Installer le driver ACR122U</strong>
+                                                <p style="color:var(--text-muted);font-size:.8rem;margin-top:2px;">Une seule fois par ordinateur. Téléchargez le MSI Installer depuis le site officiel ACS.</p>
+                                            </div>
+                                        </div>
+                                        <div style="display:flex;align-items:flex-start;gap:12px;">
+                                            <span style="background:var(--accent);color:#000;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0;">2</span>
+                                            <div>
+                                                <strong style="font-size:.9rem;">Télécharger ElectrAuto-NFC.exe</strong>
+                                                <p style="color:var(--text-muted);font-size:.8rem;margin-top:2px;">Le serveur qui fait le pont entre le lecteur et le navigateur.</p>
+                                            </div>
+                                        </div>
+                                        <div style="display:flex;align-items:flex-start;gap:12px;">
+                                            <span style="background:var(--accent);color:#000;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0;">3</span>
+                                            <div>
+                                                <strong style="font-size:.9rem;">Brancher le lecteur USB</strong>
+                                                <p style="color:var(--text-muted);font-size:.8rem;margin-top:2px;">Connectez le lecteur ACR122U à un port USB de l'ordinateur.</p>
+                                            </div>
+                                        </div>
+                                        <div style="display:flex;align-items:flex-start;gap:12px;">
+                                            <span style="background:var(--accent);color:#000;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0;">4</span>
+                                            <div>
+                                                <strong style="font-size:.9rem;">Lancer ElectrAuto-NFC.exe</strong>
+                                                <p style="color:var(--text-muted);font-size:.8rem;margin-top:2px;">Double-cliquez pour démarrer. La pastille ci-dessus passera au vert.</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div style="display:flex;gap:12px;flex-wrap:wrap;">
                                         <a href="https://www.acs.com.hk/en/driver/3/acr122u-usb-nfc-reader/" target="_blank" rel="noopener" class="btn" style="gap:8px;">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                                            1. Driver ACR122U
+                                            Driver ACR122U
                                         </a>
                                         <a href="https://puofuoigjxyhuzbjswcm.supabase.co/storage/v1/object/public/control-photos/ElectrAuto-NFC.exe" download class="btn btn--primary" style="gap:8px;">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                                            2. ElectrAuto-NFC.exe
+                                            ElectrAuto-NFC.exe
                                         </a>
                                     </div>
                                 </div>
+
+                                <!-- Auto-start instructions -->
+                                <details style="background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);padding:0;">
+                                    <summary style="padding:16px 20px;cursor:pointer;font-size:.9rem;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;transition:transform .2s;"><polyline points="9 18 15 12 9 6"/></svg>
+                                        Démarrage automatique (optionnel)
+                                    </summary>
+                                    <div style="padding:0 20px 20px;border-top:1px solid var(--border);margin-top:0;padding-top:16px;">
+                                        <p style="color:var(--text-muted);font-size:.85rem;line-height:1.6;margin-bottom:12px;">
+                                            Pour que ElectrAuto-NFC se lance automatiquement au démarrage de Windows :
+                                        </p>
+                                        <ol style="color:var(--text-muted);font-size:.85rem;line-height:1.8;padding-left:20px;">
+                                            <li>Appuyez sur <kbd style="background:var(--surface);padding:2px 6px;border-radius:4px;font-size:.8rem;border:1px solid var(--border);">Win + R</kbd></li>
+                                            <li>Tapez <code style="background:var(--surface);padding:2px 6px;border-radius:4px;font-size:.8rem;">shell:startup</code> et appuyez Entrée</li>
+                                            <li>Un dossier Windows s'ouvre</li>
+                                            <li>Copiez <strong style="color:var(--text);">ElectrAuto-NFC.exe</strong> dans ce dossier</li>
+                                            <li>C'est tout! Le serveur démarrera automatiquement à chaque session.</li>
+                                        </ol>
+                                    </div>
+                                </details>
+
                             </div>
                         </div>
                     </div>
