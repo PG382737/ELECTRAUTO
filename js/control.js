@@ -156,17 +156,144 @@
     }
 
     // Auto-format hire date input (add dashes)
-    function initHireDateFormat() {
+    // ---- Custom Date Picker ----
+
+    var datepickerState = { year: 2026, month: 2, selectedDate: null };
+    var MONTHS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+    var WEEKDAYS_FR = ['Lu','Ma','Me','Je','Ve','Sa','Di'];
+
+    function initDatepicker() {
         var input = document.getElementById('emp-hire-date');
-        if (!input) return;
-        input.addEventListener('input', function() {
-            var v = input.value.replace(/[^\d]/g, '');
-            if (v.length > 2) v = v.substring(0, 2) + '-' + v.substring(2);
-            if (v.length > 5) v = v.substring(0, 5) + '-' + v.substring(5);
-            if (v.length > 10) v = v.substring(0, 10);
-            input.value = v;
+        var trigger = document.getElementById('emp-hire-date-trigger');
+        var picker = document.getElementById('emp-hire-date-picker');
+        if (!input || !trigger || !picker) return;
+
+        function toggle() {
+            if (picker.classList.contains('active')) {
+                picker.classList.remove('active');
+                return;
+            }
+            // Parse existing value
+            var val = input.value;
+            if (val && /^\d{2}-\d{2}-\d{4}$/.test(val)) {
+                var parts = val.split('-');
+                datepickerState.year = parseInt(parts[2]);
+                datepickerState.month = parseInt(parts[1]) - 1;
+                datepickerState.selectedDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+            } else {
+                var now = new Date();
+                datepickerState.year = now.getFullYear();
+                datepickerState.month = now.getMonth();
+                datepickerState.selectedDate = null;
+            }
+            renderDatepicker();
+            picker.classList.add('active');
+        }
+
+        input.addEventListener('click', toggle);
+        trigger.addEventListener('click', function(e) { e.preventDefault(); toggle(); });
+
+        // Close on click outside
+        document.addEventListener('click', function(e) {
+            if (!picker.contains(e.target) && e.target !== input && e.target !== trigger && !trigger.contains(e.target)) {
+                picker.classList.remove('active');
+            }
         });
     }
+
+    function renderDatepicker() {
+        var picker = document.getElementById('emp-hire-date-picker');
+        if (!picker) return;
+
+        var year = datepickerState.year;
+        var month = datepickerState.month;
+        var today = new Date();
+        today.setHours(0,0,0,0);
+
+        var firstDay = new Date(year, month, 1);
+        var lastDay = new Date(year, month + 1, 0);
+        var startWeekday = (firstDay.getDay() + 6) % 7; // Monday=0
+
+        var html = '<div class="datepicker-header">';
+        html += '<button type="button" onclick="window._dpPrev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>';
+        html += '<span class="datepicker-month-year">' + MONTHS_FR[month] + ' ' + year + '</span>';
+        html += '<button type="button" onclick="window._dpNext()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>';
+        html += '</div>';
+
+        html += '<div class="datepicker-weekdays">';
+        WEEKDAYS_FR.forEach(function(d) { html += '<span>' + d + '</span>'; });
+        html += '</div>';
+
+        html += '<div class="datepicker-days">';
+
+        // Previous month days
+        var prevMonthLast = new Date(year, month, 0).getDate();
+        for (var p = startWeekday - 1; p >= 0; p--) {
+            var pd = prevMonthLast - p;
+            html += '<button type="button" class="datepicker-day other-month" data-date="' + (month === 0 ? year-1 : year) + '-' + (month === 0 ? 12 : month) + '-' + pd + '">' + pd + '</button>';
+        }
+
+        // Current month days
+        for (var d = 1; d <= lastDay.getDate(); d++) {
+            var dateObj = new Date(year, month, d);
+            var classes = 'datepicker-day';
+            if (dateObj.getTime() === today.getTime()) classes += ' today';
+            if (datepickerState.selectedDate && dateObj.getTime() === datepickerState.selectedDate.getTime()) classes += ' selected';
+            html += '<button type="button" class="' + classes + '" data-date="' + year + '-' + (month + 1) + '-' + d + '">' + d + '</button>';
+        }
+
+        // Next month days
+        var totalCells = startWeekday + lastDay.getDate();
+        var remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+        for (var n = 1; n <= remaining; n++) {
+            html += '<button type="button" class="datepicker-day other-month" data-date="' + (month === 11 ? year+1 : year) + '-' + (month === 11 ? 1 : month+2) + '-' + n + '">' + n + '</button>';
+        }
+
+        html += '</div>';
+        html += '<button type="button" class="datepicker-today-btn" onclick="window._dpToday()">Aujourd\'hui</button>';
+
+        picker.innerHTML = html;
+
+        // Attach click handlers to day buttons
+        picker.querySelectorAll('.datepicker-day').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var parts = btn.getAttribute('data-date').split('-');
+                var selDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                datepickerState.selectedDate = selDate;
+                datepickerState.year = selDate.getFullYear();
+                datepickerState.month = selDate.getMonth();
+                var input = document.getElementById('emp-hire-date');
+                input.value = String(selDate.getDate()).padStart(2, '0') + '-' + String(selDate.getMonth() + 1).padStart(2, '0') + '-' + selDate.getFullYear();
+                picker.classList.remove('active');
+                // Clear validation error if present
+                if (input.classList.contains('field-error')) {
+                    input.classList.remove('field-error');
+                }
+            });
+        });
+    }
+
+    // Global nav functions for datepicker
+    window._dpPrev = function() {
+        datepickerState.month--;
+        if (datepickerState.month < 0) { datepickerState.month = 11; datepickerState.year--; }
+        renderDatepicker();
+    };
+    window._dpNext = function() {
+        datepickerState.month++;
+        if (datepickerState.month > 11) { datepickerState.month = 0; datepickerState.year++; }
+        renderDatepicker();
+    };
+    window._dpToday = function() {
+        var today = new Date();
+        datepickerState.year = today.getFullYear();
+        datepickerState.month = today.getMonth();
+        datepickerState.selectedDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        var input = document.getElementById('emp-hire-date');
+        input.value = String(today.getDate()).padStart(2, '0') + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + today.getFullYear();
+        document.getElementById('emp-hire-date-picker').classList.remove('active');
+        if (input.classList.contains('field-error')) input.classList.remove('field-error');
+    };
 
     // Input validation for vehicle fields
     function initVehicleValidation() {
@@ -1425,7 +1552,7 @@
         initGate();
         initSubtabs();
         initPhotoUpload();
-        initHireDateFormat();
+        initDatepicker();
         initVehicleValidation();
         connectNfcWebSocket();
 
