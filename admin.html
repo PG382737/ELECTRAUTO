@@ -257,77 +257,114 @@
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M23 7V1h-6M1 17v6h6M23 17v6h-6M1 7V1h6"/></svg>
                                 Ouvrir le scanner
                             </button>
-                            <div style="margin-top:40px;padding-top:24px;border-top:1px solid var(--border);">
+                            <div class="nfc-setup" style="margin-top:48px;padding-top:32px;border-top:1px solid var(--border);">
 
-                                <!-- NFC Status indicator -->
-                                <div id="nfc-status-panel" style="display:flex;align-items:center;gap:12px;padding:14px 20px;border-radius:var(--radius);margin-bottom:24px;border:1px solid var(--border);background:var(--glass);">
-                                    <div id="nfc-status-dot" style="width:12px;height:12px;border-radius:50%;background:#ef4444;flex-shrink:0;"></div>
-                                    <div style="flex:1;">
-                                        <strong id="nfc-status-label" style="font-size:.9rem;">Serveur NFC déconnecté</strong>
-                                        <p id="nfc-status-detail" style="color:var(--text-muted);font-size:.8rem;margin-top:2px;">Lancez ElectrAuto-NFC.exe pour connecter le lecteur.</p>
+                                <!-- NFC Status Card -->
+                                <div id="nfc-status-panel" style="position:relative;overflow:hidden;border-radius:16px;padding:24px 28px;margin-bottom:32px;border:1px solid transparent;transition:all .4s ease;">
+                                    <div style="position:absolute;inset:0;opacity:.08;pointer-events:none;" id="nfc-status-bg"></div>
+                                    <div style="display:flex;align-items:center;gap:16px;position:relative;">
+                                        <div style="position:relative;">
+                                            <div id="nfc-status-dot" style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .4s ease;">
+                                                <svg id="nfc-status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;"></svg>
+                                            </div>
+                                            <div id="nfc-status-pulse" style="position:absolute;inset:-4px;border-radius:50%;border:2px solid;opacity:0;animation:none;"></div>
+                                        </div>
+                                        <div style="flex:1;">
+                                            <strong id="nfc-status-label" style="font-size:1rem;display:block;margin-bottom:2px;">Serveur NFC déconnecté</strong>
+                                            <span id="nfc-status-detail" style="color:var(--text-muted);font-size:.85rem;">Lancez ElectrAuto-NFC.exe pour connecter le lecteur.</span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <h3 style="margin-bottom:16px;font-size:1rem;">Installation du lecteur NFC</h3>
-                                <div style="background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;">
-                                    <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:20px;">
-                                        <div style="display:flex;align-items:flex-start;gap:12px;">
-                                            <span style="background:var(--accent);color:#000;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0;">1</span>
-                                            <div>
-                                                <strong style="font-size:.9rem;">Installer le driver ACR122U</strong>
-                                                <p style="color:var(--text-muted);font-size:.8rem;margin-top:2px;">Une seule fois par ordinateur. Téléchargez le MSI Installer depuis le site officiel ACS.</p>
-                                            </div>
-                                        </div>
-                                        <div style="display:flex;align-items:flex-start;gap:12px;">
-                                            <span style="background:var(--accent);color:#000;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0;">2</span>
-                                            <div>
-                                                <strong style="font-size:.9rem;">Télécharger ElectrAuto-NFC.exe</strong>
-                                                <p style="color:var(--text-muted);font-size:.8rem;margin-top:2px;">Le serveur qui fait le pont entre le lecteur et le navigateur.</p>
-                                            </div>
-                                        </div>
-                                        <div style="display:flex;align-items:flex-start;gap:12px;">
-                                            <span style="background:var(--accent);color:#000;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0;">3</span>
-                                            <div>
-                                                <strong style="font-size:.9rem;">Brancher le lecteur USB</strong>
-                                                <p style="color:var(--text-muted);font-size:.8rem;margin-top:2px;">Connectez le lecteur ACR122U à un port USB de l'ordinateur.</p>
-                                            </div>
-                                        </div>
-                                        <div style="display:flex;align-items:flex-start;gap:12px;">
-                                            <span style="background:var(--accent);color:#000;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0;">4</span>
-                                            <div>
-                                                <strong style="font-size:.9rem;">Lancer ElectrAuto-NFC.exe</strong>
-                                                <p style="color:var(--text-muted);font-size:.8rem;margin-top:2px;">Double-cliquez pour démarrer. La pastille ci-dessus passera au vert.</p>
-                                            </div>
+                                <style>
+                                    @keyframes nfc-pulse { 0%{opacity:.6;transform:scale(1)} 100%{opacity:0;transform:scale(1.5)} }
+                                    .nfc-setup-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:14px;padding:28px;transition:border-color .2s;}
+                                    .nfc-setup-card:hover{border-color:var(--accent);}
+                                    .nfc-step{display:flex;align-items:flex-start;gap:16px;padding:14px 0;position:relative;}
+                                    .nfc-step+.nfc-step{border-top:1px solid rgba(255,255,255,.05);}
+                                    .nfc-step-num{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#b8860b);color:#000;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;flex-shrink:0;}
+                                    .nfc-step-text strong{font-size:.9rem;display:block;margin-bottom:3px;}
+                                    .nfc-step-text p{color:var(--text-muted);font-size:.8rem;line-height:1.5;margin:0;}
+                                    .nfc-dl-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px;}
+                                    .nfc-dl-btn{display:flex;flex-direction:column;align-items:center;gap:10px;padding:20px 16px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.03);text-decoration:none;color:var(--text);transition:all .2s;text-align:center;}
+                                    .nfc-dl-btn:hover{border-color:var(--accent);background:rgba(255,255,255,.06);transform:translateY(-2px);}
+                                    .nfc-dl-btn svg{width:28px;height:28px;color:var(--accent);}
+                                    .nfc-dl-btn span{font-size:.8rem;font-weight:600;}
+                                    .nfc-dl-btn small{font-size:.7rem;color:var(--text-muted);}
+                                    .nfc-autostart{margin-top:16px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.02);overflow:hidden;}
+                                    .nfc-autostart summary{padding:16px 24px;cursor:pointer;font-size:.85rem;font-weight:600;list-style:none;display:flex;align-items:center;gap:10px;color:var(--text-muted);transition:color .2s;}
+                                    .nfc-autostart summary:hover{color:var(--text);}
+                                    .nfc-autostart summary svg{transition:transform .2s;}
+                                    .nfc-autostart[open] summary svg{transform:rotate(90deg);}
+                                    .nfc-autostart-body{padding:0 24px 20px;}
+                                    .nfc-autostart-body ol{padding-left:18px;margin:0;}
+                                    .nfc-autostart-body li{color:var(--text-muted);font-size:.83rem;line-height:2;padding:2px 0;}
+                                    .nfc-autostart-body kbd{background:var(--surface);padding:3px 8px;border-radius:6px;font-size:.75rem;border:1px solid var(--border);font-family:inherit;}
+                                    .nfc-autostart-body code{background:var(--surface);padding:3px 8px;border-radius:6px;font-size:.75rem;color:var(--accent);}
+                                </style>
+
+                                <!-- Installation Card -->
+                                <div class="nfc-setup-card">
+                                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" style="width:20px;height:20px;"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+                                        <h3 style="font-size:.95rem;margin:0;">Configuration du poste</h3>
+                                    </div>
+
+                                    <div class="nfc-step">
+                                        <span class="nfc-step-num">1</span>
+                                        <div class="nfc-step-text">
+                                            <strong>Installer le driver ACR122U</strong>
+                                            <p>Téléchargez le MSI Installer depuis le site ACS. Une seule fois par ordinateur.</p>
                                         </div>
                                     </div>
-                                    <div style="display:flex;gap:12px;flex-wrap:wrap;">
-                                        <a href="https://www.acs.com.hk/en/driver/3/acr122u-usb-nfc-reader/" target="_blank" rel="noopener" class="btn" style="gap:8px;">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                                            Driver ACR122U
+                                    <div class="nfc-step">
+                                        <span class="nfc-step-num">2</span>
+                                        <div class="nfc-step-text">
+                                            <strong>Télécharger ElectrAuto-NFC</strong>
+                                            <p>Le pont entre le lecteur USB et le navigateur. Placez-le dans un dossier permanent.</p>
+                                        </div>
+                                    </div>
+                                    <div class="nfc-step">
+                                        <span class="nfc-step-num">3</span>
+                                        <div class="nfc-step-text">
+                                            <strong>Brancher le lecteur USB</strong>
+                                            <p>Connectez le ACR122U. Windows le détectera automatiquement.</p>
+                                        </div>
+                                    </div>
+                                    <div class="nfc-step">
+                                        <span class="nfc-step-num">4</span>
+                                        <div class="nfc-step-text">
+                                            <strong>Lancer ElectrAuto-NFC</strong>
+                                            <p>Double-cliquez sur le .exe. La pastille de statut passera au vert.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="nfc-dl-grid">
+                                        <a href="https://www.acs.com.hk/en/driver/3/acr122u-usb-nfc-reader/" target="_blank" rel="noopener" class="nfc-dl-btn">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg>
+                                            <span>Driver ACR122U</span>
+                                            <small>Site officiel ACS</small>
                                         </a>
-                                        <a href="https://puofuoigjxyhuzbjswcm.supabase.co/storage/v1/object/public/control-photos/ElectrAuto-NFC.exe" download class="btn btn--primary" style="gap:8px;">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                                            ElectrAuto-NFC.exe
+                                        <a href="https://puofuoigjxyhuzbjswcm.supabase.co/storage/v1/object/public/control-photos/ElectrAuto-NFC.exe" download class="nfc-dl-btn" style="border-color:var(--accent);">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                            <span>ElectrAuto-NFC.exe</span>
+                                            <small>Serveur NFC local</small>
                                         </a>
                                     </div>
                                 </div>
 
-                                <!-- Auto-start instructions -->
-                                <details style="background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);padding:0;">
-                                    <summary style="padding:16px 20px;cursor:pointer;font-size:.9rem;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px;">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;transition:transform .2s;"><polyline points="9 18 15 12 9 6"/></svg>
-                                        Démarrage automatique (optionnel)
+                                <!-- Auto-start -->
+                                <details class="nfc-autostart">
+                                    <summary>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
+                                        Démarrage automatique avec Windows
                                     </summary>
-                                    <div style="padding:0 20px 20px;border-top:1px solid var(--border);margin-top:0;padding-top:16px;">
-                                        <p style="color:var(--text-muted);font-size:.85rem;line-height:1.6;margin-bottom:12px;">
-                                            Pour que ElectrAuto-NFC se lance automatiquement au démarrage de Windows :
-                                        </p>
-                                        <ol style="color:var(--text-muted);font-size:.85rem;line-height:1.8;padding-left:20px;">
-                                            <li>Appuyez sur <kbd style="background:var(--surface);padding:2px 6px;border-radius:4px;font-size:.8rem;border:1px solid var(--border);">Win + R</kbd></li>
-                                            <li>Tapez <code style="background:var(--surface);padding:2px 6px;border-radius:4px;font-size:.8rem;">shell:startup</code> et appuyez Entrée</li>
-                                            <li>Un dossier Windows s'ouvre</li>
+                                    <div class="nfc-autostart-body">
+                                        <ol>
+                                            <li>Appuyez sur <kbd>Win + R</kbd></li>
+                                            <li>Tapez <code>shell:startup</code> puis Entrée</li>
                                             <li>Copiez <strong style="color:var(--text);">ElectrAuto-NFC.exe</strong> dans ce dossier</li>
-                                            <li>C'est tout! Le serveur démarrera automatiquement à chaque session.</li>
+                                            <li>Le serveur se lancera automatiquement au prochain démarrage</li>
                                         </ol>
                                     </div>
                                 </details>

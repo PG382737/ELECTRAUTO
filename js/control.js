@@ -819,27 +819,53 @@
     var nfcReaderReady = false;
 
     function updateNfcStatusPanel() {
+        var panel = document.getElementById('nfc-status-panel');
         var dot = document.getElementById('nfc-status-dot');
+        var icon = document.getElementById('nfc-status-icon');
+        var pulse = document.getElementById('nfc-status-pulse');
+        var bg = document.getElementById('nfc-status-bg');
         var label = document.getElementById('nfc-status-label');
         var detail = document.getElementById('nfc-status-detail');
-        if (!dot) return;
+        if (!panel) return;
         if (nfcWsConnected && nfcReaderReady) {
-            dot.style.background = '#22c55e';
-            dot.style.boxShadow = '0 0 8px #22c55e80';
+            var c = '#22c55e';
+            panel.style.borderColor = c + '40';
+            panel.style.background = c + '0a';
+            dot.style.background = c + '20';
+            dot.style.color = c;
+            icon.innerHTML = '<path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>';
+            pulse.style.borderColor = c;
+            pulse.style.animation = 'nfc-pulse 2s ease-out infinite';
+            bg.style.background = 'radial-gradient(circle at 30% 50%,' + c + ',' + c + '00)';
             label.textContent = 'Lecteur NFC connecté';
-            label.style.color = '#22c55e';
+            label.style.color = c;
             detail.textContent = 'Le lecteur est prêt à scanner.';
         } else if (nfcWsConnected && !nfcReaderReady) {
-            dot.style.background = '#f59e0b';
-            dot.style.boxShadow = '0 0 8px #f59e0b80';
-            label.textContent = 'Serveur connecté — lecteur non détecté';
-            label.style.color = '#f59e0b';
-            detail.textContent = 'Le serveur NFC fonctionne mais aucun lecteur USB n\'est branché.';
+            var c = '#f59e0b';
+            panel.style.borderColor = c + '40';
+            panel.style.background = c + '0a';
+            dot.style.background = c + '20';
+            dot.style.color = c;
+            icon.innerHTML = '<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>';
+            pulse.style.borderColor = c;
+            pulse.style.animation = 'nfc-pulse 1.5s ease-out infinite';
+            bg.style.background = 'radial-gradient(circle at 30% 50%,' + c + ',' + c + '00)';
+            label.textContent = 'Lecteur USB non détecté';
+            label.style.color = c;
+            detail.textContent = 'Le serveur fonctionne mais aucun lecteur n\'est branché.';
         } else {
-            dot.style.background = '#ef4444';
-            dot.style.boxShadow = '0 0 8px #ef444480';
+            var c = '#ef4444';
+            panel.style.borderColor = c + '30';
+            panel.style.background = c + '08';
+            dot.style.background = c + '20';
+            dot.style.color = c;
+            icon.innerHTML = '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>';
+            pulse.style.borderColor = c;
+            pulse.style.animation = 'none';
+            pulse.style.opacity = '0';
+            bg.style.background = 'radial-gradient(circle at 30% 50%,' + c + ',' + c + '00)';
             label.textContent = 'Serveur NFC déconnecté';
-            label.style.color = '#ef4444';
+            label.style.color = c;
             detail.textContent = 'Lancez ElectrAuto-NFC.exe pour connecter le lecteur.';
         }
     }
