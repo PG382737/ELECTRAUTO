@@ -812,27 +812,85 @@
         document.getElementById('control-confirm-modal').classList.add('active');
     }
 
+    // ---- NFC WEBSOCKET CONNECTION ----
+
+    var nfcWs = null;
+    var nfcWsConnected = false;
+    var nfcReaderReady = false;
+
+    function connectNfcWebSocket() {
+        if (nfcWs && nfcWs.readyState <= 1) return;
+        try {
+            nfcWs = new WebSocket('ws://localhost:6868');
+            nfcWs.onopen = function() {
+                nfcWsConnected = true;
+                console.log('[NFC] WebSocket connecté');
+            };
+            nfcWs.onmessage = function(event) {
+                var data = JSON.parse(event.data);
+                if (data.type === 'status') {
+                    nfcReaderReady = data.reader;
+                    console.log('[NFC] Lecteur ' + (data.reader ? 'connecté' : 'déconnecté'));
+                } else if (data.type === 'nfc_tag') {
+                    console.log('[NFC] Tag scanné: ' + data.uid);
+                    // If assigning a badge
+                    if (nfcAssignCallback) {
+                        var cb = nfcAssignCallback;
+                        nfcAssignCallback = null;
+                        hideNfcScanModal();
+                        cb(data.uid);
+                        return;
+                    }
+                    // If scanner is open
+                    if (scannerState) {
+                        handleNfcScan(data.uid);
+                    }
+                }
+            };
+            nfcWs.onclose = function() {
+                nfcWsConnected = false;
+                nfcReaderReady = false;
+                console.log('[NFC] WebSocket déconnecté, reconnexion dans 3s...');
+                setTimeout(connectNfcWebSocket, 3000);
+            };
+            nfcWs.onerror = function() {
+                nfcWs.close();
+            };
+        } catch(e) {
+            console.warn('[NFC] WebSocket error:', e);
+            setTimeout(connectNfcWebSocket, 3000);
+        }
+    }
+
+    function showNfcScanModal() {
+        var modal = document.getElementById('nfc-scan-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'nfc-scan-modal';
+            modal.className = 'modal-overlay active';
+            modal.innerHTML = '<div class="modal" style="text-align:center;padding:40px;max-width:400px;"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" style="width:64px;height:64px;margin-bottom:16px;animation:pulse 1.5s infinite;"><rect x="2" y="2" width="20" height="20" rx="4"/><path d="M8 7v10M12 5v14M16 7v10"/></svg><h3 style="margin-bottom:8px;">Scannez le badge NFC</h3><p style="color:var(--muted);margin-bottom:24px;">Approchez la carte du lecteur...</p><button class="btn" onclick="document.getElementById(\'nfc-scan-modal\').remove();window._controlModule.cancelNfcAssign();">Annuler</button></div>';
+            document.body.appendChild(modal);
+        } else {
+            modal.classList.add('active');
+        }
+    }
+
+    function hideNfcScanModal() {
+        var modal = document.getElementById('nfc-scan-modal');
+        if (modal) modal.remove();
+    }
+
     // ---- NFC ASSIGNMENT ----
 
     function assignNfc(callback) {
-        if ('NDEFReader' in window) {
+        if (nfcWsConnected && nfcReaderReady) {
             nfcAssignCallback = callback;
-            var reader = new NDEFReader();
-            reader.scan().then(function() {
-                reader.onreading = function(event) {
-                    var tagId = event.serialNumber;
-                    if (nfcAssignCallback) {
-                        nfcAssignCallback(tagId);
-                        nfcAssignCallback = null;
-                    }
-                };
-            }).catch(function(err) {
-                alert('Erreur NFC: ' + err.message);
-            });
-            alert('Approchez le badge NFC du lecteur...');
+            showNfcScanModal();
+        } else if (nfcWsConnected && !nfcReaderReady) {
+            alert('Le lecteur NFC n\'est pas détecté. Vérifiez la connexion USB.');
         } else {
-            var tagId = prompt('NFC non disponible. Entrez manuellement l\'identifiant du badge:');
-            if (tagId) callback(tagId);
+            var tagId = prompt('Serveur NFC non connecté.\nEntrez manuellement l\'identifiant du badge:');
+            if (tagId) callback(tagId.toUpperCase());
         }
     }
 
@@ -927,23 +985,11 @@
     }
 
     function startNfcListener() {
-        if (!('NDEFReader' in window)) return;
-        try {
-            nfcReader = new NDEFReader();
-            nfcReader.scan().then(function() {
-                nfcReader.onreading = function(event) {
-                    handleNfcScan(event.serialNumber);
-                };
-            }).catch(function(err) {
-                console.warn('NFC scan error:', err);
-            });
-        } catch(e) {
-            console.warn('NFC not available:', e);
-        }
+        // WebSocket handles NFC listening globally — nothing to do here
     }
 
     function stopNfcListener() {
-        nfcReader = null;
+        // WebSocket handles NFC listening globally — nothing to do here
     }
 
     function simulateNfc() {
@@ -1189,12 +1235,18 @@
 
     // ---- INIT ----
 
+    // Expose for inline onclick
+    window._controlModule = {
+        cancelNfcAssign: function() { nfcAssignCallback = null; }
+    };
+
     function init() {
         initGate();
         initSubtabs();
         initPhotoUpload();
         initHireDateFormat();
         initVehicleValidation();
+        connectNfcWebSocket();
 
         // Notifications
         document.getElementById('notif-toggle').addEventListener('click', toggleNotifPanel);
