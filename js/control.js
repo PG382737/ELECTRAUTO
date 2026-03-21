@@ -999,8 +999,8 @@
             setTimeout(function() { startScannerTimer(ao.started_at); }, 50);
 
         } else if (state === 'SUCCESS_OPEN') {
-            content.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:80px;height:80px;color:var(--success);margin-bottom:20px;"><path d="M20 6L9 17l-5-5"/></svg><div class="nfc-scanner__success">Bon de travail commencé</div><div class="nfc-scanner__countdown" id="scanner-countdown">Retour dans 15 secondes...</div>';
-            var countdown = 15;
+            content.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:80px;height:80px;color:var(--success);margin-bottom:20px;"><path d="M20 6L9 17l-5-5"/></svg><div class="nfc-scanner__success">Bon de travail commencé</div><div class="nfc-scanner__countdown" id="scanner-countdown">Retour dans 5 secondes...</div>';
+            var countdown = 5;
             scannerInterval = setInterval(function() {
                 countdown--;
                 var el = document.getElementById('scanner-countdown');
@@ -1009,8 +1009,8 @@
             }, 1000);
 
         } else if (state === 'SUCCESS_CLOSE') {
-            content.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:80px;height:80px;color:var(--success);margin-bottom:20px;"><path d="M20 6L9 17l-5-5"/></svg><div class="nfc-scanner__success">Bon de travail terminé</div><div class="nfc-scanner__countdown" id="scanner-countdown">Retour dans 15 secondes...</div>';
-            var countdown2 = 15;
+            content.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:80px;height:80px;color:var(--success);margin-bottom:20px;"><path d="M20 6L9 17l-5-5"/></svg><div class="nfc-scanner__success">Bon de travail terminé</div><div class="nfc-scanner__countdown" id="scanner-countdown">Retour dans 5 secondes...</div>';
+            var countdown2 = 5;
             scannerInterval = setInterval(function() {
                 countdown2--;
                 var el = document.getElementById('scanner-countdown');
