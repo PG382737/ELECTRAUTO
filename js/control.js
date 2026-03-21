@@ -31,6 +31,34 @@
     var knownOrderIds = {};
     var notifPollingInterval = null;
 
+    // ---- Toast notifications ----
+
+    function showToast(type, title, msg, duration) {
+        var container = document.getElementById('toast-container');
+        if (!container) return;
+        duration = duration || 5000;
+        var icons = {
+            error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+            warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+            success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+            info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+        };
+        var toast = document.createElement('div');
+        toast.className = 'toast toast--' + type;
+        toast.innerHTML = '<div class="toast__icon">' + (icons[type] || icons.info) + '</div>' +
+            '<div class="toast__body"><div class="toast__title">' + escHtml(title) + '</div>' +
+            (msg ? '<div class="toast__msg">' + escHtml(msg) + '</div>' : '') + '</div>' +
+            '<button class="toast__close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+        container.appendChild(toast);
+        var closeBtn = toast.querySelector('.toast__close');
+        function removeToast() {
+            toast.classList.add('toast--removing');
+            setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+        }
+        closeBtn.addEventListener('click', removeToast);
+        setTimeout(removeToast, duration);
+    }
+
     // ---- Helpers ----
 
     function escHtml(str) {
@@ -358,7 +386,7 @@
             document.getElementById('employee-modal').classList.remove('active');
             loadEmployees();
         } catch(e) {
-            alert('Erreur: ' + e.message);
+            showToast('error', 'Erreur', e.message);
         }
     }
 
@@ -367,7 +395,7 @@
             var emp = await api('GET', '/api/control-employees?id=' + id);
             openEmployeeModal(emp);
         } catch(e) {
-            alert('Erreur: ' + e.message);
+            showToast('error', 'Erreur', e.message);
         }
     }
 
@@ -376,7 +404,7 @@
             try {
                 await api('DELETE', '/api/control-employees?id=' + id);
                 loadEmployees();
-            } catch(e) { alert('Erreur: ' + e.message); }
+            } catch(e) { showToast('error', 'Erreur', e.message); }
         });
     }
 
@@ -393,7 +421,7 @@
             document.querySelector('#emp-stats-periods .period-btn[data-period="month"]').classList.add('active');
             loadEmployeeStats('month');
         } catch(e) {
-            alert('Erreur: ' + e.message);
+            showToast('error', 'Erreur', e.message);
         }
     }
 
@@ -659,7 +687,7 @@
                 });
                 body.photo_url = uploadRes.url;
             } catch(e) {
-                alert('Erreur upload photo: ' + e.message);
+                showToast('error', 'Erreur upload', e.message);
                 return;
             }
         }
@@ -674,7 +702,7 @@
             document.getElementById('vehicle-modal').classList.remove('active');
             loadVehicles();
         } catch(e) {
-            alert('Erreur: ' + e.message);
+            showToast('error', 'Erreur', e.message);
         }
     }
 
@@ -683,7 +711,7 @@
             var res = await api('GET', '/api/control-vehicles?id=' + id);
             openVehicleModal(res.vehicle);
         } catch(e) {
-            alert('Erreur: ' + e.message);
+            showToast('error', 'Erreur', e.message);
         }
     }
 
@@ -692,7 +720,7 @@
             try {
                 await api('DELETE', '/api/control-vehicles?id=' + id);
                 loadVehicles();
-            } catch(e) { alert('Erreur: ' + e.message); }
+            } catch(e) { showToast('error', 'Erreur', e.message); }
         });
     }
 
@@ -781,7 +809,7 @@
                 });
             }
         } catch(e) {
-            alert('Erreur: ' + e.message);
+            showToast('error', 'Erreur', e.message);
         }
     }
 
@@ -795,14 +823,14 @@
         try {
             await api('POST', '/api/control-vehicle-notes', { vehicle_id: currentVehDetailId, text: text });
             openVehicleDetail(currentVehDetailId); // Refresh
-        } catch(e) { alert('Erreur: ' + e.message); }
+        } catch(e) { showToast('error', 'Erreur', e.message); }
     }
 
     async function deleteVehicleNote(noteId) {
         try {
             await api('DELETE', '/api/control-vehicle-notes?id=' + noteId);
             openVehicleDetail(currentVehDetailId);
-        } catch(e) { alert('Erreur: ' + e.message); }
+        } catch(e) { showToast('error', 'Erreur', e.message); }
     }
 
     // ---- CONFIRM DELETE ----
@@ -964,7 +992,7 @@
             nfcAssignCallback = callback;
             showNfcScanModal();
         } else if (nfcWsConnected && !nfcReaderReady) {
-            alert('Le lecteur NFC n\'est pas détecté. Vérifiez la connexion USB.');
+            showToast('warning', 'Lecteur NFC non détecté', 'Vérifiez la connexion USB.');
         } else {
             var tagId = prompt('Serveur NFC non connecté.\nEntrez manuellement l\'identifiant du badge:');
             if (tagId) callback(tagId.toUpperCase());
@@ -1418,7 +1446,7 @@
             assignNfc(async function(tagId) {
                 var conflict = await checkNfcConflict(tagId, 'employee', document.getElementById('emp-edit-id').value);
                 if (conflict) {
-                    alert(conflict);
+                    showToast('warning', 'Badge déjà assigné', conflict);
                     return;
                 }
                 document.getElementById('emp-nfc-tag').value = tagId;
@@ -1432,7 +1460,7 @@
                     var active = await api('GET', '/api/control-work-orders?active=true');
                     var hasOpen = active && active.some(function(o) { return o.employee_id === empId; });
                     if (hasOpen) {
-                        alert('Impossible de retirer le badge : cet employé a un bon de travail ouvert.');
+                        showToast('warning', 'Action impossible', 'Cet employé a un bon de travail ouvert.');
                         return;
                     }
                 } catch(e) {}
@@ -1466,7 +1494,7 @@
             assignNfc(async function(tagId) {
                 var conflict = await checkNfcConflict(tagId, 'vehicle', document.getElementById('veh-edit-id').value);
                 if (conflict) {
-                    alert(conflict);
+                    showToast('warning', 'Badge déjà assigné', conflict);
                     return;
                 }
                 document.getElementById('veh-nfc-tag').value = tagId;
@@ -1479,7 +1507,7 @@
                 try {
                     var active = await api('GET', '/api/control-work-orders?vehicle_id=' + vehId);
                     if (active) {
-                        alert('Impossible de retirer le badge : ce véhicule a un bon de travail ouvert.');
+                        showToast('warning', 'Action impossible', 'Ce véhicule a un bon de travail ouvert.');
                         return;
                     }
                 } catch(e) {}
