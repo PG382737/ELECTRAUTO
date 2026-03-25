@@ -78,6 +78,7 @@
     }
 
     function formatDurationLong(seconds) {
+        if (!seconds || seconds < 0) seconds = 0;
         var h = Math.floor(seconds / 3600);
         var m = Math.floor((seconds % 3600) / 60);
         var s = Math.floor(seconds % 60);
@@ -1269,7 +1270,7 @@
             if (!el) return;
             var start = new Date(order.started_at).getTime();
             function updateTimer() {
-                var elapsed = Math.floor((Date.now() - start) / 1000);
+                var elapsed = Math.max(0, Math.floor((Date.now() - start) / 1000));
                 var h = Math.floor(elapsed / 3600);
                 var m = Math.floor((elapsed % 3600) / 60);
                 var s = elapsed % 60;
@@ -1289,7 +1290,7 @@
         if (!el) return;
         var start = new Date(startedAt).getTime();
         function update() {
-            var elapsed = Math.floor((Date.now() - start) / 1000);
+            var elapsed = Math.max(0, Math.floor((Date.now() - start) / 1000));
             if (el) el.textContent = formatDurationLong(elapsed);
         }
         update();
