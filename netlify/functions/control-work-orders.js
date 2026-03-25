@@ -103,7 +103,7 @@ exports.handler = async (event) => {
             const order = {
                 vehicle_id: body.vehicle_id,
                 employee_id: body.employee_id,
-                started_at: new Date().toISOString(),
+                started_at: body.started_at || new Date().toISOString(),
                 created_at: new Date().toISOString()
             };
 

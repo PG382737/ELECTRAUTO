@@ -743,8 +743,10 @@
         var el = document.getElementById(elementId);
         if (!el) return;
         var start = new Date(startedAt).getTime();
+        // If start is in the future (server/client clock offset), use now
+        if (start > Date.now()) start = Date.now();
         function update() {
-            var elapsed = Math.floor((Date.now() - start) / 1000);
+            var elapsed = Math.max(0, Math.floor((Date.now() - start) / 1000));
             if (el) el.textContent = formatDurationLong(elapsed);
         }
         update();
@@ -1269,6 +1271,7 @@
             var el = document.getElementById('dash-order-timer-' + i);
             if (!el) return;
             var start = new Date(order.started_at).getTime();
+            if (start > Date.now()) start = Date.now();
             function updateTimer() {
                 var elapsed = Math.max(0, Math.floor((Date.now() - start) / 1000));
                 var h = Math.floor(elapsed / 3600);
@@ -1289,6 +1292,7 @@
         var el = document.getElementById('scanner-elapsed');
         if (!el) return;
         var start = new Date(startedAt).getTime();
+        if (start > Date.now()) start = Date.now();
         function update() {
             var elapsed = Math.max(0, Math.floor((Date.now() - start) / 1000));
             if (el) el.textContent = formatDurationLong(elapsed);
@@ -1337,10 +1341,12 @@
             // Lookup employee by NFC
             try {
                 var employee = await api('GET', '/api/control-employees?nfc=' + encodeURIComponent(tagId));
-                // Start work order
+                // Start work order — capture local time before API call
+                var localStartTime = new Date().toISOString();
                 await api('POST', '/api/control-work-orders', {
                     vehicle_id: scannerVehicle.id,
-                    employee_id: employee.id
+                    employee_id: employee.id,
+                    started_at: localStartTime
                 });
                 setScannerState('SUCCESS_OPEN');
             } catch(e) {
@@ -1531,7 +1537,9 @@
         } catch(e) {}
 
         // Estimate duration from started_at to now
-        var duration = order.started_at ? formatDuration(Math.floor((Date.now() - new Date(order.started_at).getTime()) / 1000)) : '';
+        var startMs = order.started_at ? new Date(order.started_at).getTime() : Date.now();
+        if (startMs > Date.now()) startMs = Date.now();
+        var duration = order.started_at ? formatDuration(Math.max(0, Math.floor((Date.now() - startMs) / 1000))) : '';
         var detail = empName + ' → ' + vehName + (duration ? ' (' + duration + ')' : '');
         addNotification('end', 'Bon de travail terminé', detail);
     }
