@@ -96,10 +96,16 @@ function enterDashboard(password) {
     loadArticles();
     loadDelays();
 
-    // Restore last active tab (but never restore to control — require password each time)
-    var savedTab = sessionStorage.getItem('admin-tab');
-    if (savedTab && savedTab !== 'control' && document.getElementById('tab-' + savedTab)) {
-        switchToTab(savedTab);
+    // Check URL param ?view=scanner → go to control tab
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('view') === 'scanner') {
+        switchToTab('control');
+    } else {
+        // Restore last active tab (but never restore to control — require password each time)
+        var savedTab = sessionStorage.getItem('admin-tab');
+        if (savedTab && savedTab !== 'control' && document.getElementById('tab-' + savedTab)) {
+            switchToTab(savedTab);
+        }
     }
 }
 

@@ -387,13 +387,23 @@
         if (gate) gate.style.display = 'none';
         if (content) content.style.display = 'block';
 
-        // Restore saved subtab
-        var savedSubtab = sessionStorage.getItem('control-subtab');
-        if (savedSubtab) {
-            var btn = document.querySelector('.control-subtab[data-subtab="' + savedSubtab + '"]');
-            if (btn) btn.click();
-        } else {
+        // Check if URL has ?view=scanner — auto-open scanner
+        var urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('view') === 'scanner') {
             loadEmployees();
+            loadVehicles();
+            setTimeout(function() { openScanner(); }, 300);
+            // Clean URL without reload
+            window.history.replaceState({}, '', window.location.pathname);
+        } else {
+            // Restore saved subtab
+            var savedSubtab = sessionStorage.getItem('control-subtab');
+            if (savedSubtab) {
+                var btn = document.querySelector('.control-subtab[data-subtab="' + savedSubtab + '"]');
+                if (btn) btn.click();
+            } else {
+                loadEmployees();
+            }
         }
         startNotifPolling();
     }
