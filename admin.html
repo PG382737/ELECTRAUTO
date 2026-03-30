@@ -132,18 +132,6 @@
                             </label>
                         </div>
                     </div>
-                    <div style="background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);padding:24px;">
-                        <div style="display:flex;align-items:center;justify-content:space-between;">
-                            <div>
-                                <strong style="font-size:1rem;">Protection Gestion</strong>
-                                <p style="color:var(--text-muted);font-size:0.85rem;margin-top:4px;">Exiger un mot de passe pour accéder à la section Gestion.</p>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="security-control-gate" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -215,22 +203,7 @@
             <!-- ===== CONTROL TAB ===== -->
             <div class="tab active" id="tab-control">
 
-                <!-- Password gate -->
-                <div id="control-gate" class="control-gate" style="display:none;">
-                    <div class="control-gate__box">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:48px;height:48px;color:var(--accent);margin-bottom:16px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                        <h2>Accès Gestion</h2>
-                        <p style="color:var(--text-muted);margin:8px 0 20px;">Entrez le mot de passe pour accéder au module Gestion.</p>
-                        <div class="form-group">
-                            <input type="password" id="control-pwd" placeholder="Mot de passe">
-                        </div>
-                        <button class="btn btn--primary btn--full" id="control-pwd-btn">Accéder</button>
-                        <div class="control-gate__error" id="control-pwd-error"></div>
-                    </div>
-                </div>
-
-                <!-- Control content (hidden until password entered) -->
-                <div id="control-content" style="display:none;">
+                <div id="control-content">
                     <div class="control-topbar">
                         <div class="control-subtabs">
                             <button class="control-subtab active" data-subtab="employees">

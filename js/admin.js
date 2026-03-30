@@ -327,10 +327,10 @@ function switchToTab(tabName) {
         stopNotesPolling();
     }
 
-    // Re-check gate when switching to control tab (needs adminPassword to be set)
-    if (tabName === 'control' && window._controlModule && !window._controlGateChecked) {
-        window._controlGateChecked = true;
-        window._controlModule.recheckGate();
+    // Init control module when switching to control tab
+    if (tabName === 'control' && window._controlModule && !window._controlInitDone) {
+        window._controlInitDone = true;
+        window._controlModule.initControl();
     }
 }
 
@@ -348,7 +348,7 @@ document.getElementById('btn-logout').addEventListener('click', function() {
     setLockout({});
     clearSession();
     stopNotesPolling();
-    window._controlGateChecked = false;
+    window._controlInitDone = false;
     document.getElementById('dashboard').style.display = 'none';
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('login-form').style.display = 'block';
@@ -366,42 +366,18 @@ async function loadSecuritySettings() {
     try {
         var settings = await api('GET', '/api/admin-settings');
         var tfa = document.getElementById('security-2fa');
-        var gate = document.getElementById('security-control-gate');
         if (tfa) tfa.checked = settings.security_2fa_enabled;
-        if (gate) gate.checked = settings.security_control_gate;
-    } catch(e) {
-        // Default: both on
-    }
+    } catch(e) {}
 }
 
 function initSecurityToggles() {
     var tfa = document.getElementById('security-2fa');
-    var gate = document.getElementById('security-control-gate');
-
     if (tfa) {
         tfa.addEventListener('change', async function() {
             try {
                 await api('POST', '/api/admin-settings', { key: 'security_2fa_enabled', value: tfa.checked });
             } catch(e) {
                 tfa.checked = !tfa.checked;
-            }
-        });
-    }
-
-    if (gate) {
-        gate.addEventListener('change', async function() {
-            try {
-                await api('POST', '/api/admin-settings', { key: 'security_control_gate', value: gate.checked });
-                // Immediately unlock/lock control if the module is available
-                if (window._controlModule) {
-                    if (!gate.checked) {
-                        window._controlModule.unlock();
-                    } else {
-                        window._controlModule.lock();
-                    }
-                }
-            } catch(e) {
-                gate.checked = !gate.checked;
             }
         });
     }

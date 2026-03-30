@@ -74,12 +74,10 @@ exports.handler = async (event) => {
     // GET — return all security settings
     if (event.httpMethod === 'GET') {
         const tfa = await getSetting('security_2fa_enabled');
-        const gate = await getSetting('security_control_gate');
         return {
             statusCode: 200, headers,
             body: JSON.stringify({
-                security_2fa_enabled: tfa !== false,     // default true
-                security_control_gate: gate !== false     // default true
+                security_2fa_enabled: tfa !== false     // default true
             })
         };
     }
@@ -89,7 +87,7 @@ exports.handler = async (event) => {
         const body = JSON.parse(event.body);
         const { key, value } = body;
 
-        if (!['security_2fa_enabled', 'security_control_gate'].includes(key)) {
+        if (!['security_2fa_enabled'].includes(key)) {
             return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid setting key' }) };
         }
 

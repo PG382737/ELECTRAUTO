@@ -5,8 +5,6 @@
 (function() {
     'use strict';
 
-    var CONTROL_HASH = 'a0daef58a503654eda4b9a42226ac19838dbb66aa3d90c4458f42df729bd2aaa';
-    var controlUnlocked = false;
     var currentEmpStatsId = null;
     var currentVehDetailId = null;
     var deleteCallback = null;
@@ -347,68 +345,13 @@
         });
     }
 
-    // ---- PASSWORD GATE ----
-
-    async function initGate() {
-        var pwdInput = document.getElementById('control-pwd');
-        var pwdBtn = document.getElementById('control-pwd-btn');
-        var pwdError = document.getElementById('control-pwd-error');
-        var gate = document.getElementById('control-gate');
-        var content = document.getElementById('control-content');
-
-        if (!pwdBtn) return;
-
-        // Hide both while checking settings
-        gate.style.display = 'none';
-        content.style.display = 'none';
-        controlUnlocked = false;
-
-        // Check if gate is disabled in security settings
-        try {
-            var settings = await api('GET', '/api/admin-settings');
-            if (settings && settings.security_control_gate === false) {
-                unlockControl();
-                return;
-            }
-        } catch(e) {}
-
-        // Gate enabled — show locked state
-        gate.style.display = '';
-        content.style.display = 'none';
-
-        async function tryUnlock() {
-            var pwd = pwdInput.value;
-            if (!pwd) return;
-            var hash = await sha256(pwd);
-            if (hash === CONTROL_HASH) {
-                unlockControl();
-            } else {
-                pwdError.textContent = 'Mot de passe incorrect.';
-                pwdInput.value = '';
-                pwdInput.focus();
-            }
-        }
-
-        pwdBtn.addEventListener('click', tryUnlock);
-        pwdInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') tryUnlock();
-        });
-    }
-
-    function unlockControl() {
-        controlUnlocked = true;
-        var gate = document.getElementById('control-gate');
-        var content = document.getElementById('control-content');
-        if (gate) gate.style.display = 'none';
-        if (content) content.style.display = 'block';
-
+    function initControl() {
         // Check if URL has ?view=scanner — auto-open scanner
         var urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('view') === 'scanner') {
             loadEmployees();
             loadVehicles();
             setTimeout(function() { openScanner(); }, 300);
-            // Clean URL without reload
             window.history.replaceState({}, '', window.location.pathname);
         } else {
             // Restore saved subtab
@@ -1752,19 +1695,10 @@
     // Expose for inline onclick
     window._controlModule = {
         cancelNfcAssign: function() { nfcAssignCallback = null; },
-        unlock: function() { unlockControl(); },
-        lock: function() {
-            controlUnlocked = false;
-            var gate = document.getElementById('control-gate');
-            var content = document.getElementById('control-content');
-            if (gate) gate.style.display = '';
-            if (content) content.style.display = 'none';
-        },
-        recheckGate: function() { initGate(); }
+        initControl: function() { initControl(); }
     };
 
     function init() {
-        // initGate is called via recheckGate() when switching to the control tab
         // (needs adminPassword to be set for the API call)
         initSubtabs();
         initPhotoUpload();
