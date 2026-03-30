@@ -324,6 +324,12 @@ function switchToTab(tabName) {
     } else {
         stopNotesPolling();
     }
+
+    // Re-check gate when switching to control tab (needs adminPassword to be set)
+    if (tabName === 'control' && window._controlModule && !window._controlGateChecked) {
+        window._controlGateChecked = true;
+        window._controlModule.recheckGate();
+    }
 }
 
 document.querySelectorAll('.sidebar__link[data-tab]').forEach(function(link) {
@@ -340,6 +346,7 @@ document.getElementById('btn-logout').addEventListener('click', function() {
     setLockout({});
     clearSession();
     stopNotesPolling();
+    window._controlGateChecked = false;
     document.getElementById('dashboard').style.display = 'none';
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('login-form').style.display = 'block';

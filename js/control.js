@@ -1591,11 +1591,13 @@
             var content = document.getElementById('control-content');
             if (gate) gate.style.display = '';
             if (content) content.style.display = 'none';
-        }
+        },
+        recheckGate: function() { initGate(); }
     };
 
     function init() {
-        initGate();
+        // initGate is called via recheckGate() when switching to the control tab
+        // (needs adminPassword to be set for the API call)
         initSubtabs();
         initPhotoUpload();
         initDatepicker();
