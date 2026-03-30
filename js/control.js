@@ -678,8 +678,10 @@
         if (!q) return allVehicles;
         return allVehicles.filter(function(v) {
             return (v.make || '').toLowerCase().indexOf(q) !== -1 ||
+                   (v.model || '').toLowerCase().indexOf(q) !== -1 ||
                    (v.owner_name || '').toLowerCase().indexOf(q) !== -1 ||
                    (v.phone || '').toLowerCase().indexOf(q) !== -1 ||
+                   (v.email || '').toLowerCase().indexOf(q) !== -1 ||
                    (v.plate || '').toLowerCase().indexOf(q) !== -1 ||
                    (v.vin || '').toLowerCase().indexOf(q) !== -1 ||
                    (v.reference || '').toLowerCase().indexOf(q) !== -1;
@@ -692,7 +694,7 @@
         var filtered = filterVehicles();
 
         // Search bar
-        var html = '<div class="control-search"><input type="text" id="veh-search-input" placeholder="Rechercher par véhicule, propriétaire, téléphone, plaque, NIV, référence..." value="' + escHtml(vehSearchQuery) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>';
+        var html = '<div class="control-search"><input type="text" id="veh-search-input" placeholder="Rechercher par véhicule, propriétaire, téléphone, courriel, plaque, NIV, référence..." value="' + escHtml(vehSearchQuery) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>';
 
         if (!filtered || filtered.length === 0) {
             if (vehSearchQuery) {
@@ -728,7 +730,7 @@
             }
 
             html += '<tr>';
-            html += '<td class="col-name clickable-row" onclick="Control.openVehicleDetail(\'' + v.id + '\')">' + escHtml(v.make) + (v.year ? ' ' + v.year : '') + (v.color ? ' <span style="color:var(--text-muted);">(' + escHtml(v.color) + ')</span>' : '') + '</td>';
+            html += '<td class="col-name clickable-row" onclick="Control.openVehicleDetail(\'' + v.id + '\')">' + escHtml(v.make) + (v.model ? ' ' + escHtml(v.model) : '') + (v.year ? ' ' + v.year : '') + (v.color ? ' <span style="color:var(--text-muted);">(' + escHtml(v.color) + ')</span>' : '') + '</td>';
             html += '<td>' + escHtml(v.owner_name) + '</td>';
             html += '<td>' + escHtml(v.plate || '—') + '</td>';
             html += '<td>' + nfcBadge + '</td>';
@@ -783,12 +785,14 @@
         document.getElementById('veh-edit-id').value = veh ? veh.id : '';
         document.getElementById('veh-owner').value = veh ? veh.owner_name : '';
         document.getElementById('veh-phone').value = veh ? (veh.phone || '') : '';
+        document.getElementById('veh-email').value = veh ? (veh.email || '') : '';
+        document.getElementById('veh-reference').value = veh ? (veh.reference || '') : '';
         document.getElementById('veh-make').value = veh ? veh.make : '';
+        document.getElementById('veh-model').value = veh ? (veh.model || '') : '';
+        document.getElementById('veh-year').value = veh ? (veh.year || '') : '';
         document.getElementById('veh-color').value = veh ? (veh.color || '') : '';
         document.getElementById('veh-plate').value = veh ? (veh.plate || '') : '';
-        document.getElementById('veh-year').value = veh ? (veh.year || '') : '';
         document.getElementById('veh-vin').value = veh ? (veh.vin || '') : '';
-        document.getElementById('veh-reference').value = veh ? (veh.reference || '') : '';
         document.getElementById('veh-nfc-tag').value = veh && veh.nfc_tag_id ? veh.nfc_tag_id : '';
         document.getElementById('veh-clear-nfc').style.display = veh && veh.nfc_tag_id ? 'inline-flex' : 'none';
 
@@ -810,12 +814,14 @@
         var body = {
             owner_name: document.getElementById('veh-owner').value.trim(),
             phone: document.getElementById('veh-phone').value.trim(),
+            email: document.getElementById('veh-email').value.trim(),
+            reference: document.getElementById('veh-reference').value.trim(),
             make: document.getElementById('veh-make').value.trim(),
+            model: document.getElementById('veh-model').value.trim(),
+            year: document.getElementById('veh-year').value.trim(),
             color: document.getElementById('veh-color').value.trim(),
             plate: document.getElementById('veh-plate').value.trim(),
-            year: document.getElementById('veh-year').value.trim(),
             vin: document.getElementById('veh-vin').value.trim(),
-            reference: document.getElementById('veh-reference').value.trim(),
             nfc_tag_id: document.getElementById('veh-nfc-tag').value || null
         };
 
@@ -893,7 +899,7 @@
             var v = data.vehicle;
             var detailBody = document.getElementById('veh-detail-body');
 
-            document.getElementById('veh-detail-title').textContent = v.make + (v.year ? ' ' + v.year : '') + (v.plate ? ' — ' + v.plate : '');
+            document.getElementById('veh-detail-title').textContent = v.make + (v.model ? ' ' + v.model : '') + (v.year ? ' ' + v.year : '') + (v.plate ? ' — ' + v.plate : '');
 
             var html = '';
 
@@ -903,12 +909,14 @@
                 html += '<img src="' + escHtml(v.photo_url) + '" alt="Photo">';
             }
             html += '<div class="veh-detail-info">';
-            html += '<h3>' + escHtml(v.make) + (v.year ? ' ' + v.year : '') + '</h3>';
+            html += '<h3>' + escHtml(v.make) + (v.model ? ' ' + escHtml(v.model) : '') + (v.year ? ' ' + v.year : '') + '</h3>';
             html += '<p><strong>Propriétaire:</strong> ' + escHtml(v.owner_name) + '</p>';
             if (v.phone) html += '<p><strong>Tél:</strong> ' + escHtml(v.phone) + '</p>';
+            if (v.email) html += '<p><strong>Courriel:</strong> ' + escHtml(v.email) + '</p>';
             if (v.plate) html += '<p><strong>Plaque:</strong> ' + escHtml(v.plate) + '</p>';
             if (v.color) html += '<p><strong>Couleur:</strong> ' + escHtml(v.color) + '</p>';
             if (v.vin) html += '<p><strong>VIN:</strong> ' + escHtml(v.vin) + '</p>';
+            if (v.reference) html += '<p><strong>Référence:</strong> ' + escHtml(v.reference) + '</p>';
             html += '</div></div>';
 
             // Active work order

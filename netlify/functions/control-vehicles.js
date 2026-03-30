@@ -155,7 +155,9 @@ exports.handler = async (event) => {
             const vehicle = {
                 owner_name: String(body.owner_name || '').trim(),
                 phone: (body.phone || '').trim(),
+                email: (body.email || '').trim(),
                 make: String(body.make || '').trim(),
+                model: (body.model || '').trim(),
                 color: (body.color || '').trim(),
                 plate: (body.plate || '').trim().toUpperCase(),
                 year: body.year ? parseInt(body.year) : null,
@@ -183,7 +185,7 @@ exports.handler = async (event) => {
             }
 
             const updates = { updated_at: new Date().toISOString() };
-            const fields = ['owner_name', 'phone', 'make', 'color', 'plate', 'year', 'vin', 'reference', 'photo_url', 'nfc_tag_id'];
+            const fields = ['owner_name', 'phone', 'email', 'make', 'model', 'color', 'plate', 'year', 'vin', 'reference', 'photo_url', 'nfc_tag_id'];
             fields.forEach(f => {
                 if (body[f] !== undefined) {
                     if (f === 'year') updates[f] = body[f] ? parseInt(body[f]) : null;
