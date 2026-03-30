@@ -349,12 +349,21 @@
 
     // ---- PASSWORD GATE ----
 
-    function initGate() {
+    async function initGate() {
         var pwdInput = document.getElementById('control-pwd');
         var pwdBtn = document.getElementById('control-pwd-btn');
         var pwdError = document.getElementById('control-pwd-error');
 
         if (!pwdBtn) return;
+
+        // Check if gate is disabled in security settings
+        try {
+            var settings = await api('GET', '/api/admin-settings');
+            if (settings && settings.security_control_gate === false) {
+                unlockControl();
+                return;
+            }
+        } catch(e) {}
 
         // Always start locked
         document.getElementById('control-gate').style.display = '';

@@ -175,6 +175,26 @@ exports.handler = async (event) => {
                 }
             }
 
+            // Check if 2FA is disabled in security settings
+            const tfa_enabled = await getSetting('security_2fa_enabled');
+            if (tfa_enabled === false) {
+                // 2FA disabled — skip directly, reset lockout
+                ipData.attempts = 0;
+                ipData.locked_until = null;
+                lockoutData[ip] = ipData;
+                await setSetting('admin_lockout', lockoutData);
+
+                const sessionExpires = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000).toISOString();
+                return {
+                    statusCode: 200, headers,
+                    body: JSON.stringify({
+                        success: true,
+                        skip_2fa: true,
+                        session_expires: sessionExpires
+                    })
+                };
+            }
+
             // No valid trust token — generate 2FA code
             const code = String(Math.floor(100000 + Math.random() * 900000));
             const codeHash = await sha256(code);

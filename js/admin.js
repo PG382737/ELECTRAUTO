@@ -95,6 +95,8 @@ function enterDashboard(password) {
     document.getElementById('dashboard').style.display = 'flex';
     loadArticles();
     loadDelays();
+    loadSecuritySettings();
+    initSecurityToggles();
 
     // Check URL param ?view=scanner → go to control tab
     var urlParams = new URLSearchParams(window.location.search);
@@ -346,6 +348,47 @@ document.getElementById('btn-logout').addEventListener('click', function() {
     document.getElementById('login-error').textContent = '';
     document.getElementById('login-attempts').textContent = '';
 });
+
+// ============================================
+// SECURITY SETTINGS
+// ============================================
+
+async function loadSecuritySettings() {
+    try {
+        var settings = await api('GET', '/api/admin-settings');
+        var tfa = document.getElementById('security-2fa');
+        var gate = document.getElementById('security-control-gate');
+        if (tfa) tfa.checked = settings.security_2fa_enabled;
+        if (gate) gate.checked = settings.security_control_gate;
+    } catch(e) {
+        // Default: both on
+    }
+}
+
+function initSecurityToggles() {
+    var tfa = document.getElementById('security-2fa');
+    var gate = document.getElementById('security-control-gate');
+
+    if (tfa) {
+        tfa.addEventListener('change', async function() {
+            try {
+                await api('POST', '/api/admin-settings', { key: 'security_2fa_enabled', value: tfa.checked });
+            } catch(e) {
+                tfa.checked = !tfa.checked;
+            }
+        });
+    }
+
+    if (gate) {
+        gate.addEventListener('change', async function() {
+            try {
+                await api('POST', '/api/admin-settings', { key: 'security_control_gate', value: gate.checked });
+            } catch(e) {
+                gate.checked = !gate.checked;
+            }
+        });
+    }
+}
 
 // ============================================
 // BLOG — ARTICLES
