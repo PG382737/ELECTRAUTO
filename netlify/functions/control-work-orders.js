@@ -80,6 +80,13 @@ exports.handler = async (event) => {
                 return { statusCode: 200, headers, body: JSON.stringify(data) };
             }
 
+            // Recent completed orders (last 30 days)
+            if (params.recent === 'true') {
+                const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+                const data = await supaFetch(`control_work_orders?ended_at=not.is.null&ended_at=gte.${since}&order=ended_at.desc&limit=50&select=id,started_at,ended_at,duration_seconds,vehicle_id,employee_id,vehicle:control_vehicles(id,make,year,plate,owner_name),employee:control_employees(id,first_name,last_name)`);
+                return { statusCode: 200, headers, body: JSON.stringify(data) };
+            }
+
             return { statusCode: 200, headers, body: JSON.stringify([]) };
         }
 

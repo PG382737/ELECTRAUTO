@@ -1714,6 +1714,148 @@ html::-webkit-scrollbar { display: none; }
     color: var(--accent);
 }
 
+/* Monitoring */
+.monitoring-live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+    animation: monitorPulse 2s ease-in-out infinite;
+}
+@keyframes monitorPulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(34,197,94,0); }
+}
+.monitoring-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+.monitoring-card {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.monitoring-card__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.monitoring-card__icon svg { width: 24px; height: 24px; }
+.monitoring-card__icon--employees { background: rgba(59,130,246,0.15); color: #3b82f6; }
+.monitoring-card__icon--vehicles { background: rgba(168,85,247,0.15); color: #a855f7; }
+.monitoring-card__icon--active { background: rgba(34,197,94,0.15); color: #22c55e; }
+.monitoring-card__icon--total { background: rgba(234,179,8,0.15); color: #eab308; }
+.monitoring-card__value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #f0f0f0;
+}
+.monitoring-card__label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+.monitoring-section {
+    margin-bottom: 32px;
+}
+.monitoring-section h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.8rem;
+}
+.monitoring-order {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+.monitoring-order__info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+.monitoring-order__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #22c55e;
+    flex-shrink: 0;
+    animation: monitorPulse 2s ease-in-out infinite;
+}
+.monitoring-order__vehicle {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.monitoring-order__employee {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    white-space: nowrap;
+}
+.monitoring-order__timer {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #22c55e;
+    flex-shrink: 0;
+}
+.monitoring-order__started {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+.monitoring-recent-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.monitoring-recent-item:last-child { border-bottom: none; }
+.monitoring-recent-item__icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.monitoring-recent-item__icon svg { width: 16px; height: 16px; }
+.monitoring-recent-item__icon--start { background: rgba(34,197,94,0.15); color: #22c55e; }
+.monitoring-recent-item__icon--end { background: rgba(239,68,68,0.15); color: #ef4444; }
+.monitoring-recent-item__text { flex: 1; font-size: 0.88rem; }
+.monitoring-recent-item__time { font-size: 0.78rem; color: var(--text-muted); flex-shrink: 0; }
+.monitoring-empty {
+    text-align: center;
+    padding: 32px;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+}
+
 /* Toggle switch */
 .toggle-switch {
     position: relative;

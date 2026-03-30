@@ -241,6 +241,10 @@
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/></svg>
                                 Voitures
                             </button>
+                            <button class="control-subtab" data-subtab="monitoring">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                                Monitoring
+                            </button>
                             <button class="control-subtab" data-subtab="scanner">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M12 6v12M6 12h12"/></svg>
                                 Dashboard
@@ -282,6 +286,29 @@
                             </button>
                         </div>
                         <div id="vehicles-list"></div>
+                    </div>
+
+                    <!-- Monitoring panel -->
+                    <div class="control-panel" id="panel-monitoring">
+                        <div class="main__header">
+                            <h1>Monitoring</h1>
+                            <div style="display:flex;gap:8px;align-items:center;">
+                                <span class="monitoring-live-dot"></span>
+                                <span style="font-size:0.8rem;color:var(--text-muted);">En direct</span>
+                            </div>
+                        </div>
+                        <!-- Stats cards -->
+                        <div class="monitoring-stats" id="monitoring-stats"></div>
+                        <!-- Active work orders -->
+                        <div class="monitoring-section">
+                            <h2>Bons de travail en cours</h2>
+                            <div id="monitoring-active-orders"></div>
+                        </div>
+                        <!-- Recent activity -->
+                        <div class="monitoring-section">
+                            <h2>Activité récente</h2>
+                            <div id="monitoring-recent"></div>
+                        </div>
                     </div>
 
                     <!-- Scanner panel (triggers fullscreen) -->

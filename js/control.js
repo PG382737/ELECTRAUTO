@@ -439,6 +439,9 @@
                 } else if (target === 'vehicles') {
                     document.getElementById('panel-vehicles').classList.add('active');
                     loadVehicles();
+                } else if (target === 'monitoring') {
+                    document.getElementById('panel-monitoring').classList.add('active');
+                    loadMonitoring();
                 } else if (target === 'scanner') {
                     document.getElementById('panel-scanner').classList.add('active');
                 }
@@ -1546,10 +1549,12 @@
 
             knownOrderIds = currentIds;
 
-            // Refresh vehicle list and dashboard if changes detected
+            // Refresh vehicle list, dashboard and monitoring if changes detected
             if (hasChanges) {
                 loadVehicles();
                 loadDashboardOrders();
+                var monPanel = document.getElementById('panel-monitoring');
+                if (monPanel && monPanel.classList.contains('active')) loadMonitoring();
             }
         } catch(e) {}
     }
@@ -1601,6 +1606,134 @@
         }).catch(function() {});
         // Poll every 10 seconds
         notifPollingInterval = setInterval(pollWorkOrders, 5000);
+    }
+
+    // ---- MONITORING ----
+
+    var monitoringTimers = [];
+    var monitoringInterval = null;
+
+    async function loadMonitoring() {
+        var statsEl = document.getElementById('monitoring-stats');
+        var activeEl = document.getElementById('monitoring-active-orders');
+        var recentEl = document.getElementById('monitoring-recent');
+        if (!statsEl) return;
+
+        try {
+            // Load all data in parallel
+            var results = await Promise.all([
+                api('GET', '/api/control-employees'),
+                api('GET', '/api/control-vehicles'),
+                api('GET', '/api/control-work-orders?active=true'),
+                api('GET', '/api/control-work-orders?recent=true')
+            ]);
+
+            var employees = results[0] || [];
+            var vehicles = results[1] || [];
+            var activeOrders = results[2] || [];
+            var recentOrders = results[3] || [];
+
+            // Stats cards
+            var totalCompleted = recentOrders.length;
+            statsEl.innerHTML =
+                '<div class="monitoring-card">' +
+                    '<div class="monitoring-card__icon monitoring-card__icon--employees"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>' +
+                    '<div><div class="monitoring-card__value">' + employees.length + '</div><div class="monitoring-card__label">Employés</div></div>' +
+                '</div>' +
+                '<div class="monitoring-card">' +
+                    '<div class="monitoring-card__icon monitoring-card__icon--vehicles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/></svg></div>' +
+                    '<div><div class="monitoring-card__value">' + vehicles.length + '</div><div class="monitoring-card__label">Véhicules</div></div>' +
+                '</div>' +
+                '<div class="monitoring-card">' +
+                    '<div class="monitoring-card__icon monitoring-card__icon--active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>' +
+                    '<div><div class="monitoring-card__value">' + activeOrders.length + '</div><div class="monitoring-card__label">Bons en cours</div></div>' +
+                '</div>' +
+                '<div class="monitoring-card">' +
+                    '<div class="monitoring-card__icon monitoring-card__icon--total"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>' +
+                    '<div><div class="monitoring-card__value">' + totalCompleted + '</div><div class="monitoring-card__label">Complétés (30 jours)</div></div>' +
+                '</div>';
+
+            // Active work orders
+            stopMonitoringTimers();
+            if (activeOrders.length === 0) {
+                activeEl.innerHTML = '<div class="monitoring-empty">Aucun bon de travail en cours</div>';
+            } else {
+                var html = '';
+                activeOrders.forEach(function(o, i) {
+                    var vehName = o.vehicle ? (escHtml(o.vehicle.make) + (o.vehicle.year ? ' ' + o.vehicle.year : '')) : 'Véhicule';
+                    var plate = o.vehicle && o.vehicle.plate ? escHtml(o.vehicle.plate) : '';
+                    var empName = o.employee ? escHtml(o.employee.first_name + ' ' + o.employee.last_name) : 'Inconnu';
+                    var owner = o.vehicle ? escHtml(o.vehicle.owner_name) : '';
+
+                    html += '<div class="monitoring-order">' +
+                        '<div class="monitoring-order__info">' +
+                            '<div class="monitoring-order__dot"></div>' +
+                            '<div>' +
+                                '<div class="monitoring-order__vehicle">' + vehName + (plate ? ' — ' + plate : '') + '</div>' +
+                                '<div class="monitoring-order__employee">' + empName + (owner ? ' • ' + owner : '') + '</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="monitoring-order__started">' + formatDateTime(o.started_at) + '</div>' +
+                        '<div class="monitoring-order__timer" id="monitoring-timer-' + i + '">00:00:00</div>' +
+                    '</div>';
+                });
+                activeEl.innerHTML = html;
+
+                // Start live timers
+                activeOrders.forEach(function(o, i) {
+                    var el = document.getElementById('monitoring-timer-' + i);
+                    if (!el) return;
+                    var start = new Date(o.started_at).getTime();
+                    if (start > Date.now()) start = Date.now();
+                    function tick() {
+                        var elapsed = Math.max(0, Math.floor((Date.now() - start) / 1000));
+                        el.textContent = formatDurationLong(elapsed);
+                    }
+                    tick();
+                    monitoringTimers.push(setInterval(tick, 1000));
+                });
+            }
+
+            // Recent completed orders
+            var completed = recentOrders.filter(function(o) { return o.ended_at; });
+            if (completed.length === 0) {
+                recentEl.innerHTML = '<div class="monitoring-empty">Aucune activité récente</div>';
+            } else {
+                var rHtml = '';
+                completed.slice(0, 20).forEach(function(o) {
+                    var vehName = o.vehicle ? (escHtml(o.vehicle.make) + (o.vehicle.year ? ' ' + o.vehicle.year : '')) : 'Véhicule';
+                    var empName = o.employee ? escHtml(o.employee.first_name + ' ' + o.employee.last_name) : 'Inconnu';
+                    var duration = o.duration_seconds ? formatDuration(o.duration_seconds) : '';
+
+                    rHtml += '<div class="monitoring-recent-item">' +
+                        '<div class="monitoring-recent-item__icon monitoring-recent-item__icon--end"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg></div>' +
+                        '<div class="monitoring-recent-item__text">' + empName + ' → ' + vehName + (duration ? ' <span style="color:var(--text-muted);">(' + duration + ')</span>' : '') + '</div>' +
+                        '<div class="monitoring-recent-item__time">' + formatDateTime(o.ended_at) + '</div>' +
+                    '</div>';
+                });
+                recentEl.innerHTML = rHtml;
+            }
+
+            // Auto-refresh every 5 seconds
+            clearInterval(monitoringInterval);
+            monitoringInterval = setInterval(function() {
+                var panel = document.getElementById('panel-monitoring');
+                if (panel && panel.classList.contains('active')) {
+                    loadMonitoring();
+                } else {
+                    clearInterval(monitoringInterval);
+                    monitoringInterval = null;
+                }
+            }, 5000);
+
+        } catch(e) {
+            statsEl.innerHTML = '<div class="monitoring-empty">Erreur: ' + escHtml(e.message) + '</div>';
+        }
+    }
+
+    function stopMonitoringTimers() {
+        monitoringTimers.forEach(function(t) { clearInterval(t); });
+        monitoringTimers = [];
     }
 
     // ---- INIT ----
