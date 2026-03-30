@@ -353,8 +353,15 @@
         var pwdInput = document.getElementById('control-pwd');
         var pwdBtn = document.getElementById('control-pwd-btn');
         var pwdError = document.getElementById('control-pwd-error');
+        var gate = document.getElementById('control-gate');
+        var content = document.getElementById('control-content');
 
         if (!pwdBtn) return;
+
+        // Hide both while checking settings
+        gate.style.display = 'none';
+        content.style.display = 'none';
+        controlUnlocked = false;
 
         // Check if gate is disabled in security settings
         try {
@@ -365,10 +372,9 @@
             }
         } catch(e) {}
 
-        // Always start locked
-        document.getElementById('control-gate').style.display = '';
-        document.getElementById('control-content').style.display = 'none';
-        controlUnlocked = false;
+        // Gate enabled — show locked state
+        gate.style.display = '';
+        content.style.display = 'none';
 
         async function tryUnlock() {
             var pwd = pwdInput.value;
