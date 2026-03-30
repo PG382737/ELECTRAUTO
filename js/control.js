@@ -1518,23 +1518,31 @@
             var currentIds = {};
             active.forEach(function(o) { currentIds[o.id] = o; });
 
+            var hasChanges = false;
+
             // Detect new work orders (started)
             active.forEach(function(o) {
                 if (!knownOrderIds[o.id]) {
-                    // New work order — fetch details
                     fetchOrderNotif(o, 'start');
+                    hasChanges = true;
                 }
             });
 
             // Detect closed work orders (were known, now gone)
             Object.keys(knownOrderIds).forEach(function(id) {
                 if (!currentIds[id]) {
-                    // Order was closed — fetch details
                     fetchClosedOrderNotif(id);
+                    hasChanges = true;
                 }
             });
 
             knownOrderIds = currentIds;
+
+            // Refresh vehicle list and dashboard if changes detected
+            if (hasChanges) {
+                loadVehicles();
+                loadDashboardOrders();
+            }
         } catch(e) {}
     }
 
@@ -1584,7 +1592,7 @@
             if (active) active.forEach(function(o) { knownOrderIds[o.id] = o; });
         }).catch(function() {});
         // Poll every 10 seconds
-        notifPollingInterval = setInterval(pollWorkOrders, 10000);
+        notifPollingInterval = setInterval(pollWorkOrders, 5000);
     }
 
     // ---- INIT ----
