@@ -673,10 +673,17 @@
         }
     }
 
+    function sortVehicles(list) {
+        return list.slice().sort(function(a, b) {
+            var aHas = a.nfc_tag_id ? 1 : 0;
+            var bHas = b.nfc_tag_id ? 1 : 0;
+            return bHas - aHas;
+        });
+    }
+
     function filterVehicles() {
         var q = vehSearchQuery.toLowerCase().trim();
-        if (!q) return allVehicles;
-        return allVehicles.filter(function(v) {
+        var list = q ? allVehicles.filter(function(v) {
             return (v.make || '').toLowerCase().indexOf(q) !== -1 ||
                    (v.model || '').toLowerCase().indexOf(q) !== -1 ||
                    (v.owner_name || '').toLowerCase().indexOf(q) !== -1 ||
@@ -685,7 +692,8 @@
                    (v.plate || '').toLowerCase().indexOf(q) !== -1 ||
                    (v.vin || '').toLowerCase().indexOf(q) !== -1 ||
                    (v.reference || '').toLowerCase().indexOf(q) !== -1;
-        });
+        }) : allVehicles;
+        return sortVehicles(list);
     }
 
     function renderVehicles() {
