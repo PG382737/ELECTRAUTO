@@ -65,13 +65,13 @@
                 <small>Admin</small>
             </div>
             <nav class="sidebar__nav">
-                <button class="sidebar__link active" data-tab="delays">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    Délais
-                </button>
-                <button class="sidebar__link" data-tab="control">
+                <button class="sidebar__link active" data-tab="control">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                     Gestion
+                </button>
+                <button class="sidebar__link" data-tab="delays">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Délais
                 </button>
                 <button class="sidebar__link" data-tab="notes">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -148,7 +148,7 @@
             </div>
 
             <!-- ===== DELAYS TAB ===== -->
-            <div class="tab active" id="tab-delays">
+            <div class="tab" id="tab-delays">
                 <div class="main__header">
                     <h1>Délais de rendez-vous</h1>
                 </div>
@@ -213,7 +213,7 @@
             </div>
 
             <!-- ===== CONTROL TAB ===== -->
-            <div class="tab" id="tab-control">
+            <div class="tab active" id="tab-control">
 
                 <!-- Password gate -->
                 <div id="control-gate" class="control-gate" style="display:none;">

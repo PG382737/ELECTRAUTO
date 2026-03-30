@@ -103,10 +103,12 @@ function enterDashboard(password) {
     if (urlParams.get('view') === 'scanner') {
         switchToTab('control');
     } else {
-        // Restore last active tab (but never restore to control — require password each time)
+        // Restore last active tab, default to control (Gestion)
         var savedTab = sessionStorage.getItem('admin-tab');
-        if (savedTab && savedTab !== 'control' && document.getElementById('tab-' + savedTab)) {
+        if (savedTab && document.getElementById('tab-' + savedTab)) {
             switchToTab(savedTab);
+        } else {
+            switchToTab('control');
         }
     }
 }
