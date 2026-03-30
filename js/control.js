@@ -1681,7 +1681,7 @@
                             '<div class="monitoring-order__dot"></div>' +
                             '<div>' +
                                 '<div class="monitoring-order__vehicle">' + vehName + (plate ? ' — ' + plate : '') + '</div>' +
-                                '<div class="monitoring-order__employee">' + empName + (owner ? ' • ' + owner : '') + '</div>' +
+                                '<div class="monitoring-order__employee">Employé: ' + empName + (owner ? ' • Propriétaire: ' + owner : '') + '</div>' +
                             '</div>' +
                         '</div>' +
                         '<div class="monitoring-order__started">' + formatDateTime(o.started_at) + '</div>' +
