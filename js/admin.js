@@ -383,6 +383,14 @@ function initSecurityToggles() {
         gate.addEventListener('change', async function() {
             try {
                 await api('POST', '/api/admin-settings', { key: 'security_control_gate', value: gate.checked });
+                // Immediately unlock/lock control if the module is available
+                if (window._controlModule) {
+                    if (!gate.checked) {
+                        window._controlModule.unlock();
+                    } else {
+                        window._controlModule.lock();
+                    }
+                }
             } catch(e) {
                 gate.checked = !gate.checked;
             }

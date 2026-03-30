@@ -1577,7 +1577,15 @@
 
     // Expose for inline onclick
     window._controlModule = {
-        cancelNfcAssign: function() { nfcAssignCallback = null; }
+        cancelNfcAssign: function() { nfcAssignCallback = null; },
+        unlock: function() { unlockControl(); },
+        lock: function() {
+            controlUnlocked = false;
+            var gate = document.getElementById('control-gate');
+            var content = document.getElementById('control-content');
+            if (gate) gate.style.display = '';
+            if (content) content.style.display = 'none';
+        }
     };
 
     function init() {
