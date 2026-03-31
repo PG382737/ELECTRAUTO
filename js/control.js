@@ -451,6 +451,16 @@
                 } else if (target === 'medias') {
                     document.getElementById('panel-medias').classList.add('active');
                     loadMedias();
+                    clearInterval(mediaPollingInterval);
+                    mediaPollingInterval = setInterval(function() {
+                        var panel = document.getElementById('panel-medias');
+                        if (panel && panel.classList.contains('active') && !mediaClassifyMode && !mediaDeleteMode) {
+                            loadMedias();
+                        } else if (!panel || !panel.classList.contains('active')) {
+                            clearInterval(mediaPollingInterval);
+                            mediaPollingInterval = null;
+                        }
+                    }, 10000);
                 } else if (target === 'scanner') {
                     document.getElementById('panel-scanner').classList.add('active');
                 }
@@ -1896,6 +1906,7 @@
 
     var monitoringTimers = [];
     var monitoringInterval = null;
+    var mediaPollingInterval = null;
 
     async function loadMonitoring() {
         var statsEl = document.getElementById('monitoring-stats');
