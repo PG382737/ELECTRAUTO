@@ -744,7 +744,8 @@
                 var timerId = 'live-veh-' + v.id;
                 var aoEmp = v.active_order.employee;
                 var aoEmpName = aoEmp ? (aoEmp.first_name + ' ' + aoEmp.last_name) : '';
-                statusHtml = '<span class="live-indicator"><span class="live-dot"></span><span class="live-timer" id="' + timerId + '">...</span>' + (aoEmpName ? '<span style="font-size:0.85rem;">' + escHtml(aoEmpName) + '</span>' : '') + '</span>';
+                var dotClass = 'live-dot' + (isInPauseET(Date.now()) ? ' live-dot--paused' : '');
+                statusHtml = '<span class="live-indicator"><span class="' + dotClass + '"></span><span class="live-timer" id="' + timerId + '">...</span>' + (aoEmpName ? '<span style="font-size:0.85rem;">' + escHtml(aoEmpName) + '</span>' : '') + '</span>';
                 setTimeout(function() { startLiveTimer(timerId, v.active_order.started_at); }, 50);
             } else {
                 statusHtml = '<span style="color:var(--text-muted);font-size:0.85rem;">—</span>';
@@ -1925,10 +1926,11 @@
 
                     html += '<div class="monitoring-order">' +
                         '<div class="monitoring-order__info">' +
-                            '<div class="monitoring-order__dot"></div>' +
-                            '<div>' +
+                            '<div class="monitoring-order__dot" id="monitoring-dot-' + i + '"></div>' +
+                            '<div class="monitoring-order__text">' +
                                 '<div class="monitoring-order__vehicle">' + vehName + (plate ? ' — ' + plate : '') + '</div>' +
                                 '<div class="monitoring-order__employee">Employé: ' + empName + (owner ? ' • Propriétaire: ' + owner : '') + '</div>' +
+                                '<span class="monitoring-pause-badge" id="monitoring-pause-badge-' + i + '" style="display:none;">EN PAUSE</span>' +
                             '</div>' +
                         '</div>' +
                         '<div class="monitoring-order__started">' + formatDateTime(o.started_at) + '</div>' +
@@ -1946,7 +1948,7 @@
                     var start = new Date(o.started_at).getTime();
                     if (start > Date.now()) start = Date.now();
                     var wasPaused = null;
-                    var badge = null;
+                    var badge = document.getElementById('monitoring-pause-badge-' + i);
                     function tick() {
                         var now = Date.now();
                         var paused = isInPauseET(now);
@@ -1956,15 +1958,7 @@
                             el.classList.toggle('monitoring-order__timer--paused', paused);
                             if (card) card.classList.toggle('monitoring-order--paused', paused);
                             if (dot) dot.classList.toggle('monitoring-order__dot--paused', paused);
-                            if (paused) {
-                                badge = document.createElement('span');
-                                badge.className = 'monitoring-pause-badge';
-                                badge.textContent = 'EN PAUSE';
-                                card.querySelector('.monitoring-order__info > div').appendChild(badge);
-                            } else if (badge) {
-                                badge.remove();
-                                badge = null;
-                            }
+                            if (badge) badge.style.display = paused ? '' : 'none';
                         }
                     }
                     tick();

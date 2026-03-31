@@ -1119,6 +1119,10 @@ html::-webkit-scrollbar { display: none; }
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
 }
+.live-dot--paused {
+    background: #f59e0b;
+    animation: none;
+}
 .live-timer {
     font-weight: 700;
     font-variant-numeric: tabular-nums;
