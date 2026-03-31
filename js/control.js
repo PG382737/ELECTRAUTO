@@ -1789,14 +1789,17 @@
         if (countEl) countEl.textContent = count + ' sélectionné(s)';
     }
 
+    function setMediaModeBtns(visible) {
+        var wrap = document.getElementById('media-mode-btns');
+        if (wrap) wrap.style.display = visible ? 'flex' : 'none';
+    }
+
     function enterClassifyMode() {
         mediaClassifyMode = true;
         selectedMediaIds = {};
+        setMediaModeBtns(false);
         var bar = document.getElementById('media-classify-bar');
-        var btn = document.getElementById('btn-media-classify');
         if (bar) bar.style.display = 'flex';
-        if (btn) btn.style.display = 'none';
-        // Populate vehicle dropdown
         var sel = document.getElementById('media-classify-vehicle');
         if (sel) {
             sel.innerHTML = '<option value="">Choisir un véhicule...</option>' +
@@ -1805,41 +1808,33 @@
                     return '<option value="' + escHtml(v.id) + '">' + label + '</option>';
                 }).join('');
         }
-        // Re-render grid with selectable thumbs
         loadMedias();
     }
 
     function exitClassifyMode() {
         mediaClassifyMode = false;
         selectedMediaIds = {};
+        setMediaModeBtns(true);
         var bar = document.getElementById('media-classify-bar');
-        var btn = document.getElementById('btn-media-classify');
         if (bar) bar.style.display = 'none';
-        if (btn) btn.style.display = '';
         loadMedias();
     }
 
     function enterDeleteMode() {
         mediaDeleteMode = true;
         selectedMediaIds = {};
+        setMediaModeBtns(false);
         var bar = document.getElementById('media-delete-bar');
-        var btns = document.getElementById('btn-media-classify');
-        var delBtn = document.getElementById('btn-media-delete-mode');
         if (bar) bar.style.display = 'flex';
-        if (btns) btns.style.display = 'none';
-        if (delBtn) delBtn.style.display = 'none';
         loadMedias();
     }
 
     function exitDeleteMode() {
         mediaDeleteMode = false;
         selectedMediaIds = {};
+        setMediaModeBtns(true);
         var bar = document.getElementById('media-delete-bar');
-        var btns = document.getElementById('btn-media-classify');
-        var delBtn = document.getElementById('btn-media-delete-mode');
         if (bar) bar.style.display = 'none';
-        if (btns) btns.style.display = '';
-        if (delBtn) delBtn.style.display = '';
         loadMedias();
     }
 
