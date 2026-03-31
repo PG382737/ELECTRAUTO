@@ -1933,10 +1933,8 @@
                             '</div>' +
                         '</div>' +
                         '<div class="monitoring-order__started">' + formatDateTime(o.started_at) + '</div>' +
-                        '<div class="monitoring-order__right">' +
-                            '<span class="monitoring-pause-badge" id="monitoring-pause-badge-' + i + '" style="display:none;">⏸ EN PAUSE</span>' +
-                            '<div class="monitoring-order__timer" id="monitoring-timer-' + i + '">00:00:00</div>' +
-                        '</div>' +
+                        '<div class="monitoring-order__timer" id="monitoring-timer-' + i + '">00:00:00</div>' +
+                        '<span class="monitoring-pause-badge">⏸</span>' +
                     '</div>';
                 });
                 activeEl.innerHTML = html;
@@ -1950,7 +1948,6 @@
                     var start = new Date(o.started_at).getTime();
                     if (start > Date.now()) start = Date.now();
                     var wasPaused = null;
-                    var badge = document.getElementById('monitoring-pause-badge-' + i);
                     function tick() {
                         var now = Date.now();
                         var paused = isInPauseET(now);
@@ -1960,7 +1957,6 @@
                             el.classList.toggle('monitoring-order__timer--paused', paused);
                             if (card) card.classList.toggle('monitoring-order--paused', paused);
                             if (dot) dot.classList.toggle('monitoring-order__dot--paused', paused);
-                            if (badge) badge.style.display = paused ? '' : 'none';
                         }
                     }
                     tick();

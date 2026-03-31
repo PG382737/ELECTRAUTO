@@ -1765,6 +1765,8 @@ html::-webkit-scrollbar { display: none; }
     align-items: center;
     justify-content: space-between;
     gap: 16px;
+    overflow: hidden;
+    position: relative;
 }
 .monitoring-order__info {
     display: flex;
@@ -1834,8 +1836,7 @@ html::-webkit-scrollbar { display: none; }
 
 /* Pause state — monitoring */
 .monitoring-order--paused {
-    border-color: rgba(245,158,11,0.35);
-    opacity: 0.8;
+    border-color: rgba(245,158,11,0.4);
 }
 .monitoring-order__dot--paused {
     background: #f59e0b;
@@ -1844,19 +1845,21 @@ html::-webkit-scrollbar { display: none; }
 .monitoring-order__timer--paused {
     color: #f59e0b;
 }
-.monitoring-order__right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 2px;
-    flex-shrink: 0;
-}
 .monitoring-pause-badge {
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    color: #f59e0b;
-    opacity: 0.9;
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 48px;
+    background: rgba(245,158,11,0.18);
+    border-left: 1px solid rgba(245,158,11,0.4);
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+.monitoring-order--paused .monitoring-pause-badge {
+    display: flex;
 }
 /* Pause state — dashboard */
 .nfc-scanner__order-card--paused {
