@@ -1103,7 +1103,7 @@
             bg.style.background = 'radial-gradient(circle at 30% 50%,' + c + ',' + c + '00)';
             label.textContent = 'Serveur NFC déconnecté';
             label.style.color = c;
-            detail.textContent = 'Lancez ElectrAuto-NFC.exe pour connecter le lecteur.';
+            detail.textContent = 'Lancez NFC-Reader.exe pour connecter le lecteur.';
         }
     }
 
