@@ -1,4 +1,4 @@
-// Telegram Webhook — Netlify Function
+// Telegram Webhook - Netlify Function
 // Receives group messages, saves photos/videos to Supabase Storage + garage_media
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -103,10 +103,10 @@ exports.handler = async (event) => {
             filename = 'video.mp4';
             contentType = 'video/mp4';
         } else {
-            return respOk; // Not a photo or video — ignore
+            return respOk; // Not a photo or video - ignore
         }
 
-        // Deduplicate — Telegram may resend the same file_id for forwarded messages
+        // Deduplicate - Telegram may resend the same file_id for forwarded messages
         const existing = await supaFetch(`garage_media?telegram_file_id=eq.${encodeURIComponent(fileId)}&limit=1&select=id`);
         if (existing && existing.length > 0) return respOk;
 

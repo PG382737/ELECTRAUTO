@@ -16,7 +16,10 @@
       "Bash(git remote add:*)",
       "Bash(git push:*)",
       "Bash(ssh:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git diff:*)",
+      "Bash(xargs sed:*)"
     ]
   }
 }

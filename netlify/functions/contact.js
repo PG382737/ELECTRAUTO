@@ -1,4 +1,4 @@
-// Contact Form — Netlify Function
+// Contact Form - Netlify Function
 // Sends email via Resend API
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;

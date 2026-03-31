@@ -1,4 +1,4 @@
-// Admin Settings — GET/PUT security settings
+// Admin Settings - GET/PUT security settings
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const PASSWORD_HASH = 'be50e4db19df4d208d3a3440926126de8806191de1818f9e251a80cab62fbb75';
@@ -71,7 +71,7 @@ exports.handler = async (event) => {
         return { statusCode: 401, headers, body: JSON.stringify({ error: 'Unauthorized' }) };
     }
 
-    // GET — return all security settings
+    // GET - return all security settings
     if (event.httpMethod === 'GET') {
         const tfa = await getSetting('security_2fa_enabled');
         return {
@@ -82,7 +82,7 @@ exports.handler = async (event) => {
         };
     }
 
-    // POST — update a setting
+    // POST - update a setting
     if (event.httpMethod === 'POST') {
         const body = JSON.parse(event.body);
         const { key, value } = body;

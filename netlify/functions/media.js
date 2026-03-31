@@ -1,4 +1,4 @@
-// Media API — Netlify Function
+// Media API - Netlify Function
 // CRUD for garage_media: list, assign, unassign, delete, public share
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -67,7 +67,7 @@ exports.handler = async (event) => {
 
     const params = event.queryStringParameters || {};
 
-    // Public endpoint — no auth required — for share page
+    // Public endpoint - no auth required - for share page
     if (event.httpMethod === 'GET' && params.token) {
         try {
             const data = await supaFetch(`garage_media?share_token=eq.${encodeURIComponent(params.token)}&limit=1`);
@@ -122,7 +122,7 @@ exports.handler = async (event) => {
                 return { statusCode: 200, headers, body: JSON.stringify(data) };
             }
 
-            // Unassign — send media back to Nouveau
+            // Unassign - send media back to Nouveau
             if (params.action === 'unassign' && params.id) {
                 const data = await supaFetch(`garage_media?id=eq.${params.id}`, {
                     method: 'PATCH',
@@ -138,7 +138,7 @@ exports.handler = async (event) => {
             const media = await supaFetch(`garage_media?id=eq.${params.id}&limit=1`);
             if (media && media.length > 0) {
                 const m = media[0];
-                // Delete files from storage (ignore errors — file may already be gone)
+                // Delete files from storage (ignore errors - file may already be gone)
                 await deleteStorageFile(m.file_url).catch(() => {});
                 if (m.thumb_url && m.thumb_url !== m.file_url) {
                     await deleteStorageFile(m.thumb_url).catch(() => {});

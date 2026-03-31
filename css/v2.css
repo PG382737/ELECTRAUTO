@@ -1,5 +1,5 @@
 /* ============================================
-   ELECTRAUTO V2 — Fresh Modern Design
+   ELECTRAUTO V2 - Fresh Modern Design
    ============================================ */
 
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
@@ -114,7 +114,7 @@ img { max-width:100%; height:auto; display:block; }
     color: var(--text);
 }
 
-/* Shortcut links (Rendez-vous, Contact) — visible only on tablet */
+/* Shortcut links (Rendez-vous, Contact) - visible only on tablet */
 .nav__shortcut {
     display: none;
     font-size: 0.88rem;
@@ -135,7 +135,7 @@ img { max-width:100%; height:auto; display:block; }
 /* Duplicate items shown only inside mobile burger */
 /* Hidden only on tablet where shortcuts are visible */
 
-/* Theme toggle inside burger — hidden on desktop */
+/* Theme toggle inside burger - hidden on desktop */
 .nav__theme-menu {
     display: none;
 }
@@ -229,7 +229,7 @@ img { max-width:100%; height:auto; display:block; }
 }
 /* ---- Hero Text Treatments ---- */
 
-/* 1 — Gradient Band: dark band fading to sides */
+/* 1 - Gradient Band: dark band fading to sides */
 .hero--txt-band .hero__content::before {
     content: '';
     position: absolute;
@@ -240,7 +240,7 @@ img { max-width:100%; height:auto; display:block; }
     pointer-events: none;
 }
 
-/* 2 — Frosted Glass: blurred card behind text */
+/* 2 - Frosted Glass: blurred card behind text */
 .hero--txt-glass .hero__content {
     background: rgba(12,12,14,0.5);
     padding: 48px;
@@ -251,7 +251,7 @@ img { max-width:100%; height:auto; display:block; }
     max-width: 720px;
 }
 
-/* 3 — Text Shadow Only: no backdrop, bold shadows */
+/* 3 - Text Shadow Only: no backdrop, bold shadows */
 .hero--txt-shadow .hero__content h1,
 .hero--txt-shadow .hero__content .hero__tag,
 .hero--txt-shadow .hero__content .hero__desc {
@@ -261,7 +261,7 @@ img { max-width:100%; height:auto; display:block; }
     box-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
 
-/* 4 — Bottom Fade: dark gradient from bottom up */
+/* 4 - Bottom Fade: dark gradient from bottom up */
 .hero--txt-bottom .hero__bg::after {
     content: '';
     position: absolute;
@@ -270,7 +270,7 @@ img { max-width:100%; height:auto; display:block; }
     pointer-events: none;
 }
 
-/* 5 — Vignette: dark edges focusing on center */
+/* 5 - Vignette: dark edges focusing on center */
 .hero--txt-vignette .hero__bg::after {
     content: '';
     position: absolute;
@@ -597,7 +597,7 @@ img { max-width:100%; height:auto; display:block; }
     display: none;
 }
 
-/* Close (X) button — top-right of the expanded card */
+/* Close (X) button - top-right of the expanded card */
 .scard__close {
     display: none;
     position: absolute;
@@ -630,7 +630,7 @@ img { max-width:100%; height:auto; display:block; }
     color: var(--text-muted);
 }
 
-/* Expandable details — hidden by default */
+/* Expandable details - hidden by default */
 .scard__details {
     display: none;
     padding-top: 16px;
@@ -1580,7 +1580,7 @@ a.contact__item--phone:hover .contact__arrow {
 }
 
 /* ============================================
-   RESPONSIVE — TABLET
+   RESPONSIVE - TABLET
    ============================================ */
 @media (max-width: 1024px) {
     /* Nav: hamburger + shortcuts visible */
@@ -1638,14 +1638,14 @@ a.contact__item--phone:hover .contact__arrow {
 }
 
 /* ============================================
-   RESPONSIVE — MOBILE
+   RESPONSIVE - MOBILE
    ============================================ */
 @media (max-width: 768px) {
     /* Hide shortcuts, show them inside burger instead */
     .nav__shortcut { display: none !important; }
     .nav__links--mobile-only { display: list-item; }
 
-    /* Hero — centered */
+    /* Hero - centered */
     .hero {
         min-height: 92vh;
         padding-top: calc(var(--nav-h) + 40px);
@@ -1656,7 +1656,7 @@ a.contact__item--phone:hover .contact__arrow {
     .hero__actions { flex-direction: column; align-items: center; }
     .hero__actions .btn { width: 100%; justify-content: center; }
 
-    /* Sections — centered titles */
+    /* Sections - centered titles */
     .section { padding: 72px 0; }
     .section__head { text-align: center; }
     .section__tag { margin-left: auto; margin-right: auto; }
@@ -1664,7 +1664,7 @@ a.contact__item--phone:hover .contact__arrow {
     /* Services */
     .services-grid { grid-template-columns: 1fr; }
 
-    /* About — centered */
+    /* About - centered */
     .about__left { text-align: center; }
     .about__stats { flex-direction: column; }
     .about__passion { text-align: center; border-right: 3px solid var(--accent); }
@@ -1673,7 +1673,7 @@ a.contact__item--phone:hover .contact__arrow {
     .blog-grid { grid-template-columns: 1fr; }
     .blog-page-grid { grid-template-columns: 1fr; }
 
-    /* Contact — centered title */
+    /* Contact - centered title */
     .contact { grid-template-columns: 1fr; }
 
     /* Banner */
@@ -1689,14 +1689,14 @@ a.contact__item--phone:hover .contact__arrow {
 
     .field-row { grid-template-columns: 1fr; }
 
-    /* Footer — centered */
+    /* Footer - centered */
     .footer__top { grid-template-columns: 1fr; gap: 24px; text-align: center; }
     .footer__col a, .footer__col span { text-align: center; }
     .footer__bottom { flex-direction: column; gap: 8px; text-align: center; }
 }
 
 /* ============================================
-   RESPONSIVE — SMALL MOBILE
+   RESPONSIVE - SMALL MOBILE
    ============================================ */
 @media (max-width: 450px) {
     .nav__brand { font-size: 0.95rem; }
@@ -2048,7 +2048,7 @@ a.contact__item--phone:hover .contact__arrow {
     box-shadow: 0 6px 24px rgba(0,0,0,0.12);
     transform: translateY(-2px) translateX(4px);
 }
-/* Phone card — force orange gradient (override generic contact__item bg) */
+/* Phone card - force orange gradient (override generic contact__item bg) */
 [data-theme="light"] .contact__item--phone {
     background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
     border-color: transparent;
@@ -2125,13 +2125,13 @@ a.contact__item--phone:hover .contact__arrow {
    HERO BACKGROUND VARIANTS (Temp Selector)
    ============================================ */
 
-/* 1 — Carbon Fiber */
+/* 1 - Carbon Fiber */
 .hero--carbon .hero__bg {
     background:
         linear-gradient(180deg, rgba(12,12,14,0.35) 0%, rgba(12,12,14,0.15) 40%, rgba(12,12,14,0.4) 100%),
         url('../Images/hero-bg.png') center/cover no-repeat;
 }
-/* 2 — Checkered Flag / Racing */
+/* 2 - Checkered Flag / Racing */
 .hero--racing .hero__bg {
     background:
         linear-gradient(180deg, rgba(12,12,14,0.92) 0%, rgba(12,12,14,0.75) 50%, rgba(12,12,14,0.95) 100%),
@@ -2149,7 +2149,7 @@ a.contact__item--phone:hover .contact__arrow {
     pointer-events: none;
     z-index: 1;
 }
-/* 3 — Tire Tread */
+/* 3 - Tire Tread */
 .hero--tread .hero__bg {
     background:
         linear-gradient(180deg, rgba(12,12,14,0.95) 0%, rgba(12,12,14,0.7) 40%, rgba(12,12,14,0.95) 100%),
@@ -2184,7 +2184,7 @@ a.contact__item--phone:hover .contact__arrow {
     pointer-events: none;
     z-index: 1;
 }
-/* 4 — Brushed Steel / Metal */
+/* 4 - Brushed Steel / Metal */
 .hero--steel .hero__bg {
     background:
         linear-gradient(135deg, rgba(12,12,14,0.9) 0%, rgba(30,30,34,0.85) 50%, rgba(12,12,14,0.9) 100%),
@@ -2207,7 +2207,7 @@ a.contact__item--phone:hover .contact__arrow {
     pointer-events: none;
     z-index: 1;
 }
-/* 5 — Garage Grunge / Industrial */
+/* 5 - Garage Grunge / Industrial */
 .hero--grunge .hero__bg {
     background:
         linear-gradient(180deg, rgba(12,12,14,0.92) 0%, rgba(18,16,14,0.8) 50%, rgba(12,12,14,0.95) 100%),

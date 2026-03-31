@@ -1,4 +1,4 @@
-// Control Work Orders API — Netlify Function
+// Control Work Orders API - Netlify Function
 // Start/close work orders, query active orders
 
 // ===== PAUSE SCHEDULE (America/Toronto) =====
@@ -115,7 +115,7 @@ exports.handler = async (event) => {
     try {
         const params = event.queryStringParameters || {};
 
-        // GET — query work orders
+        // GET - query work orders
         if (event.httpMethod === 'GET') {
             // Active order for a specific vehicle
             if (params.vehicle_id) {
@@ -137,14 +137,14 @@ exports.handler = async (event) => {
                 return { statusCode: 200, headers, body: JSON.stringify(data) };
             }
 
-            // Recent completed orders (last 31 days — covers full month on the 31st)
+            // Recent completed orders (last 31 days - covers full month on the 31st)
             if (params.recent === 'true') {
                 const since = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000).toISOString();
                 const data = await supaFetch(`control_work_orders?ended_at=not.is.null&ended_at=gte.${since}&order=ended_at.desc&limit=50&select=id,started_at,ended_at,duration_seconds,vehicle_id,employee_id,vehicle:control_vehicles(id,make,year,plate,owner_name),employee:control_employees(id,first_name,last_name)`);
                 return { statusCode: 200, headers, body: JSON.stringify(data) };
             }
 
-            // Pre-computed stats in America/Toronto — consistent across all clients
+            // Pre-computed stats in America/Toronto - consistent across all clients
             if (params.stats === 'true') {
                 const nowET = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Toronto' }));
                 const y = nowET.getFullYear(), mo = nowET.getMonth(), da = nowET.getDate();
@@ -173,7 +173,7 @@ exports.handler = async (event) => {
             return { statusCode: 200, headers, body: JSON.stringify([]) };
         }
 
-        // POST — start a new work order
+        // POST - start a new work order
         if (event.httpMethod === 'POST') {
             const body = JSON.parse(event.body);
 
@@ -201,7 +201,7 @@ exports.handler = async (event) => {
             return { statusCode: 201, headers, body: JSON.stringify(data[0]) };
         }
 
-        // PATCH — close a work order
+        // PATCH - close a work order
         if (event.httpMethod === 'PATCH') {
             const body = JSON.parse(event.body);
 

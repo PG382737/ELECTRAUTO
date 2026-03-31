@@ -1,5 +1,5 @@
 // ============================================
-// LOCAL ARTICLES — Dev fallback when Supabase is not configured
+// LOCAL ARTICLES - Dev fallback when Supabase is not configured
 // ============================================
 
 window.LOCAL_ARTICLES = [

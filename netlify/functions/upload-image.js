@@ -1,4 +1,4 @@
-// Image Upload — Netlify Function
+// Image Upload - Netlify Function
 // Uploads images to Supabase Storage bucket 'article-images'
 
 const SUPABASE_URL = process.env.SUPABASE_URL;

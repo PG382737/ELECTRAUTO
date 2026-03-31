@@ -1,4 +1,4 @@
-// Articles API — Netlify Function
+// Articles API - Netlify Function
 // GET: public read (anon key)
 // POST/PUT/DELETE: protected by password hash
 
@@ -68,7 +68,7 @@ exports.handler = async (event) => {
     }
 
     try {
-        // GET — public: list articles or get one by slug
+        // GET - public: list articles or get one by slug
         if (event.httpMethod === 'GET') {
             const params = event.queryStringParameters || {};
 
@@ -97,7 +97,7 @@ exports.handler = async (event) => {
             return { statusCode: 200, headers, body: JSON.stringify(data) };
         }
 
-        // POST — create article
+        // POST - create article
         if (event.httpMethod === 'POST') {
             const authed = await verifyAuth(event.headers.authorization);
             if (!authed) {
@@ -132,7 +132,7 @@ exports.handler = async (event) => {
             return { statusCode: 201, headers, body: JSON.stringify(data[0]) };
         }
 
-        // PUT — update article
+        // PUT - update article
         if (event.httpMethod === 'PUT') {
             const authed = await verifyAuth(event.headers.authorization);
             if (!authed) {
@@ -169,7 +169,7 @@ exports.handler = async (event) => {
             return { statusCode: 200, headers, body: JSON.stringify(data[0]) };
         }
 
-        // DELETE — delete article
+        // DELETE - delete article
         if (event.httpMethod === 'DELETE') {
             const authed = await verifyAuth(event.headers.authorization);
             if (!authed) {

@@ -1,4 +1,4 @@
-// Notes API — Netlify Function
+// Notes API - Netlify Function
 // GET: fetch notes (protected)
 // POST: add note (protected)
 // DELETE: delete note (protected)
@@ -59,7 +59,7 @@ exports.handler = async (event) => {
     }
 
     try {
-        // GET — fetch notes (newest first), supports ?since=timestamp for polling
+        // GET - fetch notes (newest first), supports ?since=timestamp for polling
         if (event.httpMethod === 'GET') {
             const params = event.queryStringParameters || {};
             let query = 'admin_notes?order=created_at.desc&limit=100';
@@ -72,7 +72,7 @@ exports.handler = async (event) => {
             return { statusCode: 200, headers, body: JSON.stringify(data) };
         }
 
-        // POST — add note
+        // POST - add note
         if (event.httpMethod === 'POST') {
             const body = JSON.parse(event.body);
             const text = (body.text || '').trim();
@@ -95,7 +95,7 @@ exports.handler = async (event) => {
             return { statusCode: 201, headers, body: JSON.stringify(data[0]) };
         }
 
-        // DELETE — delete note by id
+        // DELETE - delete note by id
         if (event.httpMethod === 'DELETE') {
             const params = event.queryStringParameters || {};
             if (!params.id) {

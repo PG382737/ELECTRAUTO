@@ -1,5 +1,5 @@
 // ============================================
-// ELECTRAUTO V2 — Main JavaScript
+// ELECTRAUTO V2 - Main JavaScript
 // ============================================
 
 (function() {
@@ -304,7 +304,7 @@
             })
             .catch(function() { scrollToHash(); });
     } else {
-        // No blog section — scroll on load
+        // No blog section - scroll on load
         if (document.readyState === 'complete') { scrollToHash(); }
         else { window.addEventListener('load', scrollToHash); }
     }

@@ -1,5 +1,5 @@
 /* ============================================
-   ELECTRAUTO — Admin Panel CSS
+   ELECTRAUTO - Admin Panel CSS
    ============================================ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1866,7 +1866,7 @@ html::-webkit-scrollbar { display: none; }
     font-size: 0.88rem;
 }
 
-/* Status strip — monitoring */
+/* Status strip - monitoring */
 .monitoring-status-strip {
     position: absolute;
     top: 0;
@@ -1895,7 +1895,7 @@ html::-webkit-scrollbar { display: none; }
 .monitoring-order--paused .monitoring-status-strip__pause {
     display: block;
 }
-/* Pause state — monitoring */
+/* Pause state - monitoring */
 .monitoring-order--paused {
     border-color: rgba(245,158,11,0.4);
 }
@@ -1906,7 +1906,7 @@ html::-webkit-scrollbar { display: none; }
 .monitoring-order__timer--paused {
     color: #f59e0b;
 }
-/* Pause state — dashboard */
+/* Pause state - dashboard */
 .nfc-scanner__order-card--paused {
     border-color: rgba(245,158,11,0.35);
     opacity: 0.8;

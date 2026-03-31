@@ -1,4 +1,4 @@
-// Admin Auth — Netlify Function
+// Admin Auth - Netlify Function
 // Handles password verification, 2FA code generation/verification, rate limiting
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -116,7 +116,7 @@ exports.handler = async (event) => {
             const passwordHash = body.password_hash;
 
             if (passwordHash !== PASSWORD_HASH) {
-                // Wrong password — increment attempts
+                // Wrong password - increment attempts
                 ipData.attempts += 1;
                 const attemptsLeft = MAX_ATTEMPTS - ipData.attempts;
 
@@ -148,7 +148,7 @@ exports.handler = async (event) => {
                 };
             }
 
-            // Password correct — check for trusted device token
+            // Password correct - check for trusted device token
             const trustToken = body.trust_token;
             if (trustToken) {
                 const trustData = await getSetting('admin_trust_tokens') || {};
@@ -156,7 +156,7 @@ exports.handler = async (event) => {
                 const tokenEntry = trustData[tokenHash];
 
                 if (tokenEntry && new Date(tokenEntry.expires_at) > new Date()) {
-                    // Trusted device — skip 2FA, reset lockout
+                    // Trusted device - skip 2FA, reset lockout
                     ipData.attempts = 0;
                     ipData.locked_until = null;
                     lockoutData[ip] = ipData;
@@ -178,7 +178,7 @@ exports.handler = async (event) => {
             // Check if 2FA is disabled in security settings
             const tfa_enabled = await getSetting('security_2fa_enabled');
             if (tfa_enabled === false) {
-                // 2FA disabled — skip directly, reset lockout
+                // 2FA disabled - skip directly, reset lockout
                 ipData.attempts = 0;
                 ipData.locked_until = null;
                 lockoutData[ip] = ipData;
@@ -195,7 +195,7 @@ exports.handler = async (event) => {
                 };
             }
 
-            // No valid trust token — generate 2FA code
+            // No valid trust token - generate 2FA code
             const code = String(Math.floor(100000 + Math.random() * 900000));
             const codeHash = await sha256(code);
             const expiresAt = new Date(Date.now() + CODE_EXPIRY_MINUTES * 60 * 1000).toISOString();
@@ -288,7 +288,7 @@ exports.handler = async (event) => {
                 };
             }
 
-            // Success — clear 2FA data and reset lockout for this IP
+            // Success - clear 2FA data and reset lockout for this IP
             await setSetting('admin_2fa', null);
             ipData.attempts = 0;
             ipData.locked_until = null;

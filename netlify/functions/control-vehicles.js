@@ -1,4 +1,4 @@
-// Control Vehicles API — Netlify Function
+// Control Vehicles API - Netlify Function
 // CRUD for vehicles + NFC lookup + work history
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -149,7 +149,7 @@ exports.handler = async (event) => {
             return { statusCode: 200, headers, body: JSON.stringify(enriched) };
         }
 
-        // POST — create vehicle
+        // POST - create vehicle
         if (event.httpMethod === 'POST') {
             const body = JSON.parse(event.body);
             const vehicle = {
@@ -177,7 +177,7 @@ exports.handler = async (event) => {
             return { statusCode: 201, headers, body: JSON.stringify(data[0]) };
         }
 
-        // PATCH — update vehicle
+        // PATCH - update vehicle
         if (event.httpMethod === 'PATCH') {
             const body = JSON.parse(event.body);
             if (!body.id) {

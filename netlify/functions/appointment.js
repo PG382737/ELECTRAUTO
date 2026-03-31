@@ -1,4 +1,4 @@
-// Appointment Booking — Netlify Function
+// Appointment Booking - Netlify Function
 // Sends appointment details via Resend API
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;

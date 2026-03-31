@@ -1,5 +1,5 @@
 // ================================================
-// Control Module — NFC Time Tracking System
+// Control Module - NFC Time Tracking System
 // ================================================
 
 (function() {
@@ -86,13 +86,13 @@
     }
 
     function formatDate(iso) {
-        if (!iso) return '—';
+        if (!iso) return '-';
         var parts = iso.substring(0, 10).split('-');
         return parts[2] + '-' + parts[1] + '-' + parts[0];
     }
 
     function formatDateTime(iso) {
-        if (!iso) return '—';
+        if (!iso) return '-';
         var d = new Date(iso);
         return d.toLocaleDateString('fr-CA', { year: 'numeric', month: 'short', day: 'numeric' }) + ' à ' +
                d.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' });
@@ -408,7 +408,7 @@
     }
 
     function initControl() {
-        // Check if URL has ?view=scanner — auto-open scanner
+        // Check if URL has ?view=scanner - auto-open scanner
         var urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('view') === 'scanner') {
             loadEmployees();
@@ -628,7 +628,7 @@
 
         var html = '<table class="control-table"><thead><tr><th>Date</th><th>Véhicule</th><th>Durée</th></tr></thead><tbody>';
         pageData.forEach(function(o) {
-            var vehName = o.vehicle ? (o.vehicle.make + (o.vehicle.plate ? ' — ' + o.vehicle.plate : '')) : 'Inconnu';
+            var vehName = o.vehicle ? (o.vehicle.make + (o.vehicle.plate ? ' - ' + o.vehicle.plate : '')) : 'Inconnu';
             html += '<tr><td>' + formatDateTime(o.started_at) + '</td><td>' + escHtml(vehName) + '</td><td>' + formatDuration(o.duration_seconds) + '</td></tr>';
         });
         html += '</tbody></table>';
@@ -748,7 +748,7 @@
                 statusHtml = '<span class="live-indicator"><span class="' + dotClass + '"></span><span class="live-timer" id="' + timerId + '">...</span>' + (aoEmpName ? '<span style="font-size:0.85rem;">' + escHtml(aoEmpName) + '</span>' : '') + '</span>';
                 setTimeout(function() { startLiveTimer(timerId, v.active_order.started_at); }, 50);
             } else {
-                statusHtml = '<span style="color:var(--text-muted);font-size:0.85rem;">—</span>';
+                statusHtml = '<span style="color:var(--text-muted);font-size:0.85rem;">-</span>';
             }
 
             html += '<tr>';
@@ -923,7 +923,7 @@
             var v = data.vehicle;
             var detailBody = document.getElementById('veh-detail-body');
 
-            document.getElementById('veh-detail-title').textContent = v.make + (v.model ? ' ' + v.model : '') + (v.year ? ' ' + v.year : '') + (v.plate ? ' — ' + v.plate : '');
+            document.getElementById('veh-detail-title').textContent = v.make + (v.model ? ' ' + v.model : '') + (v.year ? ' ' + v.year : '') + (v.plate ? ' - ' + v.plate : '');
 
             var html = '';
 
@@ -1312,9 +1312,9 @@
             var v = order.vehicle || {};
             var e = order.employee || {};
             var vehicleName = escHtml(v.make || 'Véhicule') + (v.year ? ' ' + v.year : '');
-            var plate = v.plate ? ' — ' + escHtml(v.plate) : '';
+            var plate = v.plate ? ' - ' + escHtml(v.plate) : '';
             var empName = escHtml((e.first_name || '') + ' ' + (e.last_name || ''));
-            var ownerName = v.owner_name ? ' — ' + escHtml(v.owner_name) : '';
+            var ownerName = v.owner_name ? ' - ' + escHtml(v.owner_name) : '';
 
             html += '<div class="nfc-scanner__order-card">' +
                 '<div class="nfc-scanner__order-dot"></div>' +
@@ -1376,11 +1376,11 @@
     }
 
     function startNfcListener() {
-        // WebSocket handles NFC listening globally — nothing to do here
+        // WebSocket handles NFC listening globally - nothing to do here
     }
 
     function stopNfcListener() {
-        // WebSocket handles NFC listening globally — nothing to do here
+        // WebSocket handles NFC listening globally - nothing to do here
     }
 
     function simulateNfc() {
@@ -1415,7 +1415,7 @@
             // Lookup employee by NFC
             try {
                 var employee = await api('GET', '/api/control-employees?nfc=' + encodeURIComponent(tagId));
-                // Start work order — capture local time before API call
+                // Start work order - capture local time before API call
                 var localStartTime = new Date().toISOString();
                 await api('POST', '/api/control-work-orders', {
                     vehicle_id: scannerVehicle.id,
@@ -1598,7 +1598,7 @@
         } catch(e) {}
         try {
             var vehData = await api('GET', '/api/control-vehicles?id=' + order.vehicle_id);
-            vehName = vehData.vehicle ? vehData.vehicle.make + (vehData.vehicle.plate ? ' — ' + vehData.vehicle.plate : '') : '?';
+            vehName = vehData.vehicle ? vehData.vehicle.make + (vehData.vehicle.plate ? ' - ' + vehData.vehicle.plate : '') : '?';
         } catch(e) {}
 
         addNotification('start', 'Bon de travail commencé', empName + ' → ' + vehName);
@@ -1617,7 +1617,7 @@
         } catch(e) {}
         try {
             var vehData = await api('GET', '/api/control-vehicles?id=' + order.vehicle_id);
-            vehName = vehData.vehicle ? vehData.vehicle.make + (vehData.vehicle.plate ? ' — ' + vehData.vehicle.plate : '') : '?';
+            vehName = vehData.vehicle ? vehData.vehicle.make + (vehData.vehicle.plate ? ' - ' + vehData.vehicle.plate : '') : '?';
         } catch(e) {}
 
         // Estimate duration from started_at to now
@@ -1727,7 +1727,7 @@
                 }).join('');
             }
 
-            // Classé — group by vehicle
+            // Classé - group by vehicle
             if (!groupsEl) return;
             if (assigned.length === 0) {
                 groupsEl.innerHTML = '<div class="media-empty-state">Aucun média classé.</div>';
@@ -1748,7 +1748,7 @@
             groupOrder.forEach(function(vid) {
                 var g = groups[vid];
                 var v = g.vehicle;
-                var label = v ? (escHtml(v.make) + (v.model ? ' ' + escHtml(v.model) : '') + (v.year ? ' ' + v.year : '') + (v.plate ? ' — ' + escHtml(v.plate) : '')) : 'Véhicule inconnu';
+                var label = v ? (escHtml(v.make) + (v.model ? ' ' + escHtml(v.model) : '') + (v.year ? ' ' + v.year : '') + (v.plate ? ' - ' + escHtml(v.plate) : '')) : 'Véhicule inconnu';
                 html += '<div class="media-group">';
                 html += '<div class="media-group__title">' + label + ' <span class="media-badge">' + g.items.length + '</span></div>';
                 html += '<div class="media-grid">' + g.items.map(function(m) { return renderMediaThumb(m, { selectable: false }); }).join('') + '</div>';
@@ -1788,7 +1788,7 @@
         if (sel) {
             sel.innerHTML = '<option value="">Choisir un véhicule...</option>' +
                 allVehicles.map(function(v) {
-                    var label = escHtml(v.make) + (v.model ? ' ' + escHtml(v.model) : '') + (v.year ? ' ' + v.year : '') + (v.plate ? ' — ' + escHtml(v.plate) : '') + ' (' + escHtml(v.owner_name) + ')';
+                    var label = escHtml(v.make) + (v.model ? ' ' + escHtml(v.model) : '') + (v.year ? ' ' + v.year : '') + (v.plate ? ' - ' + escHtml(v.plate) : '') + ' (' + escHtml(v.owner_name) + ')';
                     return '<option value="' + escHtml(v.id) + '">' + label + '</option>';
                 }).join('');
         }
@@ -1832,7 +1832,7 @@
     }
 
     function openMediaFull(fileUrl, mediaType) {
-        // Simple lightbox — open in new tab for now
+        // Simple lightbox - open in new tab for now
         window.open(fileUrl, '_blank');
     }
 
@@ -1880,7 +1880,7 @@
             var recentOrders = results[3] || [];
             var completionStats = results[4] || {};
 
-            // Stats calculated server-side in America/Toronto — consistent across all clients
+            // Stats calculated server-side in America/Toronto - consistent across all clients
             var completedToday = completionStats.completed_today || 0;
             var completedWeek = completionStats.completed_week || 0;
             var completedMonth = completionStats.completed_month || 0;
@@ -1927,7 +1927,7 @@
                         '<div class="monitoring-order__info">' +
                             '<div class="monitoring-order__dot" id="monitoring-dot-' + i + '"></div>' +
                             '<div class="monitoring-order__text">' +
-                                '<div class="monitoring-order__vehicle">' + vehName + (plate ? ' — ' + plate : '') + '</div>' +
+                                '<div class="monitoring-order__vehicle">' + vehName + (plate ? ' - ' + plate : '') + '</div>' +
                                 '<div class="monitoring-order__employee">Employé: ' + empName + (owner ? ' • Propriétaire: ' + owner : '') + '</div>' +
                             '</div>' +
                         '</div>' +
@@ -2034,7 +2034,7 @@
         document.getElementById('employee-modal-close').addEventListener('click', function() { empModal.classList.remove('active'); });
         document.getElementById('emp-save').addEventListener('click', saveEmployee);
         document.getElementById('btn-new-employee').addEventListener('click', function() { openEmployeeModal(null); });
-        // empModal overlay click disabled — close only via X button
+        // empModal overlay click disabled - close only via X button
 
         // Employee NFC assign
         document.getElementById('emp-assign-nfc').addEventListener('click', function() {
@@ -2067,7 +2067,7 @@
         // Employee stats modal
         var empStatsModal = document.getElementById('employee-stats-modal');
         document.getElementById('emp-stats-close').addEventListener('click', function() { empStatsModal.classList.remove('active'); });
-        // empStatsModal overlay click disabled — close only via X button
+        // empStatsModal overlay click disabled - close only via X button
         document.querySelectorAll('#emp-stats-periods .period-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('#emp-stats-periods .period-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -2082,7 +2082,7 @@
         document.getElementById('vehicle-modal-close').addEventListener('click', function() { vehModal.classList.remove('active'); });
         document.getElementById('veh-save').addEventListener('click', saveVehicle);
         document.getElementById('btn-new-vehicle').addEventListener('click', function() { openVehicleModal(null); });
-        // vehModal overlay click disabled — close only via X button
+        // vehModal overlay click disabled - close only via X button
 
         // Vehicle NFC assign
         document.getElementById('veh-assign-nfc').addEventListener('click', function() {
@@ -2114,7 +2114,7 @@
         // Vehicle detail modal
         var vehDetailModal = document.getElementById('vehicle-detail-modal');
         document.getElementById('veh-detail-close').addEventListener('click', function() { vehDetailModal.classList.remove('active'); clearAllTimers(); });
-        // vehDetailModal overlay click disabled — close only via X button
+        // vehDetailModal overlay click disabled - close only via X button
 
         // Confirm delete modal
         var confirmModal = document.getElementById('control-confirm-modal');
@@ -2124,7 +2124,7 @@
             confirmModal.classList.remove('active');
             if (deleteCallback) { deleteCallback(); deleteCallback = null; }
         });
-        // confirmModal overlay click disabled — close only via X button
+        // confirmModal overlay click disabled - close only via X button
 
         // Media tab
         var btnClassify = document.getElementById('btn-media-classify');

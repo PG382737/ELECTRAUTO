@@ -1072,7 +1072,7 @@ a.card:hover .card-arrow {
 }
 
 /* ============================================
-   RESPONSIVE — TABLET (max-width: 1024px)
+   RESPONSIVE - TABLET (max-width: 1024px)
    ============================================ */
 @media (max-width: 1024px) {
     .service-block {
@@ -1110,7 +1110,7 @@ a.card:hover .card-arrow {
 }
 
 /* ============================================
-   RESPONSIVE — MOBILE (max-width: 768px)
+   RESPONSIVE - MOBILE (max-width: 768px)
    ============================================ */
 @media (max-width: 768px) {
     .nav-menu {
@@ -1195,7 +1195,7 @@ a.card:hover .card-arrow {
 }
 
 /* ============================================
-   RESPONSIVE — SMALL MOBILE (max-width: 450px)
+   RESPONSIVE - SMALL MOBILE (max-width: 450px)
    ============================================ */
 @media (max-width: 450px) {
     .nav-logo-text {

@@ -1,4 +1,4 @@
-// Control Vehicle Notes API — Netlify Function
+// Control Vehicle Notes API - Netlify Function
 // CRUD for vehicle-scoped notes
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -58,7 +58,7 @@ exports.handler = async (event) => {
     try {
         const params = event.queryStringParameters || {};
 
-        // GET — fetch notes for a vehicle
+        // GET - fetch notes for a vehicle
         if (event.httpMethod === 'GET') {
             if (!params.vehicle_id) {
                 return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing vehicle_id' }) };
@@ -67,7 +67,7 @@ exports.handler = async (event) => {
             return { statusCode: 200, headers, body: JSON.stringify(data) };
         }
 
-        // POST — add note
+        // POST - add note
         if (event.httpMethod === 'POST') {
             const body = JSON.parse(event.body);
             const text = (body.text || '').trim();
@@ -87,7 +87,7 @@ exports.handler = async (event) => {
             return { statusCode: 201, headers, body: JSON.stringify(data[0]) };
         }
 
-        // DELETE — delete note
+        // DELETE - delete note
         if (event.httpMethod === 'DELETE') {
             if (!params.id) {
                 return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing note id' }) };

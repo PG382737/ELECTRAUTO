@@ -1,5 +1,5 @@
 // ============================================
-// ELECTRAUTO — Admin Panel JavaScript
+// ELECTRAUTO - Admin Panel JavaScript
 // ============================================
 
 var adminPassword = '';
@@ -193,7 +193,7 @@ document.getElementById('login-form').addEventListener('submit', async function(
             throw new Error(data.error || 'Erreur serveur');
         }
 
-        // Trusted device — skip 2FA
+        // Trusted device - skip 2FA
         if (data.skip_2fa) {
             setSession({ password: password, expires: data.session_expires });
             setLockout({});
@@ -201,7 +201,7 @@ document.getElementById('login-form').addEventListener('submit', async function(
             return;
         }
 
-        // Password correct — show 2FA step
+        // Password correct - show 2FA step
         adminPassword = password;
         document.getElementById('login-form').style.display = 'none';
         document.getElementById('tfa-form').style.display = 'block';
@@ -255,7 +255,7 @@ document.getElementById('tfa-form').addEventListener('submit', async function(e)
             return;
         }
 
-        // 2FA success — save session, trust token, enter dashboard
+        // 2FA success - save session, trust token, enter dashboard
         setLockout({});
         setSession({ password: adminPassword, expires: data.session_expires });
         if (data.trust_token) {
@@ -384,7 +384,7 @@ function initSecurityToggles() {
 }
 
 // ============================================
-// BLOG — ARTICLES
+// BLOG - ARTICLES
 // ============================================
 
 async function loadArticles() {
@@ -488,7 +488,7 @@ function closeArticleModal() {
 
 document.getElementById('modal-close').addEventListener('click', closeArticleModal);
 document.getElementById('btn-cancel').addEventListener('click', closeArticleModal);
-// articleModal overlay click disabled — close only via X button
+// articleModal overlay click disabled - close only via X button
 
 // ---- Language Tabs ----
 document.querySelectorAll('.lang-tab').forEach(function(tab) {
@@ -726,7 +726,7 @@ function closeConfirm() {
 
 document.getElementById('confirm-close').addEventListener('click', closeConfirm);
 document.getElementById('btn-cancel-delete').addEventListener('click', closeConfirm);
-// confirmModal overlay click disabled — close only via X button
+// confirmModal overlay click disabled - close only via X button
 
 document.getElementById('btn-confirm-delete').addEventListener('click', async function() {
     if (!deleteTargetId) return;
@@ -750,7 +750,7 @@ async function loadDelays() {
         if (data.service) selectDelay('delay-service', data.service);
         if (data.repair) selectDelay('delay-repair', data.repair);
     } catch(e) {
-        // No delays saved yet — that's fine
+        // No delays saved yet - that's fine
     }
 }
 
@@ -884,7 +884,7 @@ window.deleteNote = async function(id) {
     }
 };
 
-// Polling — check for new notes every 3 seconds
+// Polling - check for new notes every 3 seconds
 function startNotesPolling() {
     if (notesPollingInterval) return;
     notesPollingInterval = setInterval(async function() {
@@ -892,7 +892,7 @@ function startNotesPolling() {
         try {
             var newNotes = await api('GET', '/api/notes?since=' + encodeURIComponent(notesLastTimestamp));
             if (newNotes && newNotes.length > 0) {
-                // New notes found — reload all
+                // New notes found - reload all
                 await loadNotes();
             }
         } catch(e) {

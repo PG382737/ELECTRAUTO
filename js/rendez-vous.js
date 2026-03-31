@@ -1,5 +1,5 @@
 // ============================================
-// ELECTRAUTO — Appointment Page JavaScript
+// ELECTRAUTO - Appointment Page JavaScript
 // ============================================
 
 (function() {

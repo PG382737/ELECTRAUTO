@@ -1,4 +1,4 @@
-// Delays API — Netlify Function
+// Delays API - Netlify Function
 // GET: public read (no auth needed)
 // POST: protected by password hash (admin only)
 
@@ -57,7 +57,7 @@ exports.handler = async (event) => {
     }
 
     try {
-        // GET — public: return current delays
+        // GET - public: return current delays
         if (event.httpMethod === 'GET') {
             const data = await supaFetch('site_settings?key=eq.delays&limit=1');
 
@@ -74,7 +74,7 @@ exports.handler = async (event) => {
             };
         }
 
-        // POST — admin: update delays
+        // POST - admin: update delays
         if (event.httpMethod === 'POST') {
             const authed = await verifyAuth(event.headers.authorization);
             if (!authed) {

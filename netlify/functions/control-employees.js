@@ -1,4 +1,4 @@
-// Control Employees API — Netlify Function
+// Control Employees API - Netlify Function
 // CRUD for employees + stats via RPC
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -71,7 +71,7 @@ exports.handler = async (event) => {
     try {
         const params = event.queryStringParameters || {};
 
-        // GET — list employees or get stats
+        // GET - list employees or get stats
         if (event.httpMethod === 'GET') {
             // Stats for a specific employee
             if (params.stats === 'true' && params.id) {
@@ -156,7 +156,7 @@ exports.handler = async (event) => {
             return { statusCode: 200, headers, body: JSON.stringify(data) };
         }
 
-        // POST — create employee
+        // POST - create employee
         if (event.httpMethod === 'POST') {
             const body = JSON.parse(event.body);
             const employee = {
@@ -176,7 +176,7 @@ exports.handler = async (event) => {
             return { statusCode: 201, headers, body: JSON.stringify(data[0]) };
         }
 
-        // PATCH — update employee
+        // PATCH - update employee
         if (event.httpMethod === 'PATCH') {
             const body = JSON.parse(event.body);
             if (!body.id) {
@@ -193,7 +193,7 @@ exports.handler = async (event) => {
             return { statusCode: 200, headers, body: JSON.stringify(data[0]) };
         }
 
-        // DELETE — delete employee
+        // DELETE - delete employee
         if (event.httpMethod === 'DELETE') {
             if (!params.id) {
                 return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing employee id' }) };
