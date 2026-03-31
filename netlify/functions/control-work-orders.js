@@ -2,6 +2,8 @@
 // Start/close work orders, query active orders
 
 // ===== PAUSE SCHEDULE (America/Toronto) =====
+const PAUSE_BOUNDS = {1:[480,720,780,1020],2:[480,720,780,1020],3:[480,720,780,1020],4:[480,720,780,1020],5:[480,720]};
+
 function isInPauseET(ms) {
     const et = new Date(new Date(ms).toLocaleString('en-US', { timeZone: 'America/Toronto' }));
     const day = et.getDay(); // 0=Sun,1=Mon,...,5=Fri,6=Sat
@@ -26,14 +28,14 @@ function getNextTransitionET(ms) {
     const et = new Date(new Date(ms).toLocaleString('en-US', { timeZone: 'America/Toronto' }));
     const day = et.getDay();
     const cur = et.getHours() * 60 + et.getMinutes() + et.getSeconds() / 60;
-    const bounds = {1:[480,720,780,1020],2:[480,720,780,1020],3:[480,720,780,1020],4:[480,720,780,1020],5:[480,720]};
+    const bounds = PAUSE_BOUNDS;
     for (const b of (bounds[day] || [])) {
         if (b > cur) return etMidnightUTC(et.getFullYear(), et.getMonth(), et.getDate()) + b * 60000;
     }
     for (let ahead = 1; ahead <= 7; ahead++) {
         const nextMid = etMidnightUTC(et.getFullYear(), et.getMonth(), et.getDate() + ahead);
         const nextDay = new Date(new Date(nextMid).toLocaleString('en-US', { timeZone: 'America/Toronto' })).getDay();
-        const nb = bounds[nextDay] || [];
+        const nb = PAUSE_BOUNDS[nextDay] || [];
         if (nb.length > 0) return nextMid + nb[0] * 60000;
     }
     return ms + 7 * 24 * 3600000;
@@ -144,24 +146,13 @@ exports.handler = async (event) => {
 
             // Pre-computed stats in America/Toronto — consistent across all clients
             if (params.stats === 'true') {
-                const now = new Date();
-                // Get current date/time expressed in ET (date fields reflect ET, not UTC)
-                const nowET = new Date(now.toLocaleString('en-US', { timeZone: 'America/Toronto' }));
-                // ET→UTC offset in ms (handles DST automatically)
-                const etOffsetMs = now.getTime() - nowET.getTime();
-
-                // Midnight today (ET)
-                const todayMidnightET = new Date(nowET.getFullYear(), nowET.getMonth(), nowET.getDate(), 0, 0, 0, 0);
-                const todayUTC = new Date(todayMidnightET.getTime() + etOffsetMs).toISOString();
-
-                // Monday midnight this week (ET)
+                const nowET = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Toronto' }));
+                const y = nowET.getFullYear(), mo = nowET.getMonth(), da = nowET.getDate();
                 const dayOfWeek = nowET.getDay() === 0 ? 6 : nowET.getDay() - 1; // Monday=0
-                const weekMidnightET = new Date(nowET.getFullYear(), nowET.getMonth(), nowET.getDate() - dayOfWeek, 0, 0, 0, 0);
-                const weekUTC = new Date(weekMidnightET.getTime() + etOffsetMs).toISOString();
 
-                // First of the month midnight (ET)
-                const monthMidnightET = new Date(nowET.getFullYear(), nowET.getMonth(), 1, 0, 0, 0, 0);
-                const monthUTC = new Date(monthMidnightET.getTime() + etOffsetMs).toISOString();
+                const todayUTC  = new Date(etMidnightUTC(y, mo, da)).toISOString();
+                const weekUTC   = new Date(etMidnightUTC(y, mo, da - dayOfWeek)).toISOString();
+                const monthUTC  = new Date(etMidnightUTC(y, mo, 1)).toISOString();
 
                 const [todayRows, weekRows, monthRows] = await Promise.all([
                     supaFetch(`control_work_orders?ended_at=not.is.null&ended_at=gte.${todayUTC}&select=id`),

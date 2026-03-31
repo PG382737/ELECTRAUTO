@@ -1859,11 +1859,11 @@ html::-webkit-scrollbar { display: none; }
     opacity: 0.8;
 }
 .nfc-scanner__order-dot--paused {
-    background: #f59e0b !important;
-    animation: none !important;
+    background: #f59e0b;
+    animation: none;
 }
 .nfc-scanner__order-timer--paused {
-    color: #f59e0b !important;
+    color: #f59e0b;
 }
 
 /* Toggle switch */

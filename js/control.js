@@ -98,6 +98,8 @@
 
     // ===== PAUSE SCHEDULE (America/Toronto) =====
     // Heures de travail : Lun-Jeu 8h-12h et 13h-17h, Ven 8h-12h
+    var PAUSE_BOUNDS = {1:[480,720,780,1020],2:[480,720,780,1020],3:[480,720,780,1020],4:[480,720,780,1020],5:[480,720]};
+
     function isInPauseET(ms) {
         var et = new Date(new Date(ms).toLocaleString('en-US', { timeZone: 'America/Toronto' }));
         var day = et.getDay(); // 0=Dim, 1=Lun, ..., 5=Ven, 6=Sam
@@ -123,8 +125,7 @@
         var et = new Date(new Date(ms).toLocaleString('en-US', { timeZone: 'America/Toronto' }));
         var day = et.getDay();
         var cur = et.getHours() * 60 + et.getMinutes() + et.getSeconds() / 60;
-        var bounds = {1:[480,720,780,1020],2:[480,720,780,1020],3:[480,720,780,1020],4:[480,720,780,1020],5:[480,720]};
-        var todayBounds = bounds[day] || [];
+        var todayBounds = PAUSE_BOUNDS[day] || [];
         for (var i = 0; i < todayBounds.length; i++) {
             if (todayBounds[i] > cur) {
                 return etMidnightUTC(et.getFullYear(), et.getMonth(), et.getDate()) + todayBounds[i] * 60000;
@@ -134,7 +135,7 @@
             var nextMid = etMidnightUTC(et.getFullYear(), et.getMonth(), et.getDate() + ahead);
             var nextET = new Date(new Date(nextMid).toLocaleString('en-US', { timeZone: 'America/Toronto' }));
             var nextDay = nextET.getDay();
-            var nextBounds = bounds[nextDay] || [];
+            var nextBounds = PAUSE_BOUNDS[nextDay] || [];
             if (nextBounds.length > 0) return nextMid + nextBounds[0] * 60000;
         }
         return ms + 7 * 24 * 3600000;
@@ -1719,22 +1720,26 @@
                     var dot = card ? card.querySelector('.monitoring-order__dot') : null;
                     var start = new Date(o.started_at).getTime();
                     if (start > Date.now()) start = Date.now();
+                    var wasPaused = null;
+                    var badge = null;
                     function tick() {
                         var now = Date.now();
                         var paused = isInPauseET(now);
-                        var working = calcWorkingSeconds(start, now);
-                        el.textContent = formatDurationLong(working);
-                        el.classList.toggle('monitoring-order__timer--paused', paused);
-                        if (card) card.classList.toggle('monitoring-order--paused', paused);
-                        if (dot) dot.classList.toggle('monitoring-order__dot--paused', paused);
-                        var badge = card ? card.querySelector('.monitoring-pause-badge') : null;
-                        if (paused && !badge) {
-                            var b = document.createElement('span');
-                            b.className = 'monitoring-pause-badge';
-                            b.textContent = 'EN PAUSE';
-                            card.querySelector('.monitoring-order__info > div').appendChild(b);
-                        } else if (!paused && badge) {
-                            badge.remove();
+                        el.textContent = formatDurationLong(calcWorkingSeconds(start, now));
+                        if (paused !== wasPaused) {
+                            wasPaused = paused;
+                            el.classList.toggle('monitoring-order__timer--paused', paused);
+                            if (card) card.classList.toggle('monitoring-order--paused', paused);
+                            if (dot) dot.classList.toggle('monitoring-order__dot--paused', paused);
+                            if (paused) {
+                                badge = document.createElement('span');
+                                badge.className = 'monitoring-pause-badge';
+                                badge.textContent = 'EN PAUSE';
+                                card.querySelector('.monitoring-order__info > div').appendChild(badge);
+                            } else if (badge) {
+                                badge.remove();
+                                badge = null;
+                            }
                         }
                     }
                     tick();
