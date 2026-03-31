@@ -29,6 +29,7 @@
     var knownOrderIds = {};
     var notifPollingInterval = null;
     var mediaClassifyMode = false;
+    var mediaDeleteMode = false;
     var selectedMediaIds = {};
 
     // ---- Toast notifications ----
@@ -1723,7 +1724,7 @@
                 gridNew.innerHTML = '<div class="media-empty-state">Aucun nouveau média.</div>';
             } else {
                 gridNew.innerHTML = unassigned.map(function(m) {
-                    return renderMediaThumb(m, { selectable: mediaClassifyMode });
+                    return renderMediaThumb(m, { selectable: mediaClassifyMode || mediaDeleteMode });
                 }).join('');
             }
 
@@ -1751,7 +1752,7 @@
                 var label = v ? (escHtml(v.make) + (v.model ? ' ' + escHtml(v.model) : '') + (v.year ? ' ' + v.year : '') + (v.plate ? ' - ' + escHtml(v.plate) : '')) : 'Véhicule inconnu';
                 html += '<div class="media-group">';
                 html += '<div class="media-group__title">' + label + ' <span class="media-badge">' + g.items.length + '</span></div>';
-                html += '<div class="media-grid">' + g.items.map(function(m) { return renderMediaThumb(m, { selectable: false }); }).join('') + '</div>';
+                html += '<div class="media-grid">' + g.items.map(function(m) { return renderMediaThumb(m, { selectable: mediaDeleteMode, removable: false }); }).join('') + '</div>';
                 html += '</div>';
             });
             groupsEl.innerHTML = html;
@@ -1761,7 +1762,7 @@
     }
 
     function toggleMediaSelect(id) {
-        if (!mediaClassifyMode) return;
+        if (!mediaClassifyMode && !mediaDeleteMode) return;
         var el = document.getElementById('media-thumb-' + id);
         if (!el) return;
         if (selectedMediaIds[id]) {
@@ -1772,7 +1773,7 @@
             el.classList.add('media-thumb--selected');
         }
         var count = Object.keys(selectedMediaIds).length;
-        var countEl = document.getElementById('media-classify-count');
+        var countEl = document.getElementById(mediaDeleteMode ? 'media-delete-count' : 'media-classify-count');
         if (countEl) countEl.textContent = count + ' sélectionné(s)';
     }
 
@@ -1804,6 +1805,44 @@
         if (bar) bar.style.display = 'none';
         if (btn) btn.style.display = '';
         loadMedias();
+    }
+
+    function enterDeleteMode() {
+        mediaDeleteMode = true;
+        selectedMediaIds = {};
+        var bar = document.getElementById('media-delete-bar');
+        var btns = document.getElementById('btn-media-classify');
+        var delBtn = document.getElementById('btn-media-delete-mode');
+        if (bar) bar.style.display = 'flex';
+        if (btns) btns.style.display = 'none';
+        if (delBtn) delBtn.style.display = 'none';
+        loadMedias();
+    }
+
+    function exitDeleteMode() {
+        mediaDeleteMode = false;
+        selectedMediaIds = {};
+        var bar = document.getElementById('media-delete-bar');
+        var btns = document.getElementById('btn-media-classify');
+        var delBtn = document.getElementById('btn-media-delete-mode');
+        if (bar) bar.style.display = 'none';
+        if (btns) btns.style.display = '';
+        if (delBtn) delBtn.style.display = '';
+        loadMedias();
+    }
+
+    async function deleteSelectedMedia() {
+        var ids = Object.keys(selectedMediaIds);
+        if (ids.length === 0) { showToast('warning', 'Aucune sélection', 'Sélectionnez au moins un média.'); return; }
+        showConfirmDelete('Supprimer ' + ids.length + ' média(s) ?', 'Cette action est irréversible.', async function() {
+            try {
+                await Promise.all(ids.map(function(id) { return api('DELETE', '/api/media?id=' + id); }));
+                showToast('success', 'Supprimé', ids.length + ' média(s) supprimé(s).');
+                exitDeleteMode();
+            } catch(e) {
+                showToast('error', 'Erreur', e.message);
+            }
+        });
     }
 
     async function assignSelectedMedia() {
@@ -2136,6 +2175,12 @@
         if (btnAssign) btnAssign.addEventListener('click', assignSelectedMedia);
         var btnCancelClassify = document.getElementById('btn-media-classify-cancel');
         if (btnCancelClassify) btnCancelClassify.addEventListener('click', exitClassifyMode);
+        var btnDeleteMode = document.getElementById('btn-media-delete-mode');
+        if (btnDeleteMode) btnDeleteMode.addEventListener('click', enterDeleteMode);
+        var btnDeleteConfirm = document.getElementById('btn-media-delete-confirm');
+        if (btnDeleteConfirm) btnDeleteConfirm.addEventListener('click', deleteSelectedMedia);
+        var btnDeleteCancel = document.getElementById('btn-media-delete-cancel');
+        if (btnDeleteCancel) btnDeleteCancel.addEventListener('click', exitDeleteMode);
 
         // Scanner
         document.getElementById('btn-open-scanner').addEventListener('click', openScanner);
