@@ -258,14 +258,21 @@
                 <!-- img or video injected here -->
             </div>
             <div class="actions">
-                <a id="download-link" href="#" download class="btn btn--primary">
+                <button id="download-btn" class="btn btn--primary">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="7 10 12 15 17 10"/>
                         <line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
                     Télécharger
-                </a>
+                </button>
+                <button id="share-btn" class="btn btn--ghost">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                    </svg>
+                    Partager
+                </button>
             </div>
             <p class="meta" id="media-meta"></p>
         </div>
@@ -344,13 +351,42 @@
                 throw new Error('unknown-type');
             }
 
-            // Download link
-            var dl = document.getElementById('download-link');
-            dl.href = data.file_url;
-            // Derive a sensible filename from the URL
-            var urlParts   = data.file_url.split('/');
-            var rawName    = urlParts[urlParts.length - 1].split('?')[0];
-            dl.download    = rawName || ('electrauto-media-' + (data.id || token));
+            // Download button — fetch as blob to force download cross-origin
+            var urlParts = data.file_url.split('/');
+            var fileName = urlParts[urlParts.length - 1].split('?')[0] || ('electrauto-media-' + (data.id || token));
+            document.getElementById('download-btn').addEventListener('click', function() {
+                var btn = this;
+                btn.disabled = true;
+                btn.textContent = 'Téléchargement…';
+                fetch(data.file_url)
+                    .then(function(r) { return r.blob(); })
+                    .then(function(blob) {
+                        var a = document.createElement('a');
+                        a.href = URL.createObjectURL(blob);
+                        a.download = fileName;
+                        a.click();
+                        setTimeout(function() { URL.revokeObjectURL(a.href); }, 10000);
+                    })
+                    .finally(function() {
+                        btn.disabled = false;
+                        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Télécharger';
+                    });
+            });
+
+            // Share button
+            document.getElementById('share-btn').addEventListener('click', function() {
+                var url = window.location.href;
+                if (navigator.share) {
+                    navigator.share({ title: 'Électr\'auto Québec', url: url });
+                } else if (navigator.clipboard) {
+                    navigator.clipboard.writeText(url).then(function() {
+                        var btn = document.getElementById('share-btn');
+                        var orig = btn.innerHTML;
+                        btn.textContent = 'Lien copié !';
+                        setTimeout(function() { btn.innerHTML = orig; }, 2000);
+                    });
+                }
+            });
 
             // Meta line
             var meta = document.getElementById('media-meta');
