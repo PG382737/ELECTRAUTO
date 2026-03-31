@@ -1930,11 +1930,13 @@
                             '<div class="monitoring-order__text">' +
                                 '<div class="monitoring-order__vehicle">' + vehName + (plate ? ' — ' + plate : '') + '</div>' +
                                 '<div class="monitoring-order__employee">Employé: ' + empName + (owner ? ' • Propriétaire: ' + owner : '') + '</div>' +
-                                '<span class="monitoring-pause-badge" id="monitoring-pause-badge-' + i + '" style="display:none;">EN PAUSE</span>' +
                             '</div>' +
                         '</div>' +
                         '<div class="monitoring-order__started">' + formatDateTime(o.started_at) + '</div>' +
-                        '<div class="monitoring-order__timer" id="monitoring-timer-' + i + '">00:00:00</div>' +
+                        '<div class="monitoring-order__right">' +
+                            '<span class="monitoring-pause-badge" id="monitoring-pause-badge-' + i + '" style="display:none;">⏸ EN PAUSE</span>' +
+                            '<div class="monitoring-order__timer" id="monitoring-timer-' + i + '">00:00:00</div>' +
+                        '</div>' +
                     '</div>';
                 });
                 activeEl.innerHTML = html;
