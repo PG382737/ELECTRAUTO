@@ -1837,6 +1837,7 @@ html::-webkit-scrollbar { display: none; }
 /* Pause state — monitoring */
 .monitoring-order--paused {
     border-color: rgba(245,158,11,0.4);
+    padding-right: 64px;
 }
 .monitoring-order__dot--paused {
     background: #f59e0b;
