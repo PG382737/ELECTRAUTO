@@ -680,9 +680,11 @@
 
     function sortVehicles(list) {
         return list.slice().sort(function(a, b) {
-            var aHas = a.nfc_tag_id ? 1 : 0;
-            var bHas = b.nfc_tag_id ? 1 : 0;
-            return bHas - aHas;
+            var aActive = a.active_order ? 2 : 0;
+            var bActive = b.active_order ? 2 : 0;
+            var aNfc = a.nfc_tag_id ? 1 : 0;
+            var bNfc = b.nfc_tag_id ? 1 : 0;
+            return (bActive + bNfc) - (aActive + aNfc);
         });
     }
 
