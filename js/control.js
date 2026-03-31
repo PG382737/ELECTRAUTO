@@ -1934,7 +1934,10 @@
                         '</div>' +
                         '<div class="monitoring-order__started">' + formatDateTime(o.started_at) + '</div>' +
                         '<div class="monitoring-order__timer" id="monitoring-timer-' + i + '">00:00:00</div>' +
-                        '<span class="monitoring-pause-badge">⏸</span>' +
+                        '<span class="monitoring-status-strip">' +
+                            '<span class="monitoring-status-strip__play">▶</span>' +
+                            '<span class="monitoring-status-strip__pause">⏸</span>' +
+                        '</span>' +
                     '</div>';
                 });
                 activeEl.innerHTML = html;
