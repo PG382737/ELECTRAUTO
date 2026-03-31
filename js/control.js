@@ -28,6 +28,8 @@
     var notifPanelOpen = false;
     var knownOrderIds = {};
     var notifPollingInterval = null;
+    var mediaClassifyMode = false;
+    var selectedMediaIds = {};
 
     // ---- Toast notifications ----
 
@@ -445,6 +447,9 @@
                 } else if (target === 'monitoring') {
                     document.getElementById('panel-monitoring').classList.add('active');
                     loadMonitoring();
+                } else if (target === 'medias') {
+                    document.getElementById('panel-medias').classList.add('active');
+                    loadMedias();
                 } else if (target === 'scanner') {
                     document.getElementById('panel-scanner').classList.add('active');
                 }
@@ -963,6 +968,10 @@
             vehDetailPage = 0;
             html += '<div id="veh-detail-history"></div>';
 
+            // Médias
+            html += '<h3 style="font-size:0.95rem;margin-bottom:12px;margin-top:24px;">Médias</h3>';
+            html += '<div id="veh-media-section" style="min-height:40px;"><p style="color:var(--text-muted);font-size:0.85rem;">Chargement...</p></div>';
+
             // Notes
             html += '<div class="veh-notes">';
             html += '<h3 style="font-size:0.95rem;margin-bottom:12px;">Notes</h3>';
@@ -983,6 +992,7 @@
             detailBody.innerHTML = html;
             renderVehDetailHistory();
             document.getElementById('vehicle-detail-modal').classList.add('active');
+            loadVehicleMedias(id);
 
             // Note input enter
             var noteInput = document.getElementById('veh-note-text');
@@ -1628,6 +1638,221 @@
         notifPollingInterval = setInterval(pollWorkOrders, 5000);
     }
 
+    // ---- MEDIAS ----
+
+    var SITE_ORIGIN = 'https://electrautoquebec.com';
+
+    function mediaShareUrl(token) {
+        return SITE_ORIGIN + '/media/' + token;
+    }
+
+    function copyToClipboard(text) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(function() {
+                showToast('success', 'Lien copié', text, 2500);
+            });
+        } else {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast('success', 'Lien copié', text, 2500);
+        }
+    }
+
+    function renderMediaThumb(m, opts) {
+        // opts: { selectable, removable }
+        opts = opts || {};
+        var isSelected = !!selectedMediaIds[m.id];
+        var thumb = m.thumb_url || m.file_url;
+        var isVideo = m.media_type === 'video';
+        var cls = 'media-thumb' + (isSelected ? ' media-thumb--selected' : '');
+
+        var inner = '';
+        if (isVideo) {
+            inner += '<img src="' + escHtml(thumb) + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">';
+            inner += '<div class="media-thumb__video-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></div>';
+        } else {
+            inner += '<img src="' + escHtml(thumb) + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">';
+        }
+
+        // Checkmark overlay (classify mode)
+        if (opts.selectable) {
+            inner += '<div class="media-thumb__check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>';
+        }
+
+        // Action bar (share + optional remove)
+        inner += '<div class="media-thumb__actions">';
+        inner += '<button class="media-thumb__btn" onclick="Control.copyMediaLink(\'' + escHtml(m.share_token) + '\')" title="Copier le lien"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></button>';
+        if (opts.removable) {
+            inner += '<button class="media-thumb__btn media-thumb__btn--remove" onclick="Control.unassignMedia(\'' + escHtml(m.id) + '\')" title="Retirer du véhicule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+        }
+        inner += '</div>';
+
+        var clickHandler = opts.selectable
+            ? 'Control.toggleMediaSelect(\'' + escHtml(m.id) + '\')'
+            : 'Control.openMediaFull(\'' + escHtml(m.file_url) + '\',\'' + escHtml(m.media_type) + '\')';
+
+        return '<div class="' + cls + '" id="media-thumb-' + escHtml(m.id) + '" onclick="' + clickHandler + '">' + inner + '</div>';
+    }
+
+    async function loadMedias() {
+        var gridNew = document.getElementById('media-grid-new');
+        var groupsEl = document.getElementById('media-assigned-groups');
+        if (!gridNew) return;
+        gridNew.innerHTML = '<div class="media-empty-state">Chargement...</div>';
+        if (groupsEl) groupsEl.innerHTML = '';
+        try {
+            var results = await Promise.all([
+                api('GET', '/api/media?filter=unassigned'),
+                api('GET', '/api/media?filter=assigned')
+            ]);
+            var unassigned = results[0] || [];
+            var assigned = results[1] || [];
+
+            // Badge counts
+            var newBadge = document.getElementById('media-new-badge');
+            var assignedBadge = document.getElementById('media-assigned-badge');
+            if (newBadge) newBadge.textContent = unassigned.length || '';
+            if (assignedBadge) assignedBadge.textContent = assigned.length || '';
+
+            // Nouveau grid
+            if (unassigned.length === 0) {
+                gridNew.innerHTML = '<div class="media-empty-state">Aucun nouveau média.</div>';
+            } else {
+                gridNew.innerHTML = unassigned.map(function(m) {
+                    return renderMediaThumb(m, { selectable: mediaClassifyMode });
+                }).join('');
+            }
+
+            // Classé — group by vehicle
+            if (!groupsEl) return;
+            if (assigned.length === 0) {
+                groupsEl.innerHTML = '<div class="media-empty-state">Aucun média classé.</div>';
+                return;
+            }
+            // Group by vehicle_id
+            var groups = {};
+            var groupOrder = [];
+            assigned.forEach(function(m) {
+                var vid = m.vehicle_id;
+                if (!groups[vid]) {
+                    groups[vid] = { vehicle: m.vehicle, items: [] };
+                    groupOrder.push(vid);
+                }
+                groups[vid].items.push(m);
+            });
+            var html = '';
+            groupOrder.forEach(function(vid) {
+                var g = groups[vid];
+                var v = g.vehicle;
+                var label = v ? (escHtml(v.make) + (v.model ? ' ' + escHtml(v.model) : '') + (v.year ? ' ' + v.year : '') + (v.plate ? ' — ' + escHtml(v.plate) : '')) : 'Véhicule inconnu';
+                html += '<div class="media-group">';
+                html += '<div class="media-group__title">' + label + ' <span class="media-badge">' + g.items.length + '</span></div>';
+                html += '<div class="media-grid">' + g.items.map(function(m) { return renderMediaThumb(m, { selectable: false }); }).join('') + '</div>';
+                html += '</div>';
+            });
+            groupsEl.innerHTML = html;
+        } catch(e) {
+            gridNew.innerHTML = '<div class="media-empty-state">Erreur: ' + escHtml(e.message) + '</div>';
+        }
+    }
+
+    function toggleMediaSelect(id) {
+        if (!mediaClassifyMode) return;
+        var el = document.getElementById('media-thumb-' + id);
+        if (!el) return;
+        if (selectedMediaIds[id]) {
+            delete selectedMediaIds[id];
+            el.classList.remove('media-thumb--selected');
+        } else {
+            selectedMediaIds[id] = true;
+            el.classList.add('media-thumb--selected');
+        }
+        var count = Object.keys(selectedMediaIds).length;
+        var countEl = document.getElementById('media-classify-count');
+        if (countEl) countEl.textContent = count + ' sélectionné(s)';
+    }
+
+    function enterClassifyMode() {
+        mediaClassifyMode = true;
+        selectedMediaIds = {};
+        var bar = document.getElementById('media-classify-bar');
+        var btn = document.getElementById('btn-media-classify');
+        if (bar) bar.style.display = 'flex';
+        if (btn) btn.style.display = 'none';
+        // Populate vehicle dropdown
+        var sel = document.getElementById('media-classify-vehicle');
+        if (sel) {
+            sel.innerHTML = '<option value="">Choisir un véhicule...</option>' +
+                allVehicles.map(function(v) {
+                    var label = escHtml(v.make) + (v.model ? ' ' + escHtml(v.model) : '') + (v.year ? ' ' + v.year : '') + (v.plate ? ' — ' + escHtml(v.plate) : '') + ' (' + escHtml(v.owner_name) + ')';
+                    return '<option value="' + escHtml(v.id) + '">' + label + '</option>';
+                }).join('');
+        }
+        // Re-render grid with selectable thumbs
+        loadMedias();
+    }
+
+    function exitClassifyMode() {
+        mediaClassifyMode = false;
+        selectedMediaIds = {};
+        var bar = document.getElementById('media-classify-bar');
+        var btn = document.getElementById('btn-media-classify');
+        if (bar) bar.style.display = 'none';
+        if (btn) btn.style.display = '';
+        loadMedias();
+    }
+
+    async function assignSelectedMedia() {
+        var ids = Object.keys(selectedMediaIds);
+        if (ids.length === 0) { showToast('warning', 'Aucune sélection', 'Sélectionnez au moins un média.'); return; }
+        var vehicleId = document.getElementById('media-classify-vehicle').value;
+        if (!vehicleId) { showToast('warning', 'Véhicule manquant', 'Choisissez un véhicule.'); return; }
+        try {
+            await api('PATCH', '/api/media?action=assign', { ids: ids, vehicle_id: vehicleId });
+            showToast('success', 'Médias classés', ids.length + ' média(s) assigné(s).');
+            exitClassifyMode();
+        } catch(e) {
+            showToast('error', 'Erreur', e.message);
+        }
+    }
+
+    async function unassignMedia(id) {
+        try {
+            await api('PATCH', '/api/media?action=unassign&id=' + id, {});
+            showToast('success', 'Média retiré', 'Retourné dans Nouveau.');
+            // Refresh vehicle detail if open
+            if (currentVehDetailId) openVehicleDetail(currentVehDetailId);
+        } catch(e) {
+            showToast('error', 'Erreur', e.message);
+        }
+    }
+
+    function openMediaFull(fileUrl, mediaType) {
+        // Simple lightbox — open in new tab for now
+        window.open(fileUrl, '_blank');
+    }
+
+    async function loadVehicleMedias(vehicleId) {
+        var section = document.getElementById('veh-media-section');
+        if (!section) return;
+        try {
+            var items = await api('GET', '/api/media?vehicle_id=' + vehicleId);
+            if (!items || items.length === 0) {
+                section.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">Aucun média.</p>';
+                return;
+            }
+            section.innerHTML = '<div class="veh-media-grid">' +
+                items.map(function(m) { return renderMediaThumb(m, { removable: true }); }).join('') +
+                '</div>';
+        } catch(e) {
+            section.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">Erreur chargement médias.</p>';
+        }
+    }
+
     // ---- MONITORING ----
 
     var monitoringTimers = [];
@@ -1907,6 +2132,17 @@
         });
         // confirmModal overlay click disabled — close only via X button
 
+        // Media tab
+        var btnClassify = document.getElementById('btn-media-classify');
+        if (btnClassify) btnClassify.addEventListener('click', function() {
+            if (!allVehicles.length) loadVehicles().then(enterClassifyMode);
+            else enterClassifyMode();
+        });
+        var btnAssign = document.getElementById('btn-media-assign');
+        if (btnAssign) btnAssign.addEventListener('click', assignSelectedMedia);
+        var btnCancelClassify = document.getElementById('btn-media-classify-cancel');
+        if (btnCancelClassify) btnCancelClassify.addEventListener('click', exitClassifyMode);
+
         // Scanner
         document.getElementById('btn-open-scanner').addEventListener('click', openScanner);
         document.getElementById('scanner-close').addEventListener('click', closeScanner);
@@ -1938,7 +2174,11 @@
         vehDetailGoTo: vehDetailGoTo,
         addVehicleNote: addVehicleNote,
         deleteVehicleNote: deleteVehicleNote,
-        simulateNfc: simulateNfc
+        simulateNfc: simulateNfc,
+        toggleMediaSelect: toggleMediaSelect,
+        copyMediaLink: function(token) { copyToClipboard(mediaShareUrl(token)); },
+        openMediaFull: openMediaFull,
+        unassignMedia: function(id) { unassignMedia(id); }
     };
 
 })();

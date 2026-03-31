@@ -1866,6 +1866,155 @@ html::-webkit-scrollbar { display: none; }
     color: #f59e0b;
 }
 
+/* ===== MEDIA TAB ===== */
+.media-classify-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.3);
+    border-radius: var(--radius);
+    padding: 10px 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+.media-classify-bar span { font-size: 0.88rem; color: var(--text-muted); flex: 1; }
+.media-classify-bar select {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: #f0f0f0;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    min-width: 200px;
+}
+.media-section { margin-bottom: 36px; }
+.media-section__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.media-section__header h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin: 0;
+}
+.media-badge {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+.media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+}
+.media-group { margin-bottom: 28px; }
+.media-group__title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.media-thumb {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.15s;
+}
+.media-thumb:hover { border-color: var(--accent); transform: scale(1.02); }
+.media-thumb--selected { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.4); }
+.media-thumb img,
+.media-thumb video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.media-thumb__video-icon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.35);
+    pointer-events: none;
+}
+.media-thumb__video-icon svg { width: 32px; height: 32px; color: #fff; filter: drop-shadow(0 1px 4px rgba(0,0,0,0.6)); }
+.media-thumb__check {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #3b82f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+.media-thumb--selected .media-thumb__check { opacity: 1; }
+.media-thumb__check svg { width: 12px; height: 12px; color: #fff; }
+.media-thumb__actions {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 4px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.65));
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+.media-thumb:hover .media-thumb__actions { opacity: 1; }
+.media-thumb__btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background: rgba(0,0,0,0.5);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transition: background 0.15s;
+}
+.media-thumb__btn:hover { background: rgba(255,255,255,0.2); }
+.media-thumb__btn svg { width: 14px; height: 14px; }
+.media-thumb__btn--remove:hover { background: rgba(239,68,68,0.5); }
+.media-empty-state {
+    text-align: center;
+    padding: 32px;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    grid-column: 1 / -1;
+}
+/* Vehicle detail media section */
+.veh-media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+}
+
 /* Toggle switch */
 .toggle-switch {
     position: relative;

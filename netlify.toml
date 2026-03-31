@@ -85,6 +85,12 @@
   to = "/article.html?slug=ce-que-vous-devez-faire-lorsque-vous-recherchez-un-atelier-de-reparation-automobile"
   status = 301
 
+# Media share pages — must be before the catch-all
+[[redirects]]
+  from = "/media/*"
+  to = "/media.html"
+  status = 200
+
 # Redirect unknown paths to homepage (old blog slugs, 404s, etc.)
 [[redirects]]
   from = "/*"

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Électr'auto Québec — Média partagé</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:          #0d0d0d;
+            --bg-card:     #18181b;
+            --border:      #2a2a30;
+            --text:        #f0f0f0;
+            --text-muted:  #8a8a96;
+            --accent:      #cf8a2e;
+            --accent-hover:#e09a3e;
+            --radius:      10px;
+            --radius-sm:   6px;
+            --font:        'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        html, body {
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 15px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── layout ── */
+        .page {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ── header ── */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 28px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-card);
+            flex-shrink: 0;
+        }
+        .header__brand {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text);
+            text-decoration: none;
+            line-height: 1;
+        }
+        .header__brand span { color: var(--accent); }
+
+        .header__back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+        .header__back:hover { color: var(--text); }
+        .header__back svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        /* ── main content ── */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        /* ── loading ── */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            color: var(--text-muted);
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── error ── */
+        .error-box {
+            text-align: center;
+            max-width: 420px;
+        }
+        .error-box__icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 20px;
+            color: var(--text-muted);
+        }
+        .error-box__title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .error-box__sub {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* ── media card ── */
+        .media-card {
+            width: 100%;
+            max-width: 960px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .media-wrap {
+            width: 100%;
+            background: #000;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .media-wrap img,
+        .media-wrap video {
+            display: block;
+            max-width: 100%;
+            max-height: 80vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* ── actions bar ── */
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: var(--font);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+        .btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+        .btn--primary {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn--primary:hover { background: var(--accent-hover); }
+        .btn--ghost {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+        .btn--ghost:hover { color: var(--text); border-color: var(--text-muted); }
+
+        /* ── meta ── */
+        .meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* ── footer ── */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        /* ── hidden ── */
+        [hidden] { display: none !important; }
+
+        /* ── responsive ── */
+        @media (max-width: 480px) {
+            .header { padding: 16px 18px; }
+            .header__brand { font-size: 1rem; letter-spacing: 1.5px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page">
+
+    <!-- Header -->
+    <header class="header">
+        <a href="/" class="header__brand">
+            ÉLECTR<span>'</span>AUTO <span style="font-weight:400;letter-spacing:0;color:var(--text-muted);">Québec</span>
+        </a>
+        <a href="javascript:history.back()" class="header__back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 5l-7 7 7 7"/>
+            </svg>
+            Retour
+        </a>
+    </header>
+
+    <!-- Main -->
+    <main class="main" id="main">
+
+        <!-- Loading state -->
+        <div id="state-loading" class="loading">
+            <div class="spinner"></div>
+            <span>Chargement du média…</span>
+        </div>
+
+        <!-- Error state -->
+        <div id="state-error" class="error-box" hidden>
+            <svg class="error-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <p class="error-box__title">Lien invalide ou expiré</p>
+            <p class="error-box__sub">Ce lien n'est plus disponible ou n'a jamais existé.<br>Contactez votre garage pour obtenir un nouveau lien.</p>
+        </div>
+
+        <!-- Media state -->
+        <div id="state-media" class="media-card" hidden>
+            <div class="media-wrap" id="media-wrap">
+                <!-- img or video injected here -->
+            </div>
+            <div class="actions">
+                <a href="javascript:history.back()" class="btn btn--ghost">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5M12 5l-7 7 7 7"/>
+                    </svg>
+                    Retour
+                </a>
+                <a id="download-link" href="#" download class="btn btn--primary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Télécharger
+                </a>
+            </div>
+            <p class="meta" id="media-meta"></p>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        &copy; <span id="footer-year"></span> Électr'auto Québec &mdash; Tous droits réservés
+    </footer>
+
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    // Footer year
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+    // ── helpers ──────────────────────────────────────────────────────────────
+    function show(id)  { document.getElementById(id).hidden = false; }
+    function hide(id)  { document.getElementById(id).hidden = true;  }
+
+    function showError() {
+        hide('state-loading');
+        show('state-error');
+    }
+
+    function formatDate(iso) {
+        if (!iso) return '';
+        try {
+            return new Date(iso).toLocaleDateString('fr-CA', {
+                year: 'numeric', month: 'long', day: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+        } catch (_) { return ''; }
+    }
+
+    // ── read token from path: /media/<token> ─────────────────────────────────
+    var segments = window.location.pathname.replace(/\/+$/, '').split('/');
+    var token    = segments[segments.length - 1];
+
+    if (!token || token === 'media') {
+        showError();
+        return;
+    }
+
+    // ── fetch media info ──────────────────────────────────────────────────────
+    fetch('/api/media?token=' + encodeURIComponent(token))
+        .then(function (res) {
+            if (!res.ok) throw new Error('not-found');
+            return res.json();
+        })
+        .then(function (data) {
+            if (!data || !data.file_url || !data.media_type) {
+                throw new Error('invalid-payload');
+            }
+
+            var wrap = document.getElementById('media-wrap');
+
+            if (data.media_type === 'image') {
+                var img = document.createElement('img');
+                img.src = data.file_url;
+                img.alt = 'Photo partagée par Électr\'auto Québec';
+                wrap.appendChild(img);
+            } else if (data.media_type === 'video') {
+                var vid = document.createElement('video');
+                vid.src = data.file_url;
+                vid.controls = true;
+                vid.playsInline = true;
+                // Poster = thumbnail if available
+                if (data.thumb_url) vid.poster = data.thumb_url;
+                wrap.appendChild(vid);
+            } else {
+                throw new Error('unknown-type');
+            }
+
+            // Download link
+            var dl = document.getElementById('download-link');
+            dl.href = data.file_url;
+            // Derive a sensible filename from the URL
+            var urlParts   = data.file_url.split('/');
+            var rawName    = urlParts[urlParts.length - 1].split('?')[0];
+            dl.download    = rawName || ('electrauto-media-' + (data.id || token));
+
+            // Meta line
+            var meta = document.getElementById('media-meta');
+            if (data.created_at) {
+                meta.textContent = 'Partagé le ' + formatDate(data.created_at);
+            }
+
+            hide('state-loading');
+            show('state-media');
+        })
+        .catch(function () {
+            showError();
+        });
+}());
+</script>
+
+</body>
+</html>
