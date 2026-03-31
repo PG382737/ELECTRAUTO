@@ -733,7 +733,7 @@
         var start = page * PAGE_SIZE;
         var pageData = filtered.slice(start, start + PAGE_SIZE);
 
-        html += '<table class="control-table"><thead><tr><th>Véhicule</th><th>Propriétaire</th><th>Plaque</th><th>Badge NFC</th><th>Statut</th><th style="text-align:right;">Actions</th></tr></thead><tbody>';
+        html += '<table class="control-table"><thead><tr><th>Véhicule</th><th>Propriétaire</th><th>Badge NFC</th><th>Statut</th><th style="text-align:right;">Actions</th></tr></thead><tbody>';
         pageData.forEach(function(v) {
             var nfcBadge = v.nfc_tag_id
                 ? '<span class="nfc-badge nfc-badge--assigned">Assigné</span>'
@@ -754,13 +754,12 @@
             html += '<tr>';
             html += '<td class="col-name clickable-row" onclick="Control.openVehicleDetail(\'' + v.id + '\')">' + escHtml(v.make) + (v.model ? ' ' + escHtml(v.model) : '') + (v.year ? ' ' + v.year : '') + (v.color ? ' <span style="color:var(--text-muted);">(' + escHtml(v.color) + ')</span>' : '') + '</td>';
             html += '<td>' + escHtml(v.owner_name) + '</td>';
-            html += '<td>' + escHtml(v.plate || '—') + '</td>';
             html += '<td>' + nfcBadge + '</td>';
             html += '<td>' + statusHtml + '</td>';
-            html += '<td><div class="col-actions">';
-            html += '<button class="btn btn--ghost btn--sm" onclick="Control.openVehicleDetail(\'' + v.id + '\')">Détail</button>';
-            html += '<button class="btn btn--ghost btn--sm" onclick="Control.editVehicle(\'' + v.id + '\')">Modifier</button>';
-            html += '<button class="btn btn--danger btn--sm" onclick="Control.deleteVehicle(\'' + v.id + '\')">Supprimer</button>';
+            html += '<td><div class="col-actions col-actions--icons">';
+            html += '<button class="icon-btn" title="Détail" onclick="Control.openVehicleDetail(\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>';
+            html += '<button class="icon-btn" title="Modifier" onclick="Control.editVehicle(\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
+            html += '<button class="icon-btn icon-btn--danger" title="Supprimer" onclick="Control.deleteVehicle(\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>';
             html += '</div></td>';
             html += '</tr>';
         });

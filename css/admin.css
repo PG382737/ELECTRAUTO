@@ -1026,6 +1026,37 @@ html::-webkit-scrollbar { display: none; }
     justify-content: flex-end;
     align-items: center;
 }
+.col-actions--icons {
+    gap: 4px;
+}
+.icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+}
+.icon-btn svg {
+    width: 15px;
+    height: 15px;
+}
+.icon-btn:hover {
+    background: var(--bg-hover);
+    color: #fff;
+    border-color: rgba(255,255,255,0.2);
+}
+.icon-btn--danger:hover {
+    background: rgba(239,68,68,0.15);
+    color: #ef4444;
+    border-color: rgba(239,68,68,0.4);
+}
 .control-table .clickable-row { cursor: pointer; }
 
 /* NFC badge indicator */
