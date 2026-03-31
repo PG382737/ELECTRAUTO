@@ -96,6 +96,65 @@
                d.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' });
     }
 
+    // ===== PAUSE SCHEDULE (America/Toronto) =====
+    // Heures de travail : Lun-Jeu 8h-12h et 13h-17h, Ven 8h-12h
+    function isInPauseET(ms) {
+        var et = new Date(new Date(ms).toLocaleString('en-US', { timeZone: 'America/Toronto' }));
+        var day = et.getDay(); // 0=Dim, 1=Lun, ..., 5=Ven, 6=Sam
+        var t = et.getHours() * 60 + et.getMinutes();
+        if (day === 0 || day === 6) return true;
+        if (day === 5) return t < 480 || t >= 720; // Ven: travail 8h-12h seulement
+        return t < 480 || (t >= 720 && t < 780) || t >= 1020; // Lun-Jeu: 8-12, 13-17
+    }
+
+    function etMidnightUTC(year, month, date) {
+        var d = new Date(year, month, date);
+        var y = d.getFullYear(), mo = d.getMonth(), da = d.getDate();
+        var offsets = [4, 5]; // EDT=UTC-4, EST=UTC-5
+        for (var i = 0; i < offsets.length; i++) {
+            var candidate = Date.UTC(y, mo, da, offsets[i], 0, 0, 0);
+            var check = new Date(new Date(candidate).toLocaleString('en-US', { timeZone: 'America/Toronto' }));
+            if (check.getHours() === 0 && check.getDate() === da && check.getMonth() === mo) return candidate;
+        }
+        return Date.UTC(y, mo, da, 4, 0, 0, 0);
+    }
+
+    function getNextTransitionET(ms) {
+        var et = new Date(new Date(ms).toLocaleString('en-US', { timeZone: 'America/Toronto' }));
+        var day = et.getDay();
+        var cur = et.getHours() * 60 + et.getMinutes() + et.getSeconds() / 60;
+        var bounds = {1:[480,720,780,1020],2:[480,720,780,1020],3:[480,720,780,1020],4:[480,720,780,1020],5:[480,720]};
+        var todayBounds = bounds[day] || [];
+        for (var i = 0; i < todayBounds.length; i++) {
+            if (todayBounds[i] > cur) {
+                return etMidnightUTC(et.getFullYear(), et.getMonth(), et.getDate()) + todayBounds[i] * 60000;
+            }
+        }
+        for (var ahead = 1; ahead <= 7; ahead++) {
+            var nextMid = etMidnightUTC(et.getFullYear(), et.getMonth(), et.getDate() + ahead);
+            var nextET = new Date(new Date(nextMid).toLocaleString('en-US', { timeZone: 'America/Toronto' }));
+            var nextDay = nextET.getDay();
+            var nextBounds = bounds[nextDay] || [];
+            if (nextBounds.length > 0) return nextMid + nextBounds[0] * 60000;
+        }
+        return ms + 7 * 24 * 3600000;
+    }
+
+    function calcWorkingSeconds(startMs, endMs) {
+        if (endMs <= startMs) return 0;
+        var working = 0;
+        var t = startMs;
+        while (t < endMs) {
+            var paused = isInPauseET(t);
+            var next = getNextTransitionET(t);
+            var seg = Math.min(next, endMs);
+            if (!paused) working += seg - t;
+            t = seg;
+        }
+        return Math.round(working / 1000);
+    }
+    // ============================================
+
     // ---- Field validation with shake ----
     function shakeField(inputId) {
         var el = document.getElementById(inputId);
@@ -724,11 +783,14 @@
         var el = document.getElementById(elementId);
         if (!el) return;
         var start = new Date(startedAt).getTime();
-        // If start is in the future (server/client clock offset), use now
         if (start > Date.now()) start = Date.now();
         function update() {
-            var elapsed = Math.max(0, Math.floor((Date.now() - start) / 1000));
-            if (el) el.textContent = formatDurationLong(elapsed);
+            var now = Date.now();
+            var working = calcWorkingSeconds(start, now);
+            if (el) {
+                el.textContent = formatDurationLong(working);
+                el.style.color = isInPauseET(now) ? '#f59e0b' : '';
+            }
         }
         update();
         liveTimers[elementId] = setInterval(update, 1000);
@@ -1257,14 +1319,21 @@
         orders.forEach(function(order, i) {
             var el = document.getElementById('dash-order-timer-' + i);
             if (!el) return;
+            var card = el.closest('.nfc-scanner__order-card');
+            var dot = card ? card.querySelector('.nfc-scanner__order-dot') : null;
             var start = new Date(order.started_at).getTime();
             if (start > Date.now()) start = Date.now();
             function updateTimer() {
-                var elapsed = Math.max(0, Math.floor((Date.now() - start) / 1000));
-                var h = Math.floor(elapsed / 3600);
-                var m = Math.floor((elapsed % 3600) / 60);
-                var s = elapsed % 60;
+                var now = Date.now();
+                var paused = isInPauseET(now);
+                var working = calcWorkingSeconds(start, now);
+                var h = Math.floor(working / 3600);
+                var m = Math.floor((working % 3600) / 60);
+                var s = working % 60;
                 el.textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+                el.classList.toggle('nfc-scanner__order-timer--paused', paused);
+                if (card) card.classList.toggle('nfc-scanner__order-card--paused', paused);
+                if (dot) dot.classList.toggle('nfc-scanner__order-dot--paused', paused);
             }
             updateTimer();
             dashboardOrderTimers.push(setInterval(updateTimer, 1000));
@@ -1281,8 +1350,13 @@
         var start = new Date(startedAt).getTime();
         if (start > Date.now()) start = Date.now();
         function update() {
-            var elapsed = Math.max(0, Math.floor((Date.now() - start) / 1000));
-            if (el) el.textContent = formatDurationLong(elapsed);
+            var now = Date.now();
+            var paused = isInPauseET(now);
+            var working = calcWorkingSeconds(start, now);
+            if (el) {
+                el.textContent = formatDurationLong(working);
+                el.style.color = paused ? '#f59e0b' : '';
+            }
         }
         update();
         scannerInterval = setInterval(update, 1000);
@@ -1568,22 +1642,20 @@
                 api('GET', '/api/control-employees'),
                 api('GET', '/api/control-vehicles'),
                 api('GET', '/api/control-work-orders?active=true'),
-                api('GET', '/api/control-work-orders?recent=true')
+                api('GET', '/api/control-work-orders?recent=true'),
+                api('GET', '/api/control-work-orders?stats=true')
             ]);
 
             var employees = results[0] || [];
             var vehicles = results[1] || [];
             var activeOrders = results[2] || [];
             var recentOrders = results[3] || [];
+            var completionStats = results[4] || {};
 
-            // Stats cards
-            var now = new Date();
-            var todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-            var dayOfWeek = now.getDay() === 0 ? 6 : now.getDay() - 1; // Monday=0
-            var weekStart = new Date(todayStart - dayOfWeek * 86400000).getTime();
-
-            var completedToday = recentOrders.filter(function(o) { return o.ended_at && new Date(o.ended_at).getTime() >= todayStart; }).length;
-            var completedWeek = recentOrders.filter(function(o) { return o.ended_at && new Date(o.ended_at).getTime() >= weekStart; }).length;
+            // Stats calculated server-side in America/Toronto — consistent across all clients
+            var completedToday = completionStats.completed_today || 0;
+            var completedWeek = completionStats.completed_week || 0;
+            var completedMonth = completionStats.completed_month || 0;
 
             statsEl.innerHTML =
                 '<div class="monitoring-card">' +
@@ -1605,6 +1677,10 @@
                 '<div class="monitoring-card">' +
                     '<div class="monitoring-card__icon monitoring-card__icon--total"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>' +
                     '<div><div class="monitoring-card__value">' + completedWeek + '</div><div class="monitoring-card__label">Complétés cette semaine</div></div>' +
+                '</div>' +
+                '<div class="monitoring-card">' +
+                    '<div class="monitoring-card__icon monitoring-card__icon--month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg></div>' +
+                    '<div><div class="monitoring-card__value">' + completedMonth + '</div><div class="monitoring-card__label">Complétés ce mois-ci</div></div>' +
                 '</div>';
 
             // Active work orders
@@ -1637,11 +1713,27 @@
                 activeOrders.forEach(function(o, i) {
                     var el = document.getElementById('monitoring-timer-' + i);
                     if (!el) return;
+                    var card = el.closest('.monitoring-order');
+                    var dot = card ? card.querySelector('.monitoring-order__dot') : null;
                     var start = new Date(o.started_at).getTime();
                     if (start > Date.now()) start = Date.now();
                     function tick() {
-                        var elapsed = Math.max(0, Math.floor((Date.now() - start) / 1000));
-                        el.textContent = formatDurationLong(elapsed);
+                        var now = Date.now();
+                        var paused = isInPauseET(now);
+                        var working = calcWorkingSeconds(start, now);
+                        el.textContent = formatDurationLong(working);
+                        el.classList.toggle('monitoring-order__timer--paused', paused);
+                        if (card) card.classList.toggle('monitoring-order--paused', paused);
+                        if (dot) dot.classList.toggle('monitoring-order__dot--paused', paused);
+                        var badge = card ? card.querySelector('.monitoring-pause-badge') : null;
+                        if (paused && !badge) {
+                            var b = document.createElement('span');
+                            b.className = 'monitoring-pause-badge';
+                            b.textContent = 'EN PAUSE';
+                            card.querySelector('.monitoring-order__info > div').appendChild(b);
+                        } else if (!paused && badge) {
+                            badge.remove();
+                        }
                     }
                     tick();
                     monitoringTimers.push(setInterval(tick, 1000));

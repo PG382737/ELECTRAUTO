@@ -1,6 +1,61 @@
 // Control Work Orders API — Netlify Function
 // Start/close work orders, query active orders
 
+// ===== PAUSE SCHEDULE (America/Toronto) =====
+function isInPauseET(ms) {
+    const et = new Date(new Date(ms).toLocaleString('en-US', { timeZone: 'America/Toronto' }));
+    const day = et.getDay(); // 0=Sun,1=Mon,...,5=Fri,6=Sat
+    const t = et.getHours() * 60 + et.getMinutes();
+    if (day === 0 || day === 6) return true;
+    if (day === 5) return t < 480 || t >= 720; // Fri: work 8-12 only
+    return t < 480 || (t >= 720 && t < 780) || t >= 1020; // Mon-Thu: 8-12, 13-17
+}
+
+function etMidnightUTC(year, month, date) {
+    const d = new Date(year, month, date);
+    const y = d.getFullYear(), mo = d.getMonth(), da = d.getDate();
+    for (const off of [4, 5]) {
+        const candidate = Date.UTC(y, mo, da, off, 0, 0, 0);
+        const check = new Date(new Date(candidate).toLocaleString('en-US', { timeZone: 'America/Toronto' }));
+        if (check.getHours() === 0 && check.getDate() === da && check.getMonth() === mo) return candidate;
+    }
+    return Date.UTC(y, mo, da, 4, 0, 0, 0);
+}
+
+function getNextTransitionET(ms) {
+    const et = new Date(new Date(ms).toLocaleString('en-US', { timeZone: 'America/Toronto' }));
+    const day = et.getDay();
+    const cur = et.getHours() * 60 + et.getMinutes() + et.getSeconds() / 60;
+    const bounds = {1:[480,720,780,1020],2:[480,720,780,1020],3:[480,720,780,1020],4:[480,720,780,1020],5:[480,720]};
+    for (const b of (bounds[day] || [])) {
+        if (b > cur) return etMidnightUTC(et.getFullYear(), et.getMonth(), et.getDate()) + b * 60000;
+    }
+    for (let ahead = 1; ahead <= 7; ahead++) {
+        const nextMid = etMidnightUTC(et.getFullYear(), et.getMonth(), et.getDate() + ahead);
+        const nextDay = new Date(new Date(nextMid).toLocaleString('en-US', { timeZone: 'America/Toronto' })).getDay();
+        const nb = bounds[nextDay] || [];
+        if (nb.length > 0) return nextMid + nb[0] * 60000;
+    }
+    return ms + 7 * 24 * 3600000;
+}
+
+function calculateWorkingSeconds(startedAtISO, endedAtISO) {
+    const startMs = new Date(startedAtISO).getTime();
+    const endMs = new Date(endedAtISO).getTime();
+    if (endMs <= startMs) return 0;
+    let working = 0;
+    let t = startMs;
+    while (t < endMs) {
+        const paused = isInPauseET(t);
+        const next = getNextTransitionET(t);
+        const seg = Math.min(next, endMs);
+        if (!paused) working += seg - t;
+        t = seg;
+    }
+    return Math.round(working / 1000);
+}
+// ============================================
+
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const PASSWORD_HASH = 'be50e4db19df4d208d3a3440926126de8806191de1818f9e251a80cab62fbb75';
@@ -80,11 +135,48 @@ exports.handler = async (event) => {
                 return { statusCode: 200, headers, body: JSON.stringify(data) };
             }
 
-            // Recent completed orders (last 30 days)
+            // Recent completed orders (last 31 days — covers full month on the 31st)
             if (params.recent === 'true') {
-                const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+                const since = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000).toISOString();
                 const data = await supaFetch(`control_work_orders?ended_at=not.is.null&ended_at=gte.${since}&order=ended_at.desc&limit=50&select=id,started_at,ended_at,duration_seconds,vehicle_id,employee_id,vehicle:control_vehicles(id,make,year,plate,owner_name),employee:control_employees(id,first_name,last_name)`);
                 return { statusCode: 200, headers, body: JSON.stringify(data) };
+            }
+
+            // Pre-computed stats in America/Toronto — consistent across all clients
+            if (params.stats === 'true') {
+                const now = new Date();
+                // Get current date/time expressed in ET (date fields reflect ET, not UTC)
+                const nowET = new Date(now.toLocaleString('en-US', { timeZone: 'America/Toronto' }));
+                // ET→UTC offset in ms (handles DST automatically)
+                const etOffsetMs = now.getTime() - nowET.getTime();
+
+                // Midnight today (ET)
+                const todayMidnightET = new Date(nowET.getFullYear(), nowET.getMonth(), nowET.getDate(), 0, 0, 0, 0);
+                const todayUTC = new Date(todayMidnightET.getTime() + etOffsetMs).toISOString();
+
+                // Monday midnight this week (ET)
+                const dayOfWeek = nowET.getDay() === 0 ? 6 : nowET.getDay() - 1; // Monday=0
+                const weekMidnightET = new Date(nowET.getFullYear(), nowET.getMonth(), nowET.getDate() - dayOfWeek, 0, 0, 0, 0);
+                const weekUTC = new Date(weekMidnightET.getTime() + etOffsetMs).toISOString();
+
+                // First of the month midnight (ET)
+                const monthMidnightET = new Date(nowET.getFullYear(), nowET.getMonth(), 1, 0, 0, 0, 0);
+                const monthUTC = new Date(monthMidnightET.getTime() + etOffsetMs).toISOString();
+
+                const [todayRows, weekRows, monthRows] = await Promise.all([
+                    supaFetch(`control_work_orders?ended_at=not.is.null&ended_at=gte.${todayUTC}&select=id`),
+                    supaFetch(`control_work_orders?ended_at=not.is.null&ended_at=gte.${weekUTC}&select=id`),
+                    supaFetch(`control_work_orders?ended_at=not.is.null&ended_at=gte.${monthUTC}&select=id`)
+                ]);
+
+                return {
+                    statusCode: 200, headers,
+                    body: JSON.stringify({
+                        completed_today: todayRows.length,
+                        completed_week: weekRows.length,
+                        completed_month: monthRows.length
+                    })
+                };
             }
 
             return { statusCode: 200, headers, body: JSON.stringify([]) };
@@ -130,9 +222,8 @@ exports.handler = async (event) => {
                 }
 
                 const order = openOrders[0];
-                const startedAt = new Date(order.started_at);
                 const endedAt = new Date();
-                const durationSeconds = Math.round((endedAt - startedAt) / 1000);
+                const durationSeconds = calculateWorkingSeconds(order.started_at, endedAt.toISOString());
 
                 const updated = await supaFetch(`control_work_orders?id=eq.${order.id}`, {
                     method: 'PATCH',
@@ -153,9 +244,8 @@ exports.handler = async (event) => {
                 }
 
                 const order = orders[0];
-                const startedAt = new Date(order.started_at);
                 const endedAt = new Date();
-                const durationSeconds = Math.round((endedAt - startedAt) / 1000);
+                const durationSeconds = calculateWorkingSeconds(order.started_at, endedAt.toISOString());
 
                 const updated = await supaFetch(`control_work_orders?id=eq.${body.id}`, {
                     method: 'PATCH',
