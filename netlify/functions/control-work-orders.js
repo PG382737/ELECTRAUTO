@@ -144,7 +144,7 @@ exports.handler = async (event) => {
 
             // All active orders (with employee + vehicle details)
             if (params.active === 'true') {
-                const data = await supaFetch('control_work_orders?ended_at=is.null&order=started_at.desc&select=id,started_at,paused,vehicle_id,employee_id,vehicle:control_vehicles(id,make,year,plate,owner_name,color),employee:control_employees(id,first_name,last_name)');
+                const data = await supaFetch('control_work_orders?ended_at=is.null&order=started_at.desc&select=id,started_at,paused,paused_at,total_paused_seconds,vehicle_id,employee_id,vehicle:control_vehicles(id,make,year,plate,owner_name,color),employee:control_employees(id,first_name,last_name)');
                 return { statusCode: 200, headers, body: JSON.stringify(data) };
             }
 
@@ -216,21 +216,33 @@ exports.handler = async (event) => {
         if (event.httpMethod === 'PATCH') {
             const body = JSON.parse(event.body);
 
-            // Pause/resume by order ID
+            // Pause by order ID
             if (body.action === 'pause' && body.id) {
                 await supaFetch(`control_work_orders?id=eq.${body.id}`, {
-                    method: 'PATCH', body: { paused: true }
-                });
-                return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
-            }
-            if (body.action === 'resume' && body.id) {
-                await supaFetch(`control_work_orders?id=eq.${body.id}`, {
-                    method: 'PATCH', body: { paused: false }
+                    method: 'PATCH', body: { paused: true, paused_at: new Date().toISOString() }
                 });
                 return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
             }
 
-            // Close by vehicle_id (scanner flow: find the open order for this vehicle)
+            // Resume by order ID
+            if (body.action === 'resume' && body.id) {
+                const rows = await supaFetch(`control_work_orders?id=eq.${body.id}&limit=1`);
+                const order = rows && rows[0];
+                let addSeconds = 0;
+                if (order && order.paused_at) {
+                    addSeconds = calculateWorkingSeconds(order.paused_at, new Date().toISOString());
+                }
+                await supaFetch(`control_work_orders?id=eq.${body.id}`, {
+                    method: 'PATCH', body: {
+                        paused: false,
+                        paused_at: null,
+                        total_paused_seconds: (order ? order.total_paused_seconds || 0 : 0) + addSeconds
+                    }
+                });
+                return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
+            }
+
+            // Close by vehicle_id (scanner flow)
             if (body.vehicle_id) {
                 const openOrders = await supaFetch(`control_work_orders?vehicle_id=eq.${body.vehicle_id}&ended_at=is.null&limit=1`);
                 if (!openOrders || openOrders.length === 0) {
@@ -238,14 +250,15 @@ exports.handler = async (event) => {
                 }
 
                 const order = openOrders[0];
-                const endedAt = new Date();
-                const durationSeconds = calculateWorkingSeconds(order.started_at, endedAt.toISOString());
+                const endedAt = order.paused ? (order.paused_at || new Date().toISOString()) : new Date().toISOString();
+                const durationSeconds = calculateWorkingSeconds(order.started_at, endedAt) - (order.total_paused_seconds || 0);
 
                 const updated = await supaFetch(`control_work_orders?id=eq.${order.id}`, {
                     method: 'PATCH',
                     body: {
-                        ended_at: endedAt.toISOString(),
-                        duration_seconds: durationSeconds
+                        ended_at: new Date().toISOString(),
+                        duration_seconds: Math.max(0, durationSeconds),
+                        paused: false, paused_at: null
                     }
                 });
 
@@ -260,14 +273,15 @@ exports.handler = async (event) => {
                 }
 
                 const order = orders[0];
-                const endedAt = new Date();
-                const durationSeconds = calculateWorkingSeconds(order.started_at, endedAt.toISOString());
+                const endedAt = order.paused ? (order.paused_at || new Date().toISOString()) : new Date().toISOString();
+                const durationSeconds = calculateWorkingSeconds(order.started_at, endedAt) - (order.total_paused_seconds || 0);
 
                 const updated = await supaFetch(`control_work_orders?id=eq.${body.id}`, {
                     method: 'PATCH',
                     body: {
-                        ended_at: endedAt.toISOString(),
-                        duration_seconds: durationSeconds
+                        ended_at: new Date().toISOString(),
+                        duration_seconds: Math.max(0, durationSeconds),
+                        paused: false, paused_at: null
                     }
                 });
 

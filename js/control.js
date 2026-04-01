@@ -775,7 +775,7 @@
                     var empColor = paused ? '#f59e0b' : '#22c55e';
                     subLine += ' - <span style="color:' + empColor + ';">' + escHtml(aoEmpName) + '</span>';
                 }
-                setTimeout(function() { startLiveTimer(timerId, v.active_order.started_at, paused); }, 50);
+                setTimeout(function() { startLiveTimer(timerId, v.active_order.started_at, paused, v.active_order.paused_at, v.active_order.total_paused_seconds); }, 50);
             } else {
                 statusHtml = '<span style="color:var(--text-muted);font-size:0.85rem;">-</span>';
             }
@@ -820,20 +820,17 @@
 
     function vehGoTo(p) { vehPage = p; renderVehicles(); }
 
-    function startLiveTimer(elementId, startedAt, paused) {
+    function startLiveTimer(elementId, startedAt, paused, pausedAt, totalPausedSeconds) {
         var el = document.getElementById(elementId);
         if (!el) return;
         var start = new Date(startedAt).getTime();
         if (start > Date.now()) start = Date.now();
-        var frozen = paused ? calcWorkingSeconds(start, Date.now()) : null;
+        var pausedAtMs = pausedAt ? new Date(pausedAt).getTime() : null;
+        var tps = totalPausedSeconds || 0;
         function update() {
             if (el) {
-                if (paused) {
-                    if (frozen === null) frozen = calcWorkingSeconds(start, Date.now());
-                    el.textContent = formatDurationLong(frozen);
-                } else {
-                    el.textContent = formatDurationLong(calcWorkingSeconds(start, Date.now()));
-                }
+                var endTime = paused ? (pausedAtMs || Date.now()) : Date.now();
+                el.textContent = formatDurationLong(Math.max(0, calcWorkingSeconds(start, endTime) - tps));
                 el.style.color = paused ? '#f59e0b' : '';
             }
         }
@@ -1283,7 +1280,7 @@
             var ao = scannerActiveOrder;
             var empName = ao.employee ? (ao.employee.first_name + ' ' + ao.employee.last_name) : 'Inconnu';
             content.innerHTML = '<div class="nfc-scanner__info"><p><strong>' + escHtml(v2.make) + (v2.year ? ' ' + v2.year : '') + '</strong></p>' + (v2.plate ? '<p>Plaque: ' + escHtml(v2.plate) + '</p>' : '') + '<p>Propriétaire: ' + escHtml(v2.owner_name) + '</p><p style="margin-top:8px;">Employé: <strong>' + escHtml(empName) + '</strong></p></div><div class="nfc-scanner__elapsed" id="scanner-elapsed">00:00:00</div><div class="nfc-scanner__title" style="font-size:4rem;margin-top:20px;">EMPLOYÉ</div>' + SCANNER_NFC_ICON + '<div class="nfc-scanner__subtitle">Scannez le badge pour fermer le bon de travail</div>' + getScannerSimHtml();
-            setTimeout(function() { startScannerTimer(ao.started_at, !!ao.paused); }, 50);
+            setTimeout(function() { startScannerTimer(ao.started_at, !!ao.paused, ao.paused_at, ao.total_paused_seconds); }, 50);
 
         } else if (state === 'SUCCESS_OPEN') {
             stopDashboardOrderTimers();
@@ -1374,18 +1371,13 @@
             var dot = card ? card.querySelector('.nfc-scanner__order-dot') : null;
             var start = new Date(order.started_at).getTime();
             if (start > Date.now()) start = Date.now();
-            var frozenDash = null;
+            var pausedAtMs = order.paused_at ? new Date(order.paused_at).getTime() : null;
+            var tps = order.total_paused_seconds || 0;
             function updateTimer() {
                 var now = Date.now();
                 var paused = !!order.paused;
-                var working;
-                if (paused) {
-                    if (frozenDash === null) frozenDash = calcWorkingSeconds(start, now);
-                    working = frozenDash;
-                } else {
-                    frozenDash = null;
-                    working = calcWorkingSeconds(start, now);
-                }
+                var endTime = paused ? (pausedAtMs || now) : now;
+                var working = Math.max(0, calcWorkingSeconds(start, endTime) - tps);
                 var h = Math.floor(working / 3600);
                 var m = Math.floor((working % 3600) / 60);
                 var s = working % 60;
@@ -1403,20 +1395,17 @@
         return '';
     }
 
-    function startScannerTimer(startedAt, paused) {
+    function startScannerTimer(startedAt, paused, pausedAt, totalPausedSeconds) {
         var el = document.getElementById('scanner-elapsed');
         if (!el) return;
         var start = new Date(startedAt).getTime();
         if (start > Date.now()) start = Date.now();
-        var frozen = paused ? calcWorkingSeconds(start, Date.now()) : null;
+        var pausedAtMs = pausedAt ? new Date(pausedAt).getTime() : null;
+        var tps = totalPausedSeconds || 0;
         function update() {
             if (el) {
-                if (paused) {
-                    if (frozen === null) frozen = calcWorkingSeconds(start, Date.now());
-                    el.textContent = formatDurationLong(frozen);
-                } else {
-                    el.textContent = formatDurationLong(calcWorkingSeconds(start, Date.now()));
-                }
+                var endTime = paused ? (pausedAtMs || Date.now()) : Date.now();
+                el.textContent = formatDurationLong(Math.max(0, calcWorkingSeconds(start, endTime) - tps));
                 el.style.color = paused ? '#f59e0b' : '';
             }
         }
@@ -2090,18 +2079,15 @@
                     var start = new Date(o.started_at).getTime();
                     if (start > Date.now()) start = Date.now();
                     var wasPaused = null;
-                    var frozenSeconds = null;
+                    var pausedAtMs = o.paused_at ? new Date(o.paused_at).getTime() : null;
+                    var totalPausedSec = o.total_paused_seconds || 0;
                     function tick() {
                         var now = Date.now();
                         var paused = monitoringPauseOverrides[o.id] !== undefined
                             ? monitoringPauseOverrides[o.id] : !!o.paused;
-                        if (paused) {
-                            if (frozenSeconds === null) frozenSeconds = calcWorkingSeconds(start, now);
-                            el.textContent = formatDurationLong(frozenSeconds);
-                        } else {
-                            frozenSeconds = null;
-                            el.textContent = formatDurationLong(calcWorkingSeconds(start, now));
-                        }
+                        var endTime = paused ? (pausedAtMs || now) : now;
+                        var secs = Math.max(0, calcWorkingSeconds(start, endTime) - totalPausedSec);
+                        el.textContent = formatDurationLong(secs);
                         if (paused !== wasPaused) {
                             wasPaused = paused;
                             el.classList.toggle('monitoring-order__timer--paused', paused);
