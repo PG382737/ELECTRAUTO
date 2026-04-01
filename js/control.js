@@ -1457,6 +1457,7 @@
     function updateNotifBadge() {
         var badge = document.getElementById('notif-badge');
         var toggle = document.getElementById('notif-toggle');
+        if (!badge || !toggle) return;
         var count = notifications.length;
         if (count > 0) {
             badge.textContent = count > 99 ? '99+' : count;
@@ -1581,7 +1582,7 @@
                 var monPanel = document.getElementById('panel-monitoring');
                 if (monPanel && monPanel.classList.contains('active')) loadMonitoring();
             }
-        } catch(e) {}
+        } catch(e) { console.error('pollWorkOrders error:', e); }
     }
 
     function startNotifPolling() {
@@ -1851,7 +1852,7 @@
     var mediaPollingInterval = null;
     var monitoringPauseOverrides = {};
     var monitoringPauseAtOverrides = {};
-    var monitoringExtraPausedSec = {};
+    var monitoringLoadingOrders = {};
     var lastPauseCheckTime = null;
     var lastPauseCheckDay = null;
 
@@ -1874,14 +1875,14 @@
         for (var i = 0; i < bounds.length; i++) {
             if (prev < bounds[i] && t >= bounds[i]) {
                 if (i % 2 === 0) {
-                    // Work starts → resume all paused orders
+                    // Work starts → resume all paused orders (show loader until server data)
                     activeOrders.forEach(function(o) {
                         if (o.paused) {
-                            monitoringPauseOverrides[o.id] = false;
-                            monitoringPauseAtOverrides[o.id] = null;
+                            monitoringLoadingOrders[o.id] = true;
                             api('PATCH', '/api/control-work-orders', { action: 'resume', id: o.id });
                         }
                     });
+                    setTimeout(function() { loadMonitoring(); }, 500);
                 } else {
                     // Work ends → pause all active orders
                     activeOrders.forEach(function(o) {
@@ -1901,15 +1902,23 @@
         var card = el ? el.closest('.monitoring-order') : null;
         var currentlyPaused = card && card.classList.contains('monitoring-order--paused');
         var newState = !currentlyPaused;
-        if (!newState && monitoringPauseAtOverrides[orderId]) {
-            // Resuming — calculate local pause duration and accumulate
-            var pauseDur = Math.round((Date.now() - monitoringPauseAtOverrides[orderId]) / 1000);
-            monitoringExtraPausedSec[orderId] = (monitoringExtraPausedSec[orderId] || 0) + pauseDur;
+        if (newState) {
+            // Pausing — immediately freeze timer at current time
+            monitoringPauseOverrides[orderId] = true;
+            monitoringPauseAtOverrides[orderId] = Date.now();
+        } else {
+            // Resuming — show loader until server data arrives
+            monitoringLoadingOrders[orderId] = true;
+            if (el) el.innerHTML = '<span class="timer-loader"></span>';
+            if (card) card.classList.remove('monitoring-order--paused');
+            var dot = card ? card.querySelector('.monitoring-order__dot') : null;
+            if (dot) dot.classList.remove('monitoring-order__dot--paused');
+            if (el) el.classList.remove('monitoring-order__timer--paused');
         }
-        monitoringPauseOverrides[orderId] = newState;
-        monitoringPauseAtOverrides[orderId] = newState ? Date.now() : null;
         var action = newState ? 'pause' : 'resume';
-        api('PATCH', '/api/control-work-orders', { action: action, id: orderId });
+        api('PATCH', '/api/control-work-orders', { action: action, id: orderId }).then(function() {
+            if (!newState) loadMonitoring();
+        });
     }
 
     async function toggleVehiclePause(orderId, vehicleId) {
@@ -1917,6 +1926,11 @@
         var aos = veh ? (veh.active_orders || []) : [];
         var ao = aos.find(function(o) { return o.id === orderId; });
         var currentlyPaused = ao && !!ao.paused;
+        if (currentlyPaused) {
+            // Resuming — show loader on vehicle list timer
+            var timerEl = document.getElementById('live-veh-' + vehicleId);
+            if (timerEl) timerEl.innerHTML = '<span class="timer-loader"></span>';
+        }
         var action = currentlyPaused ? 'resume' : 'pause';
         await api('PATCH', '/api/control-work-orders', { action: action, id: orderId });
         loadVehicles();
@@ -2039,7 +2053,7 @@
                 // Start live timers (clear local overrides — server data is authoritative)
                 monitoringPauseOverrides = {};
                 monitoringPauseAtOverrides = {};
-                monitoringExtraPausedSec = {};
+                monitoringLoadingOrders = {};
                 activeOrders.forEach(function(o, i) {
                     var el = document.getElementById('monitoring-timer-' + i);
                     if (!el) return;
@@ -2051,13 +2065,13 @@
                     var pausedAtMs = o.paused_at ? new Date(o.paused_at).getTime() : null;
                     var totalPausedSec = o.total_paused_seconds || 0;
                     function tick() {
+                        if (monitoringLoadingOrders[o.id]) return;
                         var now = Date.now();
                         var paused = monitoringPauseOverrides[o.id] !== undefined
                             ? monitoringPauseOverrides[o.id] : !!o.paused;
                         var localPausedAt = monitoringPauseAtOverrides[o.id];
                         var endTime = paused ? (localPausedAt || pausedAtMs || now) : now;
-                        var extra = monitoringExtraPausedSec[o.id] || 0;
-                        var secs = Math.max(0, elapsedSeconds(start, endTime) - totalPausedSec - extra);
+                        var secs = Math.max(0, elapsedSeconds(start, endTime) - totalPausedSec);
                         el.textContent = formatDurationLong(secs);
                         if (paused !== wasPaused) {
                             wasPaused = paused;

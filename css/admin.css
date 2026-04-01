@@ -1188,6 +1188,19 @@ html::-webkit-scrollbar { display: none; }
     font-variant-numeric: tabular-nums;
     color: var(--success);
 }
+.timer-loader {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.15);
+    border-top-color: #22c55e;
+    border-radius: 50%;
+    animation: timer-spin 0.6s linear infinite;
+    vertical-align: middle;
+}
+@keyframes timer-spin {
+    to { transform: rotate(360deg); }
+}
 
 /* Vehicle detail sections */
 .veh-detail-header {
