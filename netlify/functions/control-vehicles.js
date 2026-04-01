@@ -94,8 +94,8 @@ exports.handler = async (event) => {
                     employee: empMap[o.employee_id] || null
                 }));
 
-                // Active order (if any)
-                const activeOrder = enrichedOrders.find(o => !o.ended_at) || null;
+                // Active orders
+                const activeOrders = enrichedOrders.filter(o => !o.ended_at);
 
                 // Stats
                 const closedOrders = enrichedOrders.filter(o => o.ended_at);
@@ -110,7 +110,7 @@ exports.handler = async (event) => {
                     body: JSON.stringify({
                         vehicle,
                         orders: enrichedOrders,
-                        active_order: activeOrder,
+                        active_orders: activeOrders,
                         stats: {
                             total_repairs: closedOrders.length,
                             total_seconds: totalSeconds,
@@ -127,7 +127,10 @@ exports.handler = async (event) => {
             // Get active work orders to show live status
             const activeOrders = await supaFetch('control_work_orders?ended_at=is.null');
             const activeMap = {};
-            activeOrders.forEach(o => { activeMap[o.vehicle_id] = o; });
+            activeOrders.forEach(o => {
+                if (!activeMap[o.vehicle_id]) activeMap[o.vehicle_id] = [];
+                activeMap[o.vehicle_id].push(o);
+            });
 
             // Get employee names for active orders
             const activeEmpIds = [...new Set(activeOrders.map(o => o.employee_id))];
@@ -139,10 +142,10 @@ exports.handler = async (event) => {
             activeEmps.forEach(e => { activeEmpMap[e.id] = e; });
 
             const enriched = data.map(v => {
-                const ao = activeMap[v.id] || null;
+                const aos = activeMap[v.id] || [];
                 return {
                     ...v,
-                    active_order: ao ? { ...ao, employee: activeEmpMap[ao.employee_id] || null } : null
+                    active_orders: aos.map(ao => ({ ...ao, employee: activeEmpMap[ao.employee_id] || null }))
                 };
             });
 

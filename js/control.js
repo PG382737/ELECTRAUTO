@@ -15,7 +15,6 @@
     var scannerTimeout = null;
     var scannerState = null;
     var scannerVehicle = null;
-    var scannerActiveOrder = null;
     var nfcReader = null;
     var nfcAssignCallback = null;
     var empPage = 0;
@@ -709,8 +708,8 @@
 
     function sortVehicles(list) {
         return list.slice().sort(function(a, b) {
-            var aActive = a.active_order ? 2 : 0;
-            var bActive = b.active_order ? 2 : 0;
+            var aActive = a.active_orders && a.active_orders.length ? 2 : 0;
+            var bActive = b.active_orders && b.active_orders.length ? 2 : 0;
             var aNfc = a.nfc_tag_id ? 1 : 0;
             var bNfc = b.nfc_tag_id ? 1 : 0;
             return (bActive + bNfc) - (aActive + aNfc);
@@ -762,20 +761,24 @@
                 ? '<span class="nfc-badge nfc-badge--assigned">Assigné</span>'
                 : '<span class="nfc-badge nfc-badge--unassigned">Non assigné</span>';
 
+            var aos = v.active_orders || [];
             var statusHtml = '';
             var subLine = escHtml(v.owner_name);
-            if (v.active_order) {
-                var paused = !!v.active_order.paused;
+            if (aos.length > 0) {
+                var firstAo = aos[0];
+                var allPaused = aos.every(function(o) { return !!o.paused; });
+                var dotPaused = allPaused;
                 var timerId = 'live-veh-' + v.id;
-                var aoEmp = v.active_order.employee;
-                var aoEmpName = aoEmp ? (aoEmp.first_name + ' ' + aoEmp.last_name) : '';
-                var dotClass = 'live-dot' + (paused ? ' live-dot--paused' : '');
+                var dotClass = 'live-dot' + (dotPaused ? ' live-dot--paused' : '');
                 statusHtml = '<span class="live-indicator"><span class="' + dotClass + '"></span><span class="live-timer" id="' + timerId + '">...</span></span>';
-                if (aoEmpName) {
-                    var empColor = paused ? '#f59e0b' : '#22c55e';
-                    subLine += ' - <span style="color:' + empColor + ';">' + escHtml(aoEmpName) + '</span>';
-                }
-                setTimeout(function() { startLiveTimer(timerId, v.active_order.started_at, paused, v.active_order.paused_at, v.active_order.total_paused_seconds); }, 50);
+                var empNames = aos.map(function(o) {
+                    var emp = o.employee;
+                    var name = emp ? (emp.first_name + ' ' + emp.last_name) : '?';
+                    var color = o.paused ? '#f59e0b' : '#22c55e';
+                    return '<span style="color:' + color + ';">' + escHtml(name) + '</span>';
+                });
+                if (empNames.length) subLine += ' - ' + empNames.join(', ');
+                setTimeout(function() { startLiveTimer(timerId, firstAo.started_at, allPaused, firstAo.paused_at, firstAo.total_paused_seconds); }, 50);
             } else {
                 statusHtml = '<span style="color:var(--text-muted);font-size:0.85rem;">-</span>';
             }
@@ -787,14 +790,15 @@
             html += '<td>' + nfcBadge + '</td>';
             html += '<td>' + statusHtml + '</td>';
             html += '<td><div class="col-actions col-actions--icons">';
-            if (v.active_order) {
-                html += '<button class="icon-btn icon-btn--stop" title="Arrêter le bon de travail" onclick="Control.stopWorkOrder(\'' + v.id + '\',\'' + escHtml(vehLabel) + '\')"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="6" width="12" height="12" rx="1"/></svg></button>';
-                if (paused) {
-                    html += '<button class="icon-btn icon-btn--play" title="Reprendre" onclick="Control.toggleVehiclePause(\'' + v.active_order.id + '\',\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 3 20 12 6 21 6 3"/></svg></button>';
+            aos.forEach(function(ao) {
+                var aoPaused = !!ao.paused;
+                html += '<button class="icon-btn icon-btn--stop" title="Arrêter" onclick="Control.stopWorkOrderById(\'' + ao.id + '\')"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="6" width="12" height="12" rx="1"/></svg></button>';
+                if (aoPaused) {
+                    html += '<button class="icon-btn icon-btn--play" title="Reprendre" onclick="Control.toggleVehiclePause(\'' + ao.id + '\',\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 3 20 12 6 21 6 3"/></svg></button>';
                 } else {
-                    html += '<button class="icon-btn icon-btn--pause" title="Pause" onclick="Control.toggleVehiclePause(\'' + v.active_order.id + '\',\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="4" width="4" height="16" rx="1"/><rect x="15" y="4" width="4" height="16" rx="1"/></svg></button>';
+                    html += '<button class="icon-btn icon-btn--pause" title="Pause" onclick="Control.toggleVehiclePause(\'' + ao.id + '\',\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="4" width="4" height="16" rx="1"/><rect x="15" y="4" width="4" height="16" rx="1"/></svg></button>';
                 }
-            }
+            });
             html += '<button class="icon-btn" title="Détail" onclick="Control.openVehicleDetail(\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>';
             html += '<button class="icon-btn" title="Modifier" onclick="Control.editVehicle(\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
             html += '<button class="icon-btn icon-btn--danger" title="Supprimer" onclick="Control.deleteVehicle(\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>';
@@ -982,21 +986,22 @@
             if (v.reference) html += '<p><strong>Référence:</strong> ' + escHtml(v.reference) + '</p>';
             html += '</div></div>';
 
-            // Active work order
-            if (data.active_order) {
-                var ao = data.active_order;
+            // Active work orders
+            var detailActiveOrders = data.active_orders || [];
+            detailActiveOrders.forEach(function(ao, idx) {
                 var aoPaused = !!ao.paused;
                 var empName = ao.employee ? (ao.employee.first_name + ' ' + ao.employee.last_name) : 'Inconnu';
                 var statusLabel = aoPaused ? 'EN PAUSE' : 'EN COURS';
                 var statusClass = aoPaused ? ' veh-detail-active--paused' : '';
                 var dotClass = 'live-dot' + (aoPaused ? ' live-dot--paused' : '');
+                var timerId = 'veh-detail-timer-' + idx;
                 html += '<div class="veh-detail-active' + statusClass + '">';
-                html += '<div class="veh-detail-active__timer-box"><div class="veh-detail-active__timer" id="veh-detail-timer">...</div><span>' + statusLabel + '</span></div>';
+                html += '<div class="veh-detail-active__timer-box"><div class="veh-detail-active__timer" id="' + timerId + '">...</div><span>' + statusLabel + '</span></div>';
                 html += '<div class="veh-detail-active__sep"></div>';
                 html += '<div class="veh-detail-active__info"><span class="' + dotClass + '"></span><div><strong>' + escHtml(empName) + '</strong><p style="margin:4px 0 0;font-size:0.82rem;color:rgba(255,255,255,0.5);">Depuis ' + formatDateTime(ao.started_at) + '</p></div></div>';
                 html += '</div>';
-                setTimeout(function() { startLiveTimer('veh-detail-timer', ao.started_at, aoPaused, ao.paused_at, ao.total_paused_seconds); }, 50);
-            }
+                setTimeout(function() { startLiveTimer(timerId, ao.started_at, aoPaused, ao.paused_at, ao.total_paused_seconds); }, 50);
+            });
 
             // Stats
             html += '<div class="stats-grid" style="margin-bottom:24px;">';
@@ -1275,7 +1280,6 @@
 
         if (state === 'WAITING_VEHICLE') {
             scannerVehicle = null;
-            scannerActiveOrder = null;
             stopDashboardOrderTimers();
             content.innerHTML = '<div class="nfc-scanner__title">VÉHICULE</div>' + SCANNER_NFC_ICON + '<div class="nfc-scanner__subtitle">Scannez la carte NFC du véhicule</div>' + getScannerSimHtml() + '<div class="nfc-scanner__orders" id="dashboard-orders"><div class="nfc-scanner__orders-title">Bons de travail en cours</div><div id="dashboard-orders-list" class="nfc-scanner__orders-grid"><div class="nfc-scanner__orders-empty">Chargement...</div></div></div>';
             loadDashboardOrders();
@@ -1283,13 +1287,6 @@
         } else if (state === 'WAITING_EMPLOYEE') {
             var v = scannerVehicle;
             content.innerHTML = '<div class="nfc-scanner__info"><p><strong>' + escHtml(v.make) + (v.year ? ' ' + v.year : '') + '</strong></p>' + (v.plate ? '<p>Plaque: ' + escHtml(v.plate) + '</p>' : '') + '<p>Propriétaire: ' + escHtml(v.owner_name) + '</p></div><div class="nfc-scanner__title" style="margin-top:32px;">EMPLOYÉ</div>' + SCANNER_NFC_ICON + '<div class="nfc-scanner__subtitle">Scannez le badge de l\'employé</div>' + getScannerSimHtml();
-
-        } else if (state === 'CLOSING_ORDER') {
-            var v2 = scannerVehicle;
-            var ao = scannerActiveOrder;
-            var empName = ao.employee ? (ao.employee.first_name + ' ' + ao.employee.last_name) : 'Inconnu';
-            content.innerHTML = '<div class="nfc-scanner__info"><p><strong>' + escHtml(v2.make) + (v2.year ? ' ' + v2.year : '') + '</strong></p>' + (v2.plate ? '<p>Plaque: ' + escHtml(v2.plate) + '</p>' : '') + '<p>Propriétaire: ' + escHtml(v2.owner_name) + '</p><p style="margin-top:8px;">Employé: <strong>' + escHtml(empName) + '</strong></p></div><div class="nfc-scanner__elapsed" id="scanner-elapsed">00:00:00</div><div class="nfc-scanner__title" style="font-size:4rem;margin-top:20px;">EMPLOYÉ</div>' + SCANNER_NFC_ICON + '<div class="nfc-scanner__subtitle">Scannez le badge pour fermer le bon de travail</div>' + getScannerSimHtml();
-            setTimeout(function() { startScannerTimer(ao.started_at, !!ao.paused, ao.paused_at, ao.total_paused_seconds); }, 50);
 
         } else if (state === 'SUCCESS_OPEN') {
             stopDashboardOrderTimers();
@@ -1404,24 +1401,6 @@
         return '';
     }
 
-    function startScannerTimer(startedAt, paused, pausedAt, totalPausedSeconds) {
-        var el = document.getElementById('scanner-elapsed');
-        if (!el) return;
-        var start = new Date(startedAt).getTime();
-        if (start > Date.now()) start = Date.now();
-        var pausedAtMs = pausedAt ? new Date(pausedAt).getTime() : null;
-        var tps = totalPausedSeconds || 0;
-        function update() {
-            if (el) {
-                var endTime = paused ? (pausedAtMs || Date.now()) : Date.now();
-                el.textContent = formatDurationLong(Math.max(0, calcWorkingSeconds(start, endTime) - tps));
-                el.style.color = paused ? '#f59e0b' : '';
-            }
-        }
-        update();
-        scannerInterval = setInterval(update, 1000);
-    }
-
     function startNfcListener() {
         // WebSocket handles NFC listening globally - nothing to do here
     }
@@ -1445,45 +1424,33 @@
             try {
                 var vehicle = await api('GET', '/api/control-vehicles?nfc=' + encodeURIComponent(tagId));
                 scannerVehicle = vehicle;
-
-                // Check for open work order
-                var activeOrder = await api('GET', '/api/control-work-orders?vehicle_id=' + vehicle.id);
-                if (activeOrder) {
-                    scannerActiveOrder = activeOrder;
-                    setScannerState('CLOSING_ORDER');
-                } else {
-                    setScannerState('WAITING_EMPLOYEE');
-                }
+                setScannerState('WAITING_EMPLOYEE');
             } catch(e) {
                 showScannerError('Véhicule introuvable');
             }
 
         } else if (scannerState === 'WAITING_EMPLOYEE') {
-            // Lookup employee by NFC
+            // Lookup employee by NFC, then decide: open or close
             try {
                 var employee = await api('GET', '/api/control-employees?nfc=' + encodeURIComponent(tagId));
-                // Start work order - capture local time before API call
-                var localStartTime = new Date().toISOString();
-                await api('POST', '/api/control-work-orders', {
-                    vehicle_id: scannerVehicle.id,
-                    employee_id: employee.id,
-                    started_at: localStartTime
-                });
-                setScannerState('SUCCESS_OPEN');
-            } catch(e) {
-                if (e.message && e.message.indexOf('already') !== -1) {
-                    showScannerError('Ce véhicule a déjà un bon de travail en cours');
-                } else {
-                    showScannerError('Employé introuvable');
-                }
-            }
+                // Check if this employee has an open order on this vehicle
+                var activeOrders = await api('GET', '/api/control-work-orders?vehicle_id=' + scannerVehicle.id);
+                var empOrder = activeOrders && activeOrders.length ? activeOrders.find(function(o) { return o.employee_id === employee.id; }) : null;
 
-        } else if (scannerState === 'CLOSING_ORDER') {
-            // Lookup employee and close order
-            try {
-                var emp = await api('GET', '/api/control-employees?nfc=' + encodeURIComponent(tagId));
-                await api('PATCH', '/api/control-work-orders', { vehicle_id: scannerVehicle.id });
-                setScannerState('SUCCESS_CLOSE');
+                if (empOrder) {
+                    // Close this employee's order
+                    await api('PATCH', '/api/control-work-orders', { vehicle_id: scannerVehicle.id, employee_id: employee.id });
+                    setScannerState('SUCCESS_CLOSE');
+                } else {
+                    // Open new order
+                    var localStartTime = new Date().toISOString();
+                    await api('POST', '/api/control-work-orders', {
+                        vehicle_id: scannerVehicle.id,
+                        employee_id: employee.id,
+                        started_at: localStartTime
+                    });
+                    setScannerState('SUCCESS_OPEN');
+                }
             } catch(e) {
                 showScannerError('Employé introuvable');
             }
@@ -1991,7 +1958,9 @@
 
     async function toggleVehiclePause(orderId, vehicleId) {
         var veh = allVehicles.find(function(v) { return v.id === vehicleId; });
-        var currentlyPaused = veh && veh.active_order && !!veh.active_order.paused;
+        var aos = veh ? (veh.active_orders || []) : [];
+        var ao = aos.find(function(o) { return o.id === orderId; });
+        var currentlyPaused = ao && !!ao.paused;
         var action = currentlyPaused ? 'resume' : 'pause';
         await api('PATCH', '/api/control-work-orders', { action: action, id: orderId });
         loadVehicles();
@@ -2002,6 +1971,19 @@
         showConfirmDelete('Arrêter le bon de travail ?', 'Le chrono sera arrêté et le bon de travail pour ' + vehName + ' sera fermé.', async function() {
             try {
                 await api('PATCH', '/api/control-work-orders', { vehicle_id: vehicleId });
+                showToast('success', 'Bon fermé', 'Le bon de travail a été fermé.');
+                loadMonitoring();
+                loadVehicles();
+            } catch(e) {
+                showToast('error', 'Erreur', e.message);
+            }
+        }, 'Continuer');
+    }
+
+    function stopWorkOrderById(orderId) {
+        showConfirmDelete('Arrêter le bon de travail ?', 'Le chrono sera arrêté et le bon de travail sera fermé.', async function() {
+            try {
+                await api('PATCH', '/api/control-work-orders', { id: orderId });
                 showToast('success', 'Bon fermé', 'Le bon de travail a été fermé.');
                 loadMonitoring();
                 loadVehicles();
@@ -2345,6 +2327,7 @@
         openMediaFull: openMediaFull,
         unassignMedia: function(id) { unassignMedia(id); },
         stopWorkOrder: stopWorkOrder,
+        stopWorkOrderById: stopWorkOrderById,
         toggleOrderPause: toggleOrderPause,
         toggleVehiclePause: toggleVehiclePause
     };

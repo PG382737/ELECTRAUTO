@@ -128,18 +128,18 @@ exports.handler = async (event) => {
 
         // GET - query work orders
         if (event.httpMethod === 'GET') {
-            // Active order for a specific vehicle
+            // Active orders for a specific vehicle
             if (params.vehicle_id) {
-                const data = await supaFetch(`control_work_orders?vehicle_id=eq.${params.vehicle_id}&ended_at=is.null&limit=1`);
+                const data = await supaFetch(`control_work_orders?vehicle_id=eq.${params.vehicle_id}&ended_at=is.null&order=started_at.desc`);
                 if (data && data.length > 0) {
-                    // Get employee info
-                    const emp = await supaFetch(`control_employees?id=eq.${data[0].employee_id}&limit=1`);
-                    return {
-                        statusCode: 200, headers,
-                        body: JSON.stringify({ ...data[0], employee: emp[0] || null })
-                    };
+                    const empIds = [...new Set(data.map(o => o.employee_id))];
+                    const emps = empIds.length > 0 ? await supaFetch(`control_employees?id=in.(${empIds.join(',')})`) : [];
+                    const empMap = {};
+                    emps.forEach(e => { empMap[e.id] = e; });
+                    const enriched = data.map(o => ({ ...o, employee: empMap[o.employee_id] || null }));
+                    return { statusCode: 200, headers, body: JSON.stringify(enriched) };
                 }
-                return { statusCode: 200, headers, body: JSON.stringify(null) };
+                return { statusCode: 200, headers, body: JSON.stringify([]) };
             }
 
             // All active orders (with employee + vehicle details)
@@ -192,12 +192,12 @@ exports.handler = async (event) => {
                 return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing vehicle_id or employee_id' }) };
             }
 
-            // Check if vehicle already has an open work order
-            const existing = await supaFetch(`control_work_orders?vehicle_id=eq.${body.vehicle_id}&ended_at=is.null&limit=1`);
+            // Check if this employee already has an open order on this vehicle
+            const existing = await supaFetch(`control_work_orders?vehicle_id=eq.${body.vehicle_id}&employee_id=eq.${body.employee_id}&ended_at=is.null&limit=1`);
             if (existing && existing.length > 0) {
                 return {
                     statusCode: 409, headers,
-                    body: JSON.stringify({ error: 'Vehicle already has an open work order', existing_order: existing[0] })
+                    body: JSON.stringify({ error: 'Employee already has an open work order on this vehicle', existing_order: existing[0] })
                 };
             }
 
@@ -242,9 +242,12 @@ exports.handler = async (event) => {
                 return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
             }
 
-            // Close by vehicle_id (scanner flow)
+            // Close by vehicle_id (+ optional employee_id for multi-employee)
             if (body.vehicle_id) {
-                const openOrders = await supaFetch(`control_work_orders?vehicle_id=eq.${body.vehicle_id}&ended_at=is.null&limit=1`);
+                let query = `control_work_orders?vehicle_id=eq.${body.vehicle_id}&ended_at=is.null`;
+                if (body.employee_id) query += `&employee_id=eq.${body.employee_id}`;
+                query += '&limit=1';
+                const openOrders = await supaFetch(query);
                 if (!openOrders || openOrders.length === 0) {
                     return { statusCode: 404, headers, body: JSON.stringify({ error: 'No open work order for this vehicle' }) };
                 }
