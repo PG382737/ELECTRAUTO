@@ -1826,16 +1826,23 @@ html::-webkit-scrollbar { display: none; }
     font-size: 0.88rem;
     white-space: nowrap;
 }
+.monitoring-order__right-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex-shrink: 0;
+}
 .monitoring-order__timer {
     font-family: 'Courier New', monospace;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 700;
     color: #22c55e;
+    line-height: 1.4;
 }
 .monitoring-order__started {
-    font-size: 0.78rem;
+    font-size: 0.88rem;
     color: var(--text-muted);
-    flex-shrink: 0;
+    line-height: 1.4;
 }
 .monitoring-recent-item {
     display: flex;

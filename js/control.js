@@ -1991,8 +1991,10 @@
                                 '<div class="monitoring-order__employee">Employé: ' + empName + (owner ? ' • Propriétaire: ' + owner : '') + '</div>' +
                             '</div>' +
                         '</div>' +
-                        '<div class="monitoring-order__started">' + formatDateTime(o.started_at) + '</div>' +
-                        '<div class="monitoring-order__timer" id="monitoring-timer-' + i + '">00:00:00</div>' +
+                        '<div class="monitoring-order__right-text">' +
+                            '<div class="monitoring-order__timer" id="monitoring-timer-' + i + '">00:00:00</div>' +
+                            '<div class="monitoring-order__started">' + formatDateTime(o.started_at) + '</div>' +
+                        '</div>' +
                         '<span class="monitoring-stop-strip" onclick="Control.stopWorkOrder(\'' + o.vehicle_id + '\',\'' + escHtml(vehName) + '\')" title="Arrêter le bon de travail"><svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><rect x="6" y="6" width="12" height="12" rx="1"/></svg></span>' +
                         '<span class="monitoring-status-strip">' +
                             '<span class="monitoring-status-strip__play">▶</span>' +
