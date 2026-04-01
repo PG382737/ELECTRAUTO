@@ -1915,12 +1915,9 @@
             monitoringPauseOverrides[orderId] = true;
             monitoringPauseAtOverrides[orderId] = Date.now();
         } else {
-            // Resuming — keep timer frozen until server data arrives
+            // Resuming — keep timer frozen and paused styling until server data arrives
+            // (paused card styling keeps the strip green = play color)
             monitoringLoadingOrders[orderId] = true;
-            if (card) card.classList.remove('monitoring-order--paused');
-            if (el) el.classList.remove('monitoring-order__timer--paused');
-            var dot = card ? card.querySelector('.monitoring-order__dot') : null;
-            if (dot) dot.classList.remove('monitoring-order__dot--paused');
         }
         var action = newState ? 'pause' : 'resume';
         api('PATCH', '/api/control-work-orders', { action: action, id: orderId }).then(function() {
