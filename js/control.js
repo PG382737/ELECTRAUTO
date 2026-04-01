@@ -825,11 +825,15 @@
         if (!el) return;
         var start = new Date(startedAt).getTime();
         if (start > Date.now()) start = Date.now();
+        var frozen = paused ? calcWorkingSeconds(start, Date.now()) : null;
         function update() {
-            var now = Date.now();
-            var working = calcWorkingSeconds(start, now);
             if (el) {
-                el.textContent = formatDurationLong(working);
+                if (paused) {
+                    if (frozen === null) frozen = calcWorkingSeconds(start, Date.now());
+                    el.textContent = formatDurationLong(frozen);
+                } else {
+                    el.textContent = formatDurationLong(calcWorkingSeconds(start, Date.now()));
+                }
                 el.style.color = paused ? '#f59e0b' : '';
             }
         }
@@ -1370,10 +1374,18 @@
             var dot = card ? card.querySelector('.nfc-scanner__order-dot') : null;
             var start = new Date(order.started_at).getTime();
             if (start > Date.now()) start = Date.now();
+            var frozenDash = null;
             function updateTimer() {
                 var now = Date.now();
                 var paused = !!order.paused;
-                var working = calcWorkingSeconds(start, now);
+                var working;
+                if (paused) {
+                    if (frozenDash === null) frozenDash = calcWorkingSeconds(start, now);
+                    working = frozenDash;
+                } else {
+                    frozenDash = null;
+                    working = calcWorkingSeconds(start, now);
+                }
                 var h = Math.floor(working / 3600);
                 var m = Math.floor((working % 3600) / 60);
                 var s = working % 60;
@@ -1396,11 +1408,15 @@
         if (!el) return;
         var start = new Date(startedAt).getTime();
         if (start > Date.now()) start = Date.now();
+        var frozen = paused ? calcWorkingSeconds(start, Date.now()) : null;
         function update() {
-            var now = Date.now();
-            var working = calcWorkingSeconds(start, now);
             if (el) {
-                el.textContent = formatDurationLong(working);
+                if (paused) {
+                    if (frozen === null) frozen = calcWorkingSeconds(start, Date.now());
+                    el.textContent = formatDurationLong(frozen);
+                } else {
+                    el.textContent = formatDurationLong(calcWorkingSeconds(start, Date.now()));
+                }
                 el.style.color = paused ? '#f59e0b' : '';
             }
         }
@@ -2074,11 +2090,18 @@
                     var start = new Date(o.started_at).getTime();
                     if (start > Date.now()) start = Date.now();
                     var wasPaused = null;
+                    var frozenSeconds = null;
                     function tick() {
                         var now = Date.now();
                         var paused = monitoringPauseOverrides[o.id] !== undefined
                             ? monitoringPauseOverrides[o.id] : !!o.paused;
-                        el.textContent = formatDurationLong(calcWorkingSeconds(start, now));
+                        if (paused) {
+                            if (frozenSeconds === null) frozenSeconds = calcWorkingSeconds(start, now);
+                            el.textContent = formatDurationLong(frozenSeconds);
+                        } else {
+                            frozenSeconds = null;
+                            el.textContent = formatDurationLong(calcWorkingSeconds(start, now));
+                        }
                         if (paused !== wasPaused) {
                             wasPaused = paused;
                             el.classList.toggle('monitoring-order__timer--paused', paused);
