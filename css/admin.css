@@ -1250,6 +1250,20 @@ html::-webkit-scrollbar { display: none; }
     padding: 18px 24px;
     flex: 1;
 }
+.veh-detail-active--paused {
+    background: rgba(245,158,11,0.06);
+    border-color: rgba(245,158,11,0.2);
+}
+.veh-detail-active--paused .veh-detail-active__timer-box {
+    background: rgba(245,158,11,0.12);
+}
+.veh-detail-active--paused .veh-detail-active__timer-box span,
+.veh-detail-active--paused .veh-detail-active__timer {
+    color: #f59e0b;
+}
+.veh-detail-active--paused .veh-detail-active__sep {
+    background: rgba(245,158,11,0.2);
+}
 
 /* Vehicle notes in detail */
 .veh-notes {
