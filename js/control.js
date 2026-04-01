@@ -2137,6 +2137,15 @@
         initControl: function() { initControl(); }
     };
 
+    // Auto-init if control tab was already activated before this script loaded
+    if (!window._controlInitDone) {
+        var controlTab = document.getElementById('tab-control');
+        if (controlTab && controlTab.classList.contains('active')) {
+            window._controlInitDone = true;
+            initControl();
+        }
+    }
+
     function init() {
         // (needs adminPassword to be set for the API call)
         initSubtabs();
