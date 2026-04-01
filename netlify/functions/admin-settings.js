@@ -71,13 +71,15 @@ exports.handler = async (event) => {
         return { statusCode: 401, headers, body: JSON.stringify({ error: 'Unauthorized' }) };
     }
 
-    // GET - return all security settings
+    // GET - return all settings
     if (event.httpMethod === 'GET') {
         const tfa = await getSetting('security_2fa_enabled');
+        const pauseBounds = await getSetting('pause_bounds');
         return {
             statusCode: 200, headers,
             body: JSON.stringify({
-                security_2fa_enabled: tfa !== false     // default true
+                security_2fa_enabled: tfa !== false,
+                pause_bounds: pauseBounds || null
             })
         };
     }
@@ -87,12 +89,17 @@ exports.handler = async (event) => {
         const body = JSON.parse(event.body);
         const { key, value } = body;
 
-        if (!['security_2fa_enabled'].includes(key)) {
-            return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid setting key' }) };
+        if (key === 'security_2fa_enabled') {
+            await setSetting(key, !!value);
+            return { statusCode: 200, headers, body: JSON.stringify({ success: true, key, value: !!value }) };
         }
 
-        await setSetting(key, !!value);
-        return { statusCode: 200, headers, body: JSON.stringify({ success: true, key, value: !!value }) };
+        if (key === 'pause_bounds') {
+            await setSetting(key, value);
+            return { statusCode: 200, headers, body: JSON.stringify({ success: true, key, value }) };
+        }
+
+        return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid setting key' }) };
     }
 
     return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };

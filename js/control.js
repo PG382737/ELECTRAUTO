@@ -100,8 +100,20 @@
     }
 
     // ===== PAUSE SCHEDULE (America/Toronto) =====
-    // Heures de travail : Lun-Jeu 8h-12h et 13h-17h, Ven 8h-12h
     var PAUSE_BOUNDS = {1:[480,720,780,1020],2:[480,720,780,1020],3:[480,720,780,1020],4:[480,720,780,1020],5:[480,720]};
+
+    // Load custom pause bounds from settings
+    (function loadPauseSettings() {
+        api('GET', '/api/admin-settings').then(function(settings) {
+            if (settings && settings.pause_bounds) {
+                var pb = typeof settings.pause_bounds === 'string' ? JSON.parse(settings.pause_bounds) : settings.pause_bounds;
+                // Convert string keys to numbers
+                var converted = {};
+                for (var k in pb) { converted[parseInt(k)] = pb[k]; }
+                PAUSE_BOUNDS = converted;
+            }
+        }).catch(function() {});
+    })();
 
     function isInPauseET(ms) {
         var et = new Date(new Date(ms).toLocaleString('en-US', { timeZone: 'America/Toronto' }));

@@ -2,7 +2,17 @@
 // Start/close work orders, query active orders
 
 // ===== PAUSE SCHEDULE (America/Toronto) =====
-const PAUSE_BOUNDS = {1:[480,720,780,1020],2:[480,720,780,1020],3:[480,720,780,1020],4:[480,720,780,1020],5:[480,720]};
+const DEFAULT_PAUSE_BOUNDS = {1:[480,720,780,1020],2:[480,720,780,1020],3:[480,720,780,1020],4:[480,720,780,1020],5:[480,720]};
+let PAUSE_BOUNDS = DEFAULT_PAUSE_BOUNDS;
+
+async function loadPauseBounds(supaFetchFn) {
+    try {
+        const data = await supaFetchFn('site_settings?key=eq.pause_bounds&limit=1');
+        if (data && data.length > 0 && data[0].value) {
+            PAUSE_BOUNDS = typeof data[0].value === 'string' ? JSON.parse(data[0].value) : data[0].value;
+        }
+    } catch(e) { /* keep default */ }
+}
 
 function isInPauseET(ms) {
     const et = new Date(new Date(ms).toLocaleString('en-US', { timeZone: 'America/Toronto' }));
@@ -113,6 +123,7 @@ exports.handler = async (event) => {
     }
 
     try {
+        await loadPauseBounds(supaFetch);
         const params = event.queryStringParameters || {};
 
         // GET - query work orders

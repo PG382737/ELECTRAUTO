@@ -2158,6 +2158,50 @@ html::-webkit-scrollbar { display: none; }
     background: #fff;
 }
 
+/* Toggle switch small variant */
+.toggle-switch--sm { width: 36px; height: 20px; }
+.toggle-switch--sm .toggle-slider::before { width: 16px; height: 16px; }
+.toggle-switch--sm input:checked + .toggle-slider::before { transform: translateX(16px); }
+
+/* Pause schedule editor */
+.pause-day {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+}
+.pause-day:last-child { border-bottom: none; }
+.pause-day__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+.pause-day__shifts {
+    padding-left: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: opacity 0.15s;
+}
+.pause-day__shift {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.pause-time-input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 0.85rem;
+    padding: 6px 10px;
+    width: 110px;
+}
+.pause-time-input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
 /* Toast notifications */
 .toast-container {
     position: fixed;

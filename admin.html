@@ -82,8 +82,8 @@
                     Blog
                 </button>
                 <button class="sidebar__link" data-tab="security">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                    Sécurité
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                    Configuration
                 </button>
             </nav>
             <div class="sidebar__bottom">
@@ -114,13 +114,15 @@
                 </div>
             </div>
 
-            <!-- ===== SECURITY TAB ===== -->
+            <!-- ===== CONFIGURATION TAB ===== -->
             <div class="tab" id="tab-security">
                 <div class="main__header">
-                    <h1>Sécurité</h1>
+                    <h1>Configuration</h1>
                 </div>
-                <div style="max-width:600px;">
-                    <div style="background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px;">
+                <div style="max-width:700px;">
+                    <!-- Sécurité -->
+                    <h2 style="font-size:1rem;margin-bottom:12px;">Sécurité</h2>
+                    <div style="background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;">
                         <div style="display:flex;align-items:center;justify-content:space-between;">
                             <div>
                                 <strong style="font-size:1rem;">Vérification 2FA</strong>
@@ -131,6 +133,15 @@
                                 <span class="toggle-slider"></span>
                             </label>
                         </div>
+                    </div>
+
+                    <!-- Horaire de pause -->
+                    <h2 style="font-size:1rem;margin-bottom:12px;">Horaire de pause</h2>
+                    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px;">Définissez les plages horaires de travail pour chaque jour. En dehors de ces plages, les bons de travail sont automatiquement mis en pause.</p>
+                    <div id="pause-schedule-editor" style="background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px;">
+                        <div id="pause-days-list"></div>
+                        <button class="btn btn--primary btn--sm" id="btn-save-pause" style="margin-top:16px;">Sauvegarder</button>
+                        <span id="pause-save-status" style="margin-left:12px;font-size:0.85rem;color:var(--text-muted);"></span>
                     </div>
                 </div>
             </div>

@@ -359,14 +359,147 @@ document.getElementById('btn-logout').addEventListener('click', function() {
 });
 
 // ============================================
-// SECURITY SETTINGS
+// CONFIGURATION SETTINGS
 // ============================================
+
+var DAY_NAMES = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+var DEFAULT_PAUSE_BOUNDS = {1:[480,720,780,1020],2:[480,720,780,1020],3:[480,720,780,1020],4:[480,720,780,1020],5:[480,720]};
+
+function minutesToTime(m) {
+    var h = Math.floor(m / 60);
+    var mm = m % 60;
+    return (h < 10 ? '0' : '') + h + ':' + (mm < 10 ? '0' : '') + mm;
+}
+
+function timeToMinutes(t) {
+    var parts = t.split(':');
+    return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+}
+
+function renderPauseEditor(bounds) {
+    var container = document.getElementById('pause-days-list');
+    if (!container) return;
+    var html = '';
+    for (var d = 1; d <= 6; d++) {
+        var dayBounds = bounds[d] || [];
+        var enabled = dayBounds.length > 0;
+        var shifts = [];
+        for (var s = 0; s < dayBounds.length; s += 2) {
+            shifts.push({ start: dayBounds[s] || 0, end: dayBounds[s + 1] || 0 });
+        }
+        if (shifts.length === 0) shifts.push({ start: 480, end: 1020 });
+
+        html += '<div class="pause-day" data-day="' + d + '">';
+        html += '<div class="pause-day__header">';
+        html += '<label class="toggle-switch toggle-switch--sm"><input type="checkbox" class="pause-day-toggle" ' + (enabled ? 'checked' : '') + '><span class="toggle-slider"></span></label>';
+        html += '<strong>' + DAY_NAMES[d] + '</strong>';
+        html += '</div>';
+        html += '<div class="pause-day__shifts" style="' + (enabled ? '' : 'opacity:0.4;pointer-events:none;') + '">';
+        shifts.forEach(function(sh, si) {
+            html += '<div class="pause-day__shift">';
+            html += '<input type="time" class="pause-time-input" value="' + minutesToTime(sh.start) + '" data-shift="' + si + '" data-pos="start">';
+            html += '<span style="color:var(--text-muted);"> - </span>';
+            html += '<input type="time" class="pause-time-input" value="' + minutesToTime(sh.end) + '" data-shift="' + si + '" data-pos="end">';
+            if (si > 0) html += '<button class="btn btn--ghost btn--sm pause-remove-shift" data-shift="' + si + '" style="padding:4px 8px;margin-left:4px;">x</button>';
+            html += '</div>';
+        });
+        html += '<button class="btn btn--ghost btn--sm pause-add-shift" style="margin-top:6px;font-size:0.8rem;">+ Ajouter un quart</button>';
+        html += '</div>';
+        html += '</div>';
+    }
+    // Dimanche (day 0)
+    var sunBounds = bounds[0] || [];
+    var sunEnabled = sunBounds.length > 0;
+    var sunShifts = [];
+    for (var ss = 0; ss < sunBounds.length; ss += 2) {
+        sunShifts.push({ start: sunBounds[ss] || 0, end: sunBounds[ss + 1] || 0 });
+    }
+    if (sunShifts.length === 0) sunShifts.push({ start: 480, end: 1020 });
+
+    html += '<div class="pause-day" data-day="0">';
+    html += '<div class="pause-day__header">';
+    html += '<label class="toggle-switch toggle-switch--sm"><input type="checkbox" class="pause-day-toggle" ' + (sunEnabled ? 'checked' : '') + '><span class="toggle-slider"></span></label>';
+    html += '<strong>' + DAY_NAMES[0] + '</strong>';
+    html += '</div>';
+    html += '<div class="pause-day__shifts" style="' + (sunEnabled ? '' : 'opacity:0.4;pointer-events:none;') + '">';
+    sunShifts.forEach(function(sh, si) {
+        html += '<div class="pause-day__shift">';
+        html += '<input type="time" class="pause-time-input" value="' + minutesToTime(sh.start) + '" data-shift="' + si + '" data-pos="start">';
+        html += '<span style="color:var(--text-muted);"> - </span>';
+        html += '<input type="time" class="pause-time-input" value="' + minutesToTime(sh.end) + '" data-shift="' + si + '" data-pos="end">';
+        if (si > 0) html += '<button class="btn btn--ghost btn--sm pause-remove-shift" data-shift="' + si + '" style="padding:4px 8px;margin-left:4px;">x</button>';
+        html += '</div>';
+    });
+    html += '<button class="btn btn--ghost btn--sm pause-add-shift" style="margin-top:6px;font-size:0.8rem;">+ Ajouter un quart</button>';
+    html += '</div>';
+    html += '</div>';
+
+    container.innerHTML = html;
+    bindPauseEditorEvents(bounds);
+}
+
+function collectPauseBounds() {
+    var bounds = {};
+    document.querySelectorAll('.pause-day').forEach(function(dayEl) {
+        var d = parseInt(dayEl.getAttribute('data-day'));
+        var toggle = dayEl.querySelector('.pause-day-toggle');
+        if (!toggle || !toggle.checked) return;
+        var arr = [];
+        dayEl.querySelectorAll('.pause-day__shift').forEach(function(shiftEl) {
+            var inputs = shiftEl.querySelectorAll('.pause-time-input');
+            if (inputs.length === 2) {
+                arr.push(timeToMinutes(inputs[0].value));
+                arr.push(timeToMinutes(inputs[1].value));
+            }
+        });
+        if (arr.length > 0) bounds[d] = arr;
+    });
+    return bounds;
+}
+
+function bindPauseEditorEvents(bounds) {
+    document.querySelectorAll('.pause-day-toggle').forEach(function(toggle) {
+        toggle.addEventListener('change', function() {
+            var shifts = this.closest('.pause-day').querySelector('.pause-day__shifts');
+            if (shifts) {
+                shifts.style.opacity = this.checked ? '' : '0.4';
+                shifts.style.pointerEvents = this.checked ? '' : 'none';
+            }
+        });
+    });
+    document.querySelectorAll('.pause-add-shift').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var dayEl = this.closest('.pause-day');
+            var d = parseInt(dayEl.getAttribute('data-day'));
+            var current = collectPauseBounds();
+            if (!current[d]) current[d] = [480, 1020];
+            current[d].push(780, 1020);
+            renderPauseEditor(current);
+        });
+    });
+    document.querySelectorAll('.pause-remove-shift').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var dayEl = this.closest('.pause-day');
+            var d = parseInt(dayEl.getAttribute('data-day'));
+            var si = parseInt(this.getAttribute('data-shift'));
+            var current = collectPauseBounds();
+            if (current[d]) {
+                current[d].splice(si * 2, 2);
+                if (current[d].length === 0) delete current[d];
+            }
+            renderPauseEditor(current);
+        });
+    });
+}
 
 async function loadSecuritySettings() {
     try {
         var settings = await api('GET', '/api/admin-settings');
         var tfa = document.getElementById('security-2fa');
         if (tfa) tfa.checked = settings.security_2fa_enabled;
+        var pauseBounds = settings.pause_bounds || DEFAULT_PAUSE_BOUNDS;
+        if (typeof pauseBounds === 'string') pauseBounds = JSON.parse(pauseBounds);
+        renderPauseEditor(pauseBounds);
     } catch(e) {}
 }
 
@@ -378,6 +511,20 @@ function initSecurityToggles() {
                 await api('POST', '/api/admin-settings', { key: 'security_2fa_enabled', value: tfa.checked });
             } catch(e) {
                 tfa.checked = !tfa.checked;
+            }
+        });
+    }
+    var btnSave = document.getElementById('btn-save-pause');
+    if (btnSave) {
+        btnSave.addEventListener('click', async function() {
+            var status = document.getElementById('pause-save-status');
+            try {
+                var bounds = collectPauseBounds();
+                await api('POST', '/api/admin-settings', { key: 'pause_bounds', value: bounds });
+                if (status) { status.textContent = 'Sauvegardé!'; status.style.color = '#22c55e'; }
+                setTimeout(function() { if (status) status.textContent = ''; }, 3000);
+            } catch(e) {
+                if (status) { status.textContent = 'Erreur'; status.style.color = '#ef4444'; }
             }
         });
     }
