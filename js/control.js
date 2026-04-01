@@ -789,6 +789,11 @@
             html += '<td><div class="col-actions col-actions--icons">';
             if (v.active_order) {
                 html += '<button class="icon-btn icon-btn--stop" title="Arrêter le bon de travail" onclick="Control.stopWorkOrder(\'' + v.id + '\',\'' + escHtml(vehLabel) + '\')"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="6" width="12" height="12" rx="1"/></svg></button>';
+                if (paused) {
+                    html += '<button class="icon-btn icon-btn--play" title="Reprendre" onclick="Control.toggleVehiclePause(\'' + v.active_order.id + '\',\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 3 20 12 6 21 6 3"/></svg></button>';
+                } else {
+                    html += '<button class="icon-btn icon-btn--pause" title="Pause" onclick="Control.toggleVehiclePause(\'' + v.active_order.id + '\',\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="4" width="4" height="16" rx="1"/><rect x="15" y="4" width="4" height="16" rx="1"/></svg></button>';
+                }
             }
             html += '<button class="icon-btn" title="Détail" onclick="Control.openVehicleDetail(\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>';
             html += '<button class="icon-btn" title="Modifier" onclick="Control.editVehicle(\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
@@ -1974,6 +1979,16 @@
         api('PATCH', '/api/control-work-orders', { action: action, id: orderId });
     }
 
+    async function toggleVehiclePause(orderId, vehicleId) {
+        var veh = allVehicles.find(function(v) { return v.id === vehicleId; });
+        var currentlyPaused = veh && veh.active_order && !!veh.active_order.paused;
+        var action = currentlyPaused ? 'resume' : 'pause';
+        await api('PATCH', '/api/control-work-orders', { action: action, id: orderId });
+        loadVehicles();
+        var monPanel = document.getElementById('panel-monitoring');
+        if (monPanel && monPanel.classList.contains('active')) loadMonitoring();
+    }
+
     function stopWorkOrder(vehicleId, vehName) {
         showConfirmDelete('Arrêter le bon de travail ?', 'Le chrono sera arrêté et le bon de travail pour ' + vehName + ' sera fermé.', async function() {
             try {
@@ -2319,7 +2334,8 @@
         openMediaFull: openMediaFull,
         unassignMedia: function(id) { unassignMedia(id); },
         stopWorkOrder: stopWorkOrder,
-        toggleOrderPause: toggleOrderPause
+        toggleOrderPause: toggleOrderPause,
+        toggleVehiclePause: toggleVehiclePause
     };
 
 })();
