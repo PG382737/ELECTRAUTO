@@ -1042,9 +1042,10 @@
 
     // ---- CONFIRM DELETE ----
 
-    function showConfirmDelete(title, msg, callback) {
+    function showConfirmDelete(title, msg, callback, btnLabel) {
         document.getElementById('control-confirm-title').textContent = title;
         document.getElementById('control-confirm-msg').textContent = msg;
+        document.getElementById('control-confirm-delete').textContent = btnLabel || 'Supprimer';
         deleteCallback = callback;
         document.getElementById('control-confirm-modal').classList.add('active');
     }
@@ -1914,7 +1915,7 @@
             } catch(e) {
                 showToast('error', 'Erreur', e.message);
             }
-        });
+        }, 'Continuer');
     }
 
     async function loadMonitoring() {
