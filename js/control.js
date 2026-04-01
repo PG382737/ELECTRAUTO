@@ -1446,7 +1446,11 @@
                 });
                 setScannerState('SUCCESS_OPEN');
             } catch(e) {
-                showScannerError('Employé introuvable');
+                if (e.message && e.message.indexOf('already') !== -1) {
+                    showScannerError('Ce véhicule a déjà un bon de travail en cours');
+                } else {
+                    showScannerError('Employé introuvable');
+                }
             }
 
         } else if (scannerState === 'CLOSING_ORDER') {
