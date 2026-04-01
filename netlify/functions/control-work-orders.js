@@ -201,9 +201,23 @@ exports.handler = async (event) => {
             return { statusCode: 201, headers, body: JSON.stringify(data[0]) };
         }
 
-        // PATCH - close a work order
+        // PATCH - close or pause/resume a work order
         if (event.httpMethod === 'PATCH') {
             const body = JSON.parse(event.body);
+
+            // Pause/resume by order ID
+            if (body.action === 'pause' && body.id) {
+                await supaFetch(`control_work_orders?id=eq.${body.id}`, {
+                    method: 'PATCH', body: { paused: true }
+                });
+                return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
+            }
+            if (body.action === 'resume' && body.id) {
+                await supaFetch(`control_work_orders?id=eq.${body.id}`, {
+                    method: 'PATCH', body: { paused: false }
+                });
+                return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
+            }
 
             // Close by vehicle_id (scanner flow: find the open order for this vehicle)
             if (body.vehicle_id) {

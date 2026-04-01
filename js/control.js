@@ -1919,6 +1919,17 @@
     var monitoringTimers = [];
     var monitoringInterval = null;
     var mediaPollingInterval = null;
+    var monitoringPauseOverrides = {};
+
+    function toggleOrderPause(orderId, index) {
+        var el = document.getElementById('monitoring-timer-' + index);
+        var card = el ? el.closest('.monitoring-order') : null;
+        var currentlyPaused = card && card.classList.contains('monitoring-order--paused');
+        var newState = !currentlyPaused;
+        monitoringPauseOverrides[orderId] = newState;
+        var action = newState ? 'pause' : 'resume';
+        api('PATCH', '/api/control-work-orders', { action: action, id: orderId });
+    }
 
     function stopWorkOrder(vehicleId, vehName) {
         showConfirmDelete('Arrêter le bon de travail ?', 'Le chrono sera arrêté et le bon de travail pour ' + vehName + ' sera fermé.', async function() {
@@ -2011,7 +2022,7 @@
                             '<div class="monitoring-order__started">' + formatDateTime(o.started_at) + '</div>' +
                         '</div>' +
                         '<span class="monitoring-stop-strip" onclick="Control.stopWorkOrder(\'' + o.vehicle_id + '\',\'' + escHtml(vehName) + '\')" title="Arrêter le bon de travail"><svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><rect x="6" y="6" width="12" height="12" rx="1"/></svg></span>' +
-                        '<span class="monitoring-status-strip">' +
+                        '<span class="monitoring-status-strip" onclick="Control.toggleOrderPause(\'' + o.id + '\',' + i + ')">' +
                             '<span class="monitoring-status-strip__play">▶</span>' +
                             '<span class="monitoring-status-strip__pause">⏸</span>' +
                         '</span>' +
@@ -2030,7 +2041,9 @@
                     var wasPaused = null;
                     function tick() {
                         var now = Date.now();
-                        var paused = isInPauseET(now);
+                        var paused = monitoringPauseOverrides[o.id] !== undefined
+                            ? monitoringPauseOverrides[o.id]
+                            : (o.paused != null ? o.paused : isInPauseET(now));
                         el.textContent = formatDurationLong(calcWorkingSeconds(start, now));
                         if (paused !== wasPaused) {
                             wasPaused = paused;
@@ -2257,7 +2270,8 @@
         copyMediaLink: function(token) { copyToClipboard(mediaShareUrl(token)); },
         openMediaFull: openMediaFull,
         unassignMedia: function(id) { unassignMedia(id); },
-        stopWorkOrder: stopWorkOrder
+        stopWorkOrder: stopWorkOrder,
+        toggleOrderPause: toggleOrderPause
     };
 
 })();
