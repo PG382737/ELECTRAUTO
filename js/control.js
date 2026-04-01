@@ -1985,7 +1985,7 @@
             } else {
                 var html = '';
                 activeOrders.forEach(function(o, i) {
-                    var vehName = o.vehicle ? (escHtml(o.vehicle.make) + (o.vehicle.year ? ' ' + o.vehicle.year : '')) : 'Véhicule';
+                    var vehName = o.vehicle ? (escHtml(o.vehicle.make) + (o.vehicle.model ? ' ' + escHtml(o.vehicle.model) : '') + (o.vehicle.year ? ' - ' + o.vehicle.year : '')) : 'Véhicule';
                     var plate = o.vehicle && o.vehicle.plate ? escHtml(o.vehicle.plate) : '';
                     var empName = o.employee ? escHtml(o.employee.first_name + ' ' + o.employee.last_name) : 'Inconnu';
                     var owner = o.vehicle ? escHtml(o.vehicle.owner_name) : '';
@@ -1995,7 +1995,7 @@
                             '<div class="monitoring-order__dot" id="monitoring-dot-' + i + '"></div>' +
                             '<div class="monitoring-order__text">' +
                                 '<div class="monitoring-order__vehicle">' + vehName + (plate ? ' - ' + plate : '') + '</div>' +
-                                '<div class="monitoring-order__employee">Employé: ' + empName + (owner ? ' • Propriétaire: ' + owner : '') + '</div>' +
+                                '<div class="monitoring-order__employee">' + owner + ' - <span class="monitoring-order__emp-name">' + empName + '</span>' + '</div>' +
                             '</div>' +
                         '</div>' +
                         '<div class="monitoring-order__right-text">' +

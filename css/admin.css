@@ -1826,6 +1826,12 @@ html::-webkit-scrollbar { display: none; }
     font-size: 0.88rem;
     white-space: nowrap;
 }
+.monitoring-order__emp-name {
+    color: #22c55e;
+}
+.monitoring-order--paused .monitoring-order__emp-name {
+    color: #f59e0b;
+}
 .monitoring-order__right-text {
     display: flex;
     flex-direction: column;
