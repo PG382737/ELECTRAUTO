@@ -114,59 +114,9 @@
         }).catch(function() {});
     })();
 
-    function isInPauseET(ms) {
-        var et = new Date(new Date(ms).toLocaleString('en-US', { timeZone: 'America/Toronto' }));
-        var day = et.getDay(); // 0=Dim, 1=Lun, ..., 5=Ven, 6=Sam
-        var t = et.getHours() * 60 + et.getMinutes();
-        if (day === 0 || day === 6) return true;
-        if (day === 5) return t < 480 || t >= 720; // Ven: travail 8h-12h seulement
-        return t < 480 || (t >= 720 && t < 780) || t >= 1020; // Lun-Jeu: 8-12, 13-17
-    }
-
-    function etMidnightUTC(year, month, date) {
-        var d = new Date(year, month, date);
-        var y = d.getFullYear(), mo = d.getMonth(), da = d.getDate();
-        var offsets = [4, 5]; // EDT=UTC-4, EST=UTC-5
-        for (var i = 0; i < offsets.length; i++) {
-            var candidate = Date.UTC(y, mo, da, offsets[i], 0, 0, 0);
-            var check = new Date(new Date(candidate).toLocaleString('en-US', { timeZone: 'America/Toronto' }));
-            if (check.getHours() === 0 && check.getDate() === da && check.getMonth() === mo) return candidate;
-        }
-        return Date.UTC(y, mo, da, 4, 0, 0, 0);
-    }
-
-    function getNextTransitionET(ms) {
-        var et = new Date(new Date(ms).toLocaleString('en-US', { timeZone: 'America/Toronto' }));
-        var day = et.getDay();
-        var cur = et.getHours() * 60 + et.getMinutes() + et.getSeconds() / 60;
-        var todayBounds = PAUSE_BOUNDS[day] || [];
-        for (var i = 0; i < todayBounds.length; i++) {
-            if (todayBounds[i] > cur) {
-                return etMidnightUTC(et.getFullYear(), et.getMonth(), et.getDate()) + todayBounds[i] * 60000;
-            }
-        }
-        for (var ahead = 1; ahead <= 7; ahead++) {
-            var nextMid = etMidnightUTC(et.getFullYear(), et.getMonth(), et.getDate() + ahead);
-            var nextET = new Date(new Date(nextMid).toLocaleString('en-US', { timeZone: 'America/Toronto' }));
-            var nextDay = nextET.getDay();
-            var nextBounds = PAUSE_BOUNDS[nextDay] || [];
-            if (nextBounds.length > 0) return nextMid + nextBounds[0] * 60000;
-        }
-        return ms + 7 * 24 * 3600000;
-    }
-
-    function calcWorkingSeconds(startMs, endMs) {
-        if (endMs <= startMs) return 0;
-        var working = 0;
-        var t = startMs;
-        while (t < endMs) {
-            var paused = isInPauseET(t);
-            var next = getNextTransitionET(t);
-            var seg = Math.min(next, endMs);
-            if (!paused) working += seg - t;
-            t = seg;
-        }
-        return Math.round(working / 1000);
+    // Simple elapsed time: (end - start) in seconds
+    function elapsedSeconds(startMs, endMs) {
+        return Math.max(0, Math.round((endMs - startMs) / 1000));
     }
     // ============================================
 
@@ -839,7 +789,7 @@
         function update() {
             if (el) {
                 var endTime = paused ? (pausedAtMs || Date.now()) : Date.now();
-                el.textContent = formatDurationLong(Math.max(0, calcWorkingSeconds(start, endTime) - tps));
+                el.textContent = formatDurationLong(Math.max(0, elapsedSeconds(start, endTime) - tps));
                 el.style.color = paused ? '#f59e0b' : '';
             }
         }
@@ -1383,7 +1333,7 @@
                 var now = Date.now();
                 var paused = !!order.paused;
                 var endTime = paused ? (pausedAtMs || now) : now;
-                var working = Math.max(0, calcWorkingSeconds(start, endTime) - tps);
+                var working = Math.max(0, elapsedSeconds(start, endTime) - tps);
                 var h = Math.floor(working / 3600);
                 var m = Math.floor((working % 3600) / 60);
                 var s = working % 60;
@@ -2105,7 +2055,7 @@
                         var localPausedAt = monitoringPauseAtOverrides[o.id];
                         var endTime = paused ? (localPausedAt || pausedAtMs || now) : now;
                         var extra = monitoringExtraPausedSec[o.id] || 0;
-                        var secs = Math.max(0, calcWorkingSeconds(start, endTime) - totalPausedSec - extra);
+                        var secs = Math.max(0, elapsedSeconds(start, endTime) - totalPausedSec - extra);
                         el.textContent = formatDurationLong(secs);
                         if (paused !== wasPaused) {
                             wasPaused = paused;

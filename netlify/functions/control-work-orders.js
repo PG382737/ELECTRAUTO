@@ -230,7 +230,7 @@ exports.handler = async (event) => {
                 const order = rows && rows[0];
                 let addSeconds = 0;
                 if (order && order.paused_at) {
-                    addSeconds = calculateWorkingSeconds(order.paused_at, new Date().toISOString());
+                    addSeconds = Math.round((Date.now() - new Date(order.paused_at).getTime()) / 1000);
                 }
                 await supaFetch(`control_work_orders?id=eq.${body.id}`, {
                     method: 'PATCH', body: {
@@ -253,13 +253,17 @@ exports.handler = async (event) => {
                 }
 
                 const order = openOrders[0];
-                const endedAt = order.paused ? (order.paused_at || new Date().toISOString()) : new Date().toISOString();
-                const durationSeconds = calculateWorkingSeconds(order.started_at, endedAt) - (order.total_paused_seconds || 0);
+                const now = new Date();
+                let totalPaused = order.total_paused_seconds || 0;
+                if (order.paused && order.paused_at) {
+                    totalPaused += Math.round((now.getTime() - new Date(order.paused_at).getTime()) / 1000);
+                }
+                const durationSeconds = Math.round((now.getTime() - new Date(order.started_at).getTime()) / 1000) - totalPaused;
 
                 const updated = await supaFetch(`control_work_orders?id=eq.${order.id}`, {
                     method: 'PATCH',
                     body: {
-                        ended_at: new Date().toISOString(),
+                        ended_at: now.toISOString(),
                         duration_seconds: Math.max(0, durationSeconds),
                         paused: false, paused_at: null
                     }
@@ -276,13 +280,17 @@ exports.handler = async (event) => {
                 }
 
                 const order = orders[0];
-                const endedAt = order.paused ? (order.paused_at || new Date().toISOString()) : new Date().toISOString();
-                const durationSeconds = calculateWorkingSeconds(order.started_at, endedAt) - (order.total_paused_seconds || 0);
+                const now2 = new Date();
+                let totalPaused2 = order.total_paused_seconds || 0;
+                if (order.paused && order.paused_at) {
+                    totalPaused2 += Math.round((now2.getTime() - new Date(order.paused_at).getTime()) / 1000);
+                }
+                const durationSeconds = Math.round((now2.getTime() - new Date(order.started_at).getTime()) / 1000) - totalPaused2;
 
                 const updated = await supaFetch(`control_work_orders?id=eq.${body.id}`, {
                     method: 'PATCH',
                     body: {
-                        ended_at: new Date().toISOString(),
+                        ended_at: now2.toISOString(),
                         duration_seconds: Math.max(0, durationSeconds),
                         paused: false, paused_at: null
                     }
