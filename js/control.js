@@ -1626,43 +1626,25 @@
         } catch(e) {}
     }
 
-    async function fetchOrderNotif(order) {
-        var empName = '?';
-        var vehName = '?';
-        try {
-            var empData = await api('GET', '/api/control-employees?id=' + order.employee_id);
-            empName = empData.first_name + ' ' + empData.last_name;
-        } catch(e) {}
-        try {
-            var vehData = await api('GET', '/api/control-vehicles?id=' + order.vehicle_id);
-            vehName = vehData.vehicle ? vehData.vehicle.make + (vehData.vehicle.plate ? ' - ' + vehData.vehicle.plate : '') : '?';
-        } catch(e) {}
-
+    function fetchOrderNotif(order) {
+        var emp = order.employee;
+        var veh = order.vehicle;
+        var empName = emp ? (emp.first_name + ' ' + emp.last_name) : '?';
+        var vehName = veh ? veh.make + (veh.plate ? ' - ' + veh.plate : '') : '?';
         addNotification('start', 'Bon de travail commencé', empName + ' → ' + vehName);
     }
 
-    async function fetchClosedOrderNotif(orderId) {
-        // The order is already closed, get info from the stored data
+    function fetchClosedOrderNotif(orderId) {
         var order = knownOrderIds[orderId];
         if (!order) return;
-
-        var empName = '?';
-        var vehName = '?';
-        try {
-            var empData = await api('GET', '/api/control-employees?id=' + order.employee_id);
-            empName = empData.first_name + ' ' + empData.last_name;
-        } catch(e) {}
-        try {
-            var vehData = await api('GET', '/api/control-vehicles?id=' + order.vehicle_id);
-            vehName = vehData.vehicle ? vehData.vehicle.make + (vehData.vehicle.plate ? ' - ' + vehData.vehicle.plate : '') : '?';
-        } catch(e) {}
-
-        // Estimate duration from started_at to now
+        var emp = order.employee;
+        var veh = order.vehicle;
+        var empName = emp ? (emp.first_name + ' ' + emp.last_name) : '?';
+        var vehName = veh ? veh.make + (veh.plate ? ' - ' + veh.plate : '') : '?';
         var startMs = order.started_at ? new Date(order.started_at).getTime() : Date.now();
         if (startMs > Date.now()) startMs = Date.now();
         var duration = order.started_at ? formatDuration(Math.max(0, Math.floor((Date.now() - startMs) / 1000))) : '';
-        var detail = empName + ' → ' + vehName + (duration ? ' (' + duration + ')' : '');
-        addNotification('end', 'Bon de travail terminé', detail);
+        addNotification('end', 'Bon de travail terminé', empName + ' → ' + vehName + (duration ? ' (' + duration + ')' : ''));
     }
 
     function startNotifPolling() {
