@@ -1526,11 +1526,16 @@
             return;
         }
         var html = '';
+        var notifIcons = {
+            start: { cls: 'control-notif-item__icon--start', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>' },
+            end: { cls: 'control-notif-item__icon--end', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg>' },
+            pause: { cls: 'control-notif-item__icon--pause', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>' },
+            resume: { cls: 'control-notif-item__icon--resume', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>' }
+        };
         notifications.forEach(function(n) {
-            var iconClass = n.type === 'start' ? 'control-notif-item__icon--start' : 'control-notif-item__icon--end';
-            var iconSvg = n.type === 'start'
-                ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>'
-                : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+            var icon = notifIcons[n.type] || notifIcons.start;
+            var iconClass = icon.cls;
+            var iconSvg = icon.svg;
             var timeAgo = formatTimeAgo(n.time);
             html += '<div class="control-notif-item">';
             html += '<div class="control-notif-item__icon ' + iconClass + '">' + iconSvg + '</div>';
@@ -1569,6 +1574,14 @@
     }
 
     // Poll for work order changes
+    function orderLabel(order) {
+        var emp = order.employee;
+        var veh = order.vehicle;
+        var empName = emp ? (emp.first_name + ' ' + emp.last_name) : '?';
+        var vehName = veh ? veh.make + (veh.plate ? ' - ' + veh.plate : '') : '?';
+        return empName + ' → ' + vehName;
+    }
+
     async function pollWorkOrders() {
         try {
             var active = await api('GET', '/api/control-work-orders?active=true');
@@ -1582,15 +1595,29 @@
             // Detect new work orders (started)
             active.forEach(function(o) {
                 if (!knownOrderIds[o.id]) {
-                    fetchOrderNotif(o, 'start');
+                    addNotification('start', 'Bon de travail commencé', orderLabel(o));
                     hasChanges = true;
+                } else {
+                    // Detect pause/resume changes
+                    var prev = knownOrderIds[o.id];
+                    if (!!o.paused !== !!prev.paused) {
+                        if (o.paused) {
+                            addNotification('pause', 'Bon mis en pause', orderLabel(o));
+                        } else {
+                            addNotification('resume', 'Bon repris', orderLabel(o));
+                        }
+                        hasChanges = true;
+                    }
                 }
             });
 
             // Detect closed work orders (were known, now gone)
             Object.keys(knownOrderIds).forEach(function(id) {
                 if (!currentIds[id]) {
-                    fetchClosedOrderNotif(id);
+                    var order = knownOrderIds[id];
+                    if (order) {
+                        addNotification('end', 'Bon de travail terminé', orderLabel(order));
+                    }
                     hasChanges = true;
                 }
             });
@@ -1605,27 +1632,6 @@
                 if (monPanel && monPanel.classList.contains('active')) loadMonitoring();
             }
         } catch(e) {}
-    }
-
-    function fetchOrderNotif(order) {
-        var emp = order.employee;
-        var veh = order.vehicle;
-        var empName = emp ? (emp.first_name + ' ' + emp.last_name) : '?';
-        var vehName = veh ? veh.make + (veh.plate ? ' - ' + veh.plate : '') : '?';
-        addNotification('start', 'Bon de travail commencé', empName + ' → ' + vehName);
-    }
-
-    function fetchClosedOrderNotif(orderId) {
-        var order = knownOrderIds[orderId];
-        if (!order) return;
-        var emp = order.employee;
-        var veh = order.vehicle;
-        var empName = emp ? (emp.first_name + ' ' + emp.last_name) : '?';
-        var vehName = veh ? veh.make + (veh.plate ? ' - ' + veh.plate : '') : '?';
-        var startMs = order.started_at ? new Date(order.started_at).getTime() : Date.now();
-        if (startMs > Date.now()) startMs = Date.now();
-        var duration = order.started_at ? formatDuration(Math.max(0, Math.floor((Date.now() - startMs) / 1000))) : '';
-        addNotification('end', 'Bon de travail terminé', empName + ' → ' + vehName + (duration ? ' (' + duration + ')' : ''));
     }
 
     function startNotifPolling() {

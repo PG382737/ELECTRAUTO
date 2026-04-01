@@ -934,7 +934,9 @@ html::-webkit-scrollbar { display: none; }
     margin-top: 2px;
 }
 .control-notif-item__icon--start { background: rgba(34,197,94,0.12); color: var(--success); }
-.control-notif-item__icon--end { background: rgba(207,138,46,0.12); color: var(--accent); }
+.control-notif-item__icon--end { background: rgba(239,68,68,0.12); color: #ef4444; }
+.control-notif-item__icon--pause { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.control-notif-item__icon--resume { background: rgba(59,130,246,0.12); color: #3b82f6; }
 .control-notif-item__icon svg { width: 16px; height: 16px; }
 .control-notif-item__body { flex: 1; }
 .control-notif-item__title {
