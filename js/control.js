@@ -1991,8 +1991,7 @@
         var action = currentlyPaused ? 'resume' : 'pause';
         await api('PATCH', '/api/control-work-orders', { action: action, id: orderId });
         loadVehicles();
-        var monPanel = document.getElementById('panel-monitoring');
-        if (monPanel && monPanel.classList.contains('active')) loadMonitoring();
+        loadMonitoring();
     }
 
     function stopWorkOrder(vehicleId, vehName) {
