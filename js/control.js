@@ -1905,6 +1905,18 @@
     var monitoringInterval = null;
     var mediaPollingInterval = null;
 
+    function stopWorkOrder(vehicleId, vehName) {
+        showConfirmDelete('Arrêter le bon de travail ?', 'Le chrono sera arrêté et le bon de travail pour ' + vehName + ' sera fermé.', async function() {
+            try {
+                await api('PATCH', '/api/control-work-orders', { vehicle_id: vehicleId });
+                showToast('success', 'Bon fermé', 'Le bon de travail a été fermé.');
+                loadMonitoring();
+            } catch(e) {
+                showToast('error', 'Erreur', e.message);
+            }
+        });
+    }
+
     async function loadMonitoring() {
         var statsEl = document.getElementById('monitoring-stats');
         var activeEl = document.getElementById('monitoring-active-orders');
@@ -1980,6 +1992,7 @@
                         '</div>' +
                         '<div class="monitoring-order__started">' + formatDateTime(o.started_at) + '</div>' +
                         '<div class="monitoring-order__timer" id="monitoring-timer-' + i + '">00:00:00</div>' +
+                        '<span class="monitoring-stop-strip" onclick="Control.stopWorkOrder(\'' + o.vehicle_id + '\',\'' + escHtml(vehName) + '\')" title="Arrêter le bon de travail"><svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><rect x="6" y="6" width="12" height="12" rx="1"/></svg></span>' +
                         '<span class="monitoring-status-strip">' +
                             '<span class="monitoring-status-strip__play">▶</span>' +
                             '<span class="monitoring-status-strip__pause">⏸</span>' +
@@ -2225,7 +2238,8 @@
         toggleMediaSelect: toggleMediaSelect,
         copyMediaLink: function(token) { copyToClipboard(mediaShareUrl(token)); },
         openMediaFull: openMediaFull,
-        unassignMedia: function(id) { unassignMedia(id); }
+        unassignMedia: function(id) { unassignMedia(id); },
+        stopWorkOrder: stopWorkOrder
     };
 
 })();

@@ -1791,7 +1791,7 @@ html::-webkit-scrollbar { display: none; }
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 16px 20px 16px 20px;
-    padding-right: 64px;
+    padding-right: 100px;
     margin-bottom: 8px;
     display: flex;
     align-items: center;
@@ -1866,6 +1866,30 @@ html::-webkit-scrollbar { display: none; }
     font-size: 0.88rem;
 }
 
+/* Stop strip - monitoring */
+.monitoring-stop-strip {
+    position: absolute;
+    top: 0;
+    right: 48px;
+    bottom: 0;
+    width: 40px;
+    background: rgba(239,68,68,0.1);
+    border-left: 1px solid rgba(239,68,68,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(239,68,68,0.6);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.monitoring-stop-strip svg {
+    width: 14px;
+    height: 14px;
+}
+.monitoring-stop-strip:hover {
+    background: rgba(239,68,68,0.2);
+    color: #ef4444;
+}
 /* Status strip - monitoring */
 .monitoring-status-strip {
     position: absolute;
