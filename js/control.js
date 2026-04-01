@@ -744,27 +744,34 @@
         var start = page * PAGE_SIZE;
         var pageData = filtered.slice(start, start + PAGE_SIZE);
 
-        html += '<table class="control-table"><thead><tr><th>Véhicule</th><th>Propriétaire</th><th>Badge NFC</th><th>Statut</th><th style="text-align:right;">Actions</th></tr></thead><tbody>';
+        html += '<table class="control-table"><thead><tr><th>Véhicule</th><th>Badge NFC</th><th>Statut</th><th style="text-align:right;">Actions</th></tr></thead><tbody>';
         pageData.forEach(function(v) {
             var nfcBadge = v.nfc_tag_id
                 ? '<span class="nfc-badge nfc-badge--assigned">Assigné</span>'
                 : '<span class="nfc-badge nfc-badge--unassigned">Non assigné</span>';
 
+            var paused = isInPauseET(Date.now());
             var statusHtml = '';
+            var subLine = escHtml(v.owner_name);
             if (v.active_order) {
                 var timerId = 'live-veh-' + v.id;
                 var aoEmp = v.active_order.employee;
                 var aoEmpName = aoEmp ? (aoEmp.first_name + ' ' + aoEmp.last_name) : '';
-                var dotClass = 'live-dot' + (isInPauseET(Date.now()) ? ' live-dot--paused' : '');
-                statusHtml = '<span class="live-indicator"><span class="' + dotClass + '"></span><span class="live-timer" id="' + timerId + '">...</span>' + (aoEmpName ? '<span style="font-size:0.85rem;">' + escHtml(aoEmpName) + '</span>' : '') + '</span>';
+                var dotClass = 'live-dot' + (paused ? ' live-dot--paused' : '');
+                statusHtml = '<span class="live-indicator"><span class="' + dotClass + '"></span><span class="live-timer" id="' + timerId + '">...</span></span>';
+                if (aoEmpName) {
+                    var empColor = paused ? '#f59e0b' : '#22c55e';
+                    subLine += ' - <span style="color:' + empColor + ';">' + escHtml(aoEmpName) + '</span>';
+                }
                 setTimeout(function() { startLiveTimer(timerId, v.active_order.started_at); }, 50);
             } else {
                 statusHtml = '<span style="color:var(--text-muted);font-size:0.85rem;">-</span>';
             }
 
+            var vehLabel = escHtml(v.make) + (v.model ? ' ' + escHtml(v.model) : '') + (v.year ? ' - ' + v.year : '');
+
             html += '<tr>';
-            html += '<td class="col-name clickable-row" onclick="Control.openVehicleDetail(\'' + v.id + '\')">' + escHtml(v.make) + (v.model ? ' ' + escHtml(v.model) : '') + (v.year ? ' ' + v.year : '') + (v.color ? ' <span style="color:var(--text-muted);">(' + escHtml(v.color) + ')</span>' : '') + '</td>';
-            html += '<td>' + escHtml(v.owner_name) + '</td>';
+            html += '<td class="col-name clickable-row" onclick="Control.openVehicleDetail(\'' + v.id + '\')">' + vehLabel + '<div style="font-size:0.82rem;font-weight:400;color:var(--text-muted);margin-top:2px;">' + subLine + '</div></td>';
             html += '<td>' + nfcBadge + '</td>';
             html += '<td>' + statusHtml + '</td>';
             html += '<td><div class="col-actions col-actions--icons">';
