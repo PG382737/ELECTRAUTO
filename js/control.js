@@ -2036,7 +2036,9 @@
                 activeEl.innerHTML = html;
                 checkPauseBoundaries(activeOrders);
 
-                // Start live timers (clear local pause adjustments — server data is authoritative)
+                // Start live timers (clear local overrides — server data is authoritative)
+                monitoringPauseOverrides = {};
+                monitoringPauseAtOverrides = {};
                 monitoringExtraPausedSec = {};
                 activeOrders.forEach(function(o, i) {
                     var el = document.getElementById('monitoring-timer-' + i);
