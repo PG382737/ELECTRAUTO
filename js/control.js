@@ -1918,6 +1918,7 @@
     var monitoringInterval = null;
     var mediaPollingInterval = null;
     var monitoringPauseOverrides = {};
+    var monitoringPauseAtOverrides = {};
     var lastPauseCheckTime = null;
     var lastPauseCheckDay = null;
 
@@ -1944,6 +1945,7 @@
                     activeOrders.forEach(function(o) {
                         if (o.paused) {
                             monitoringPauseOverrides[o.id] = false;
+                            monitoringPauseAtOverrides[o.id] = null;
                             api('PATCH', '/api/control-work-orders', { action: 'resume', id: o.id });
                         }
                     });
@@ -1952,6 +1954,7 @@
                     activeOrders.forEach(function(o) {
                         if (!o.paused) {
                             monitoringPauseOverrides[o.id] = true;
+                            monitoringPauseAtOverrides[o.id] = Date.now();
                             api('PATCH', '/api/control-work-orders', { action: 'pause', id: o.id });
                         }
                     });
@@ -1966,6 +1969,7 @@
         var currentlyPaused = card && card.classList.contains('monitoring-order--paused');
         var newState = !currentlyPaused;
         monitoringPauseOverrides[orderId] = newState;
+        monitoringPauseAtOverrides[orderId] = newState ? Date.now() : null;
         var action = newState ? 'pause' : 'resume';
         api('PATCH', '/api/control-work-orders', { action: action, id: orderId });
     }
@@ -2085,7 +2089,8 @@
                         var now = Date.now();
                         var paused = monitoringPauseOverrides[o.id] !== undefined
                             ? monitoringPauseOverrides[o.id] : !!o.paused;
-                        var endTime = paused ? (pausedAtMs || now) : now;
+                        var localPausedAt = monitoringPauseAtOverrides[o.id];
+                        var endTime = paused ? (localPausedAt || pausedAtMs || now) : now;
                         var secs = Math.max(0, calcWorkingSeconds(start, endTime) - totalPausedSec);
                         el.textContent = formatDurationLong(secs);
                         if (paused !== wasPaused) {
