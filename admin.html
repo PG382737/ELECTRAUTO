@@ -138,10 +138,56 @@
                     <!-- Horaire de pause -->
                     <h2 style="font-size:1rem;margin-bottom:12px;">Horaire de pause</h2>
                     <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px;">Définissez les plages horaires de travail pour chaque jour.</p>
-                    <div id="pause-schedule-editor" style="background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px;">
+                    <div id="pause-schedule-editor" style="background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;">
                         <div id="pause-days-list"></div>
                         <button class="btn btn--primary btn--sm" id="btn-save-pause" style="margin-top:16px;">Sauvegarder</button>
                         <span id="pause-save-status" style="margin-left:12px;font-size:0.85rem;color:var(--text-muted);"></span>
+                    </div>
+
+                    <!-- Notifications -->
+                    <h2 style="font-size:1rem;margin-bottom:12px;">Notifications</h2>
+                    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px;">Choisissez les notifications à recevoir dans la cloche.</p>
+                    <div style="background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                            <div>
+                                <strong style="font-size:0.95rem;">Bon de travail commencé</strong>
+                                <p style="color:var(--text-muted);font-size:0.82rem;margin-top:2px;">Notification lorsqu'un nouveau bon de travail est ouvert.</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="notif-toggle-start" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                            <div>
+                                <strong style="font-size:0.95rem;">Bon de travail terminé</strong>
+                                <p style="color:var(--text-muted);font-size:0.82rem;margin-top:2px;">Notification lorsqu'un bon de travail est fermé.</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="notif-toggle-end" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                            <div>
+                                <strong style="font-size:0.95rem;">Bon mis en pause</strong>
+                                <p style="color:var(--text-muted);font-size:0.82rem;margin-top:2px;">Notification lorsqu'un bon de travail est mis en pause.</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="notif-toggle-pause" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;">
+                            <div>
+                                <strong style="font-size:0.95rem;">Bon repris</strong>
+                                <p style="color:var(--text-muted);font-size:0.82rem;margin-top:2px;">Notification lorsqu'un bon de travail reprend après une pause.</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="notif-toggle-resume" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -1442,9 +1442,38 @@
 
     // ---- NOTIFICATIONS ----
 
+    function getNotifPrefs() {
+        try {
+            var saved = localStorage.getItem('ea-notif-prefs');
+            if (saved) return JSON.parse(saved);
+        } catch(e) {}
+        return { start: true, end: true, pause: true, resume: true };
+    }
+
+    function saveNotifPrefs(prefs) {
+        try { localStorage.setItem('ea-notif-prefs', JSON.stringify(prefs)); } catch(e) {}
+    }
+
+    function initNotifPrefs() {
+        var prefs = getNotifPrefs();
+        var types = ['start', 'end', 'pause', 'resume'];
+        types.forEach(function(t) {
+            var el = document.getElementById('notif-toggle-' + t);
+            if (!el) return;
+            el.checked = prefs[t] !== false;
+            el.addEventListener('change', function() {
+                var p = getNotifPrefs();
+                p[t] = el.checked;
+                saveNotifPrefs(p);
+            });
+        });
+    }
+
     function addNotification(type, title, detail) {
+        var prefs = getNotifPrefs();
+        if (prefs[type] === false) return;
         notifications.unshift({
-            type: type, // 'start' or 'end'
+            type: type,
             title: title,
             detail: detail,
             time: new Date()
@@ -2147,6 +2176,7 @@
         connectNfcWebSocket();
 
         // Notifications
+        initNotifPrefs();
         document.getElementById('notif-toggle').addEventListener('click', toggleNotifPanel);
         document.getElementById('notif-clear').addEventListener('click', clearNotifications);
 
