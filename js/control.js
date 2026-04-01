@@ -762,10 +762,10 @@
                 ? '<span class="nfc-badge nfc-badge--assigned">Assigné</span>'
                 : '<span class="nfc-badge nfc-badge--unassigned">Non assigné</span>';
 
-            var paused = isInPauseET(Date.now());
             var statusHtml = '';
             var subLine = escHtml(v.owner_name);
             if (v.active_order) {
+                var paused = !!v.active_order.paused;
                 var timerId = 'live-veh-' + v.id;
                 var aoEmp = v.active_order.employee;
                 var aoEmpName = aoEmp ? (aoEmp.first_name + ' ' + aoEmp.last_name) : '';
@@ -775,7 +775,7 @@
                     var empColor = paused ? '#f59e0b' : '#22c55e';
                     subLine += ' - <span style="color:' + empColor + ';">' + escHtml(aoEmpName) + '</span>';
                 }
-                setTimeout(function() { startLiveTimer(timerId, v.active_order.started_at); }, 50);
+                setTimeout(function() { startLiveTimer(timerId, v.active_order.started_at, paused); }, 50);
             } else {
                 statusHtml = '<span style="color:var(--text-muted);font-size:0.85rem;">-</span>';
             }
@@ -820,7 +820,7 @@
 
     function vehGoTo(p) { vehPage = p; renderVehicles(); }
 
-    function startLiveTimer(elementId, startedAt) {
+    function startLiveTimer(elementId, startedAt, paused) {
         var el = document.getElementById(elementId);
         if (!el) return;
         var start = new Date(startedAt).getTime();
@@ -830,7 +830,7 @@
             var working = calcWorkingSeconds(start, now);
             if (el) {
                 el.textContent = formatDurationLong(working);
-                el.style.color = isInPauseET(now) ? '#f59e0b' : '';
+                el.style.color = paused ? '#f59e0b' : '';
             }
         }
         update();
@@ -1279,7 +1279,7 @@
             var ao = scannerActiveOrder;
             var empName = ao.employee ? (ao.employee.first_name + ' ' + ao.employee.last_name) : 'Inconnu';
             content.innerHTML = '<div class="nfc-scanner__info"><p><strong>' + escHtml(v2.make) + (v2.year ? ' ' + v2.year : '') + '</strong></p>' + (v2.plate ? '<p>Plaque: ' + escHtml(v2.plate) + '</p>' : '') + '<p>Propriétaire: ' + escHtml(v2.owner_name) + '</p><p style="margin-top:8px;">Employé: <strong>' + escHtml(empName) + '</strong></p></div><div class="nfc-scanner__elapsed" id="scanner-elapsed">00:00:00</div><div class="nfc-scanner__title" style="font-size:4rem;margin-top:20px;">EMPLOYÉ</div>' + SCANNER_NFC_ICON + '<div class="nfc-scanner__subtitle">Scannez le badge pour fermer le bon de travail</div>' + getScannerSimHtml();
-            setTimeout(function() { startScannerTimer(ao.started_at); }, 50);
+            setTimeout(function() { startScannerTimer(ao.started_at, !!ao.paused); }, 50);
 
         } else if (state === 'SUCCESS_OPEN') {
             stopDashboardOrderTimers();
@@ -1372,7 +1372,7 @@
             if (start > Date.now()) start = Date.now();
             function updateTimer() {
                 var now = Date.now();
-                var paused = isInPauseET(now);
+                var paused = !!order.paused;
                 var working = calcWorkingSeconds(start, now);
                 var h = Math.floor(working / 3600);
                 var m = Math.floor((working % 3600) / 60);
@@ -1391,14 +1391,13 @@
         return '';
     }
 
-    function startScannerTimer(startedAt) {
+    function startScannerTimer(startedAt, paused) {
         var el = document.getElementById('scanner-elapsed');
         if (!el) return;
         var start = new Date(startedAt).getTime();
         if (start > Date.now()) start = Date.now();
         function update() {
             var now = Date.now();
-            var paused = isInPauseET(now);
             var working = calcWorkingSeconds(start, now);
             if (el) {
                 el.textContent = formatDurationLong(working);
@@ -1932,6 +1931,47 @@
     var monitoringInterval = null;
     var mediaPollingInterval = null;
     var monitoringPauseOverrides = {};
+    var lastPauseCheckTime = null;
+    var lastPauseCheckDay = null;
+
+    function checkPauseBoundaries(activeOrders) {
+        var et = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Toronto' }));
+        var day = et.getDay();
+        var t = et.getHours() * 60 + et.getMinutes();
+
+        if (lastPauseCheckTime === null || lastPauseCheckDay !== day) {
+            lastPauseCheckTime = t;
+            lastPauseCheckDay = day;
+            return;
+        }
+
+        var bounds = PAUSE_BOUNDS[day] || [];
+        var prev = lastPauseCheckTime;
+        lastPauseCheckTime = t;
+        lastPauseCheckDay = day;
+
+        for (var i = 0; i < bounds.length; i++) {
+            if (prev < bounds[i] && t >= bounds[i]) {
+                if (i % 2 === 0) {
+                    // Work starts → resume all paused orders
+                    activeOrders.forEach(function(o) {
+                        if (o.paused) {
+                            monitoringPauseOverrides[o.id] = false;
+                            api('PATCH', '/api/control-work-orders', { action: 'resume', id: o.id });
+                        }
+                    });
+                } else {
+                    // Work ends → pause all active orders
+                    activeOrders.forEach(function(o) {
+                        if (!o.paused) {
+                            monitoringPauseOverrides[o.id] = true;
+                            api('PATCH', '/api/control-work-orders', { action: 'pause', id: o.id });
+                        }
+                    });
+                }
+            }
+        }
+    }
 
     function toggleOrderPause(orderId, index) {
         var el = document.getElementById('monitoring-timer-' + index);
@@ -2041,6 +2081,7 @@
                     '</div>';
                 });
                 activeEl.innerHTML = html;
+                checkPauseBoundaries(activeOrders);
 
                 // Start live timers
                 activeOrders.forEach(function(o, i) {
@@ -2054,8 +2095,7 @@
                     function tick() {
                         var now = Date.now();
                         var paused = monitoringPauseOverrides[o.id] !== undefined
-                            ? monitoringPauseOverrides[o.id]
-                            : (o.paused != null ? o.paused : isInPauseET(now));
+                            ? monitoringPauseOverrides[o.id] : !!o.paused;
                         el.textContent = formatDurationLong(calcWorkingSeconds(start, now));
                         if (paused !== wasPaused) {
                             wasPaused = paused;
