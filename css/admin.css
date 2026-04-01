@@ -1190,10 +1190,10 @@ html::-webkit-scrollbar { display: none; }
 }
 .timer-loader {
     display: inline-block;
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     border: 2px solid rgba(255,255,255,0.15);
-    border-top-color: #22c55e;
+    border-top-color: currentColor;
     border-radius: 50%;
     animation: timer-spin 0.6s linear infinite;
     vertical-align: middle;

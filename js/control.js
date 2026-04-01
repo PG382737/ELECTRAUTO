@@ -744,9 +744,9 @@
                 var aoPaused = !!ao.paused;
                 html += '<button class="icon-btn icon-btn--stop" title="Arrêter" onclick="Control.stopWorkOrderById(\'' + ao.id + '\')"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="6" width="12" height="12" rx="1"/></svg></button>';
                 if (aoPaused) {
-                    html += '<button class="icon-btn icon-btn--play" title="Reprendre" onclick="Control.toggleVehiclePause(\'' + ao.id + '\',\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 3 20 12 6 21 6 3"/></svg></button>';
+                    html += '<button class="icon-btn icon-btn--play" id="veh-action-' + ao.id + '" title="Reprendre" onclick="Control.toggleVehiclePause(\'' + ao.id + '\',\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 3 20 12 6 21 6 3"/></svg></button>';
                 } else {
-                    html += '<button class="icon-btn icon-btn--pause" title="Pause" onclick="Control.toggleVehiclePause(\'' + ao.id + '\',\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="4" width="4" height="16" rx="1"/><rect x="15" y="4" width="4" height="16" rx="1"/></svg></button>';
+                    html += '<button class="icon-btn icon-btn--pause" id="veh-action-' + ao.id + '" title="Pause" onclick="Control.toggleVehiclePause(\'' + ao.id + '\',\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="4" width="4" height="16" rx="1"/><rect x="15" y="4" width="4" height="16" rx="1"/></svg></button>';
                 }
             });
             html += '<button class="icon-btn" title="Détail" onclick="Control.openVehicleDetail(\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>';
@@ -1879,19 +1879,24 @@
                     activeOrders.forEach(function(o) {
                         if (o.paused) {
                             monitoringLoadingOrders[o.id] = true;
+                            var strip = document.getElementById('monitoring-action-' + o.id);
+                            if (strip) strip.innerHTML = '<span class="timer-loader"></span>';
                             api('PATCH', '/api/control-work-orders', { action: 'resume', id: o.id });
                         }
                     });
                     setTimeout(function() { loadMonitoring(); }, 500);
                 } else {
-                    // Work ends → pause all active orders
+                    // Work ends → pause all active orders (show loader until server confirms)
                     activeOrders.forEach(function(o) {
                         if (!o.paused) {
                             monitoringPauseOverrides[o.id] = true;
                             monitoringPauseAtOverrides[o.id] = Date.now();
+                            var strip = document.getElementById('monitoring-action-' + o.id);
+                            if (strip) strip.innerHTML = '<span class="timer-loader"></span>';
                             api('PATCH', '/api/control-work-orders', { action: 'pause', id: o.id });
                         }
                     });
+                    setTimeout(function() { loadMonitoring(); }, 500);
                 }
             }
         }
@@ -1900,24 +1905,26 @@
     function toggleOrderPause(orderId, index) {
         var el = document.getElementById('monitoring-timer-' + index);
         var card = el ? el.closest('.monitoring-order') : null;
+        var strip = document.getElementById('monitoring-action-' + orderId);
         var currentlyPaused = card && card.classList.contains('monitoring-order--paused');
         var newState = !currentlyPaused;
+        // Show loader in the action button
+        if (strip) strip.innerHTML = '<span class="timer-loader"></span>';
         if (newState) {
             // Pausing — immediately freeze timer at current time
             monitoringPauseOverrides[orderId] = true;
             monitoringPauseAtOverrides[orderId] = Date.now();
         } else {
-            // Resuming — show loader until server data arrives
+            // Resuming — keep timer frozen until server data arrives
             monitoringLoadingOrders[orderId] = true;
-            if (el) el.innerHTML = '<span class="timer-loader"></span>';
             if (card) card.classList.remove('monitoring-order--paused');
+            if (el) el.classList.remove('monitoring-order__timer--paused');
             var dot = card ? card.querySelector('.monitoring-order__dot') : null;
             if (dot) dot.classList.remove('monitoring-order__dot--paused');
-            if (el) el.classList.remove('monitoring-order__timer--paused');
         }
         var action = newState ? 'pause' : 'resume';
         api('PATCH', '/api/control-work-orders', { action: action, id: orderId }).then(function() {
-            if (!newState) loadMonitoring();
+            loadMonitoring();
         });
     }
 
@@ -1926,11 +1933,9 @@
         var aos = veh ? (veh.active_orders || []) : [];
         var ao = aos.find(function(o) { return o.id === orderId; });
         var currentlyPaused = ao && !!ao.paused;
-        if (currentlyPaused) {
-            // Resuming — show loader on vehicle list timer
-            var timerEl = document.getElementById('live-veh-' + vehicleId);
-            if (timerEl) timerEl.innerHTML = '<span class="timer-loader"></span>';
-        }
+        // Show loader in the action button
+        var actionBtn = document.getElementById('veh-action-' + orderId);
+        if (actionBtn) actionBtn.innerHTML = '<span class="timer-loader"></span>';
         var action = currentlyPaused ? 'resume' : 'pause';
         await api('PATCH', '/api/control-work-orders', { action: action, id: orderId });
         loadVehicles();
@@ -2041,7 +2046,7 @@
                             '<div class="monitoring-order__started">' + formatDateTime(o.started_at) + '</div>' +
                         '</div>' +
                         '<span class="monitoring-stop-strip" onclick="Control.stopWorkOrder(\'' + o.vehicle_id + '\',\'' + escHtml(vehName) + '\')" title="Arrêter le bon de travail"><svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><rect x="6" y="6" width="12" height="12" rx="1"/></svg></span>' +
-                        '<span class="monitoring-status-strip" onclick="Control.toggleOrderPause(\'' + o.id + '\',' + i + ')">' +
+                        '<span class="monitoring-status-strip" id="monitoring-action-' + o.id + '" onclick="Control.toggleOrderPause(\'' + o.id + '\',' + i + ')">' +
                             '<span class="monitoring-status-strip__play">▶</span>' +
                             '<span class="monitoring-status-strip__pause">⏸</span>' +
                         '</span>' +
