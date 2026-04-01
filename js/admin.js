@@ -376,11 +376,22 @@ function timeToMinutes(t) {
     return parseInt(parts[0]) * 60 + parseInt(parts[1]);
 }
 
-function renderPauseEditor(bounds) {
+function pauseDaySummary(dayBounds) {
+    if (!dayBounds || dayBounds.length === 0) return 'Fermé';
+    var parts = [];
+    for (var s = 0; s < dayBounds.length; s += 2) {
+        parts.push(minutesToTime(dayBounds[s]) + ' - ' + minutesToTime(dayBounds[s + 1] || 0));
+    }
+    return parts.join(', ');
+}
+
+function renderPauseEditor(bounds, openDay) {
     var container = document.getElementById('pause-days-list');
     if (!container) return;
     var html = '';
-    for (var d = 1; d <= 6; d++) {
+    var ARROW_SVG = '<svg class="pause-day__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>';
+    var dayOrder = [1, 2, 3, 4, 5, 6, 0];
+    dayOrder.forEach(function(d) {
         var dayBounds = bounds[d] || [];
         var enabled = dayBounds.length > 0;
         var shifts = [];
@@ -388,11 +399,14 @@ function renderPauseEditor(bounds) {
             shifts.push({ start: dayBounds[s] || 0, end: dayBounds[s + 1] || 0 });
         }
         if (shifts.length === 0) shifts.push({ start: 480, end: 1020 });
+        var isOpen = openDay === d;
 
-        html += '<div class="pause-day" data-day="' + d + '">';
+        html += '<div class="pause-day' + (isOpen ? ' pause-day--open' : '') + '" data-day="' + d + '">';
         html += '<div class="pause-day__header">';
-        html += '<label class="toggle-switch toggle-switch--sm"><input type="checkbox" class="pause-day-toggle" ' + (enabled ? 'checked' : '') + '><span class="toggle-slider"></span></label>';
+        html += ARROW_SVG;
+        html += '<label class="toggle-switch toggle-switch--sm" onclick="event.stopPropagation();"><input type="checkbox" class="pause-day-toggle" ' + (enabled ? 'checked' : '') + '><span class="toggle-slider"></span></label>';
         html += '<strong>' + DAY_NAMES[d] + '</strong>';
+        html += '<span class="pause-day__summary">' + pauseDaySummary(dayBounds) + '</span>';
         html += '</div>';
         html += '<div class="pause-day__shifts" style="' + (enabled ? '' : 'opacity:0.4;pointer-events:none;') + '">';
         shifts.forEach(function(sh, si) {
@@ -406,33 +420,7 @@ function renderPauseEditor(bounds) {
         html += '<button class="btn btn--ghost btn--sm pause-add-shift" style="margin-top:6px;font-size:0.8rem;">+ Ajouter un quart</button>';
         html += '</div>';
         html += '</div>';
-    }
-    // Dimanche (day 0)
-    var sunBounds = bounds[0] || [];
-    var sunEnabled = sunBounds.length > 0;
-    var sunShifts = [];
-    for (var ss = 0; ss < sunBounds.length; ss += 2) {
-        sunShifts.push({ start: sunBounds[ss] || 0, end: sunBounds[ss + 1] || 0 });
-    }
-    if (sunShifts.length === 0) sunShifts.push({ start: 480, end: 1020 });
-
-    html += '<div class="pause-day" data-day="0">';
-    html += '<div class="pause-day__header">';
-    html += '<label class="toggle-switch toggle-switch--sm"><input type="checkbox" class="pause-day-toggle" ' + (sunEnabled ? 'checked' : '') + '><span class="toggle-slider"></span></label>';
-    html += '<strong>' + DAY_NAMES[0] + '</strong>';
-    html += '</div>';
-    html += '<div class="pause-day__shifts" style="' + (sunEnabled ? '' : 'opacity:0.4;pointer-events:none;') + '">';
-    sunShifts.forEach(function(sh, si) {
-        html += '<div class="pause-day__shift">';
-        html += '<input type="time" class="pause-time-input" value="' + minutesToTime(sh.start) + '" data-shift="' + si + '" data-pos="start">';
-        html += '<span style="color:var(--text-muted);"> - </span>';
-        html += '<input type="time" class="pause-time-input" value="' + minutesToTime(sh.end) + '" data-shift="' + si + '" data-pos="end">';
-        if (si > 0) html += '<button class="btn btn--ghost btn--sm pause-remove-shift" data-shift="' + si + '" style="padding:4px 8px;margin-left:4px;">x</button>';
-        html += '</div>';
     });
-    html += '<button class="btn btn--ghost btn--sm pause-add-shift" style="margin-top:6px;font-size:0.8rem;">+ Ajouter un quart</button>';
-    html += '</div>';
-    html += '</div>';
 
     container.innerHTML = html;
     bindPauseEditorEvents(bounds);
@@ -458,12 +446,30 @@ function collectPauseBounds() {
 }
 
 function bindPauseEditorEvents(bounds) {
+    document.querySelectorAll('.pause-day__header').forEach(function(header) {
+        header.addEventListener('click', function() {
+            var dayEl = this.closest('.pause-day');
+            dayEl.classList.toggle('pause-day--open');
+        });
+    });
     document.querySelectorAll('.pause-day-toggle').forEach(function(toggle) {
         toggle.addEventListener('change', function() {
-            var shifts = this.closest('.pause-day').querySelector('.pause-day__shifts');
+            var dayEl = this.closest('.pause-day');
+            var shifts = dayEl.querySelector('.pause-day__shifts');
             if (shifts) {
                 shifts.style.opacity = this.checked ? '' : '0.4';
                 shifts.style.pointerEvents = this.checked ? '' : 'none';
+            }
+            // Update summary
+            var summary = dayEl.querySelector('.pause-day__summary');
+            if (summary) {
+                if (!this.checked) {
+                    summary.textContent = 'Fermé';
+                } else {
+                    var d = parseInt(dayEl.getAttribute('data-day'));
+                    var current = collectPauseBounds();
+                    summary.textContent = pauseDaySummary(current[d]);
+                }
             }
         });
     });
@@ -474,7 +480,7 @@ function bindPauseEditorEvents(bounds) {
             var current = collectPauseBounds();
             if (!current[d]) current[d] = [480, 1020];
             current[d].push(780, 1020);
-            renderPauseEditor(current);
+            renderPauseEditor(current, d);
         });
     });
     document.querySelectorAll('.pause-remove-shift').forEach(function(btn) {
@@ -487,7 +493,7 @@ function bindPauseEditorEvents(bounds) {
                 current[d].splice(si * 2, 2);
                 if (current[d].length === 0) delete current[d];
             }
-            renderPauseEditor(current);
+            renderPauseEditor(current, d);
         });
     });
 }

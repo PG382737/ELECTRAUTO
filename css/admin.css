@@ -2220,14 +2220,35 @@ html::-webkit-scrollbar { display: none; }
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+.pause-day__arrow {
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+}
+.pause-day--open > .pause-day__header > .pause-day__arrow {
+    transform: rotate(90deg);
+}
+.pause-day__summary {
+    margin-left: auto;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 400;
 }
 .pause-day__shifts {
     padding-left: 48px;
-    display: flex;
+    display: none;
     flex-direction: column;
     gap: 6px;
+    margin-top: 8px;
     transition: opacity 0.15s;
+}
+.pause-day--open > .pause-day__shifts {
+    display: flex;
 }
 .pause-day__shift {
     display: flex;
