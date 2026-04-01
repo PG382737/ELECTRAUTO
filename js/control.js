@@ -775,6 +775,9 @@
             html += '<td>' + nfcBadge + '</td>';
             html += '<td>' + statusHtml + '</td>';
             html += '<td><div class="col-actions col-actions--icons">';
+            if (v.active_order) {
+                html += '<button class="icon-btn icon-btn--stop" title="Arrêter le bon de travail" onclick="Control.stopWorkOrder(\'' + v.id + '\',\'' + escHtml(vehLabel) + '\')"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="6" width="12" height="12" rx="1"/></svg></button>';
+            }
             html += '<button class="icon-btn" title="Détail" onclick="Control.openVehicleDetail(\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>';
             html += '<button class="icon-btn" title="Modifier" onclick="Control.editVehicle(\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
             html += '<button class="icon-btn icon-btn--danger" title="Supprimer" onclick="Control.deleteVehicle(\'' + v.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>';
@@ -1919,6 +1922,7 @@
                 await api('PATCH', '/api/control-work-orders', { vehicle_id: vehicleId });
                 showToast('success', 'Bon fermé', 'Le bon de travail a été fermé.');
                 loadMonitoring();
+                loadVehicles();
             } catch(e) {
                 showToast('error', 'Erreur', e.message);
             }

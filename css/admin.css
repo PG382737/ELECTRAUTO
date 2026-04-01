@@ -1057,6 +1057,15 @@ html::-webkit-scrollbar { display: none; }
     color: #ef4444;
     border-color: rgba(239,68,68,0.4);
 }
+.icon-btn--stop {
+    color: rgba(239,68,68,0.6);
+    border-color: rgba(239,68,68,0.3);
+}
+.icon-btn--stop:hover {
+    background: rgba(239,68,68,0.15);
+    color: #ef4444;
+    border-color: rgba(239,68,68,0.4);
+}
 .control-table .clickable-row { cursor: pointer; }
 
 /* NFC badge indicator */
