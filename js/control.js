@@ -2253,7 +2253,7 @@
             if (vehId) {
                 try {
                     var active = await api('GET', '/api/control-work-orders?vehicle_id=' + vehId);
-                    if (active) {
+                    if (active && active.length > 0) {
                         showToast('warning', 'Action impossible', 'Ce véhicule a un bon de travail ouvert.');
                         return;
                     }
