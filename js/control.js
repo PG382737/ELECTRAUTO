@@ -1777,8 +1777,13 @@
         if (bar) bar.style.display = 'flex';
         var sel = document.getElementById('media-classify-vehicle');
         if (sel) {
+            var sorted = allVehicles.slice().sort(function(a, b) {
+                var la = (a.make || '').toLowerCase();
+                var lb = (b.make || '').toLowerCase();
+                return la < lb ? -1 : la > lb ? 1 : 0;
+            });
             sel.innerHTML = '<option value="">Choisir un véhicule...</option>' +
-                allVehicles.map(function(v) {
+                sorted.map(function(v) {
                     var label = escHtml(v.make) + (v.model ? ' ' + escHtml(v.model) : '') + (v.year ? ' ' + v.year : '') + (v.plate ? ' - ' + escHtml(v.plate) : '') + ' (' + escHtml(v.owner_name) + ')';
                     return '<option value="' + escHtml(v.id) + '">' + label + '</option>';
                 }).join('');
