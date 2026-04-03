@@ -125,7 +125,7 @@ exports.handler = async (event) => {
             const [data, activeOrders, mediaRows] = await Promise.all([
                 supaFetch('control_vehicles?order=created_at.desc'),
                 supaFetch('control_work_orders?ended_at=is.null'),
-                supaFetch('control_media?select=vehicle_id&vehicle_id=not.is.null')
+                supaFetch('garage_media?select=vehicle_id&vehicle_id=not.is.null')
             ]);
             const activeMap = {};
             activeOrders.forEach(o => {
