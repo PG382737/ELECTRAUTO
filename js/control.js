@@ -1749,7 +1749,7 @@
                 var v = g.vehicle;
                 var label = v ? (escHtml(v.make) + (v.model ? ' ' + escHtml(v.model) : '') + (v.year ? ' ' + v.year : '') + (v.plate ? ' - ' + escHtml(v.plate) : '')) : 'Véhicule inconnu';
                 html += '<div class="media-group">';
-                html += '<div class="media-group__title">' + label + ' <span class="media-badge">' + g.items.length + '</span></div>';
+                html += '<div class="media-group__title"><a href="#" onclick="event.preventDefault();Control.openVehicleDetail(\'' + escHtml(vid) + '\')" style="color:var(--accent);text-decoration:none;">' + label + '</a> <span class="media-badge">' + g.items.length + '</span></div>';
                 html += '<div class="media-grid">' + g.items.map(function(m) { return renderMediaThumb(m, { selectable: mediaDeleteMode, removable: false }); }).join('') + '</div>';
                 html += '</div>';
             });
