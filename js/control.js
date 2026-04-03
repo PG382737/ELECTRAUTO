@@ -706,7 +706,7 @@
         var start = page * PAGE_SIZE;
         var pageData = filtered.slice(start, start + PAGE_SIZE);
 
-        html += '<table class="control-table"><thead><tr><th>Véhicule</th><th>Badge NFC</th><th>Statut</th><th style="text-align:right;">Actions</th></tr></thead><tbody>';
+        html += '<table class="control-table"><thead><tr><th>Véhicule</th><th>Badge NFC</th><th>Statut</th><th>Médias</th><th style="text-align:right;">Actions</th></tr></thead><tbody>';
         pageData.forEach(function(v) {
             var nfcBadge = v.nfc_tag_id
                 ? '<span class="nfc-badge nfc-badge--assigned">Assigné</span>'
@@ -740,6 +740,7 @@
             html += '<td class="col-name clickable-row" onclick="Control.openVehicleDetail(\'' + v.id + '\')">' + vehLabel + '<div style="font-size:0.82rem;font-weight:400;color:var(--text-muted);margin-top:2px;">' + subLine + '</div></td>';
             html += '<td>' + nfcBadge + '</td>';
             html += '<td>' + statusHtml + '</td>';
+            html += '<td style="text-align:center;color:var(--text-muted);font-size:0.85rem;">' + (v.media_count || 0) + '</td>';
             html += '<td><div class="col-actions col-actions--icons">';
             aos.forEach(function(ao) {
                 var aoPaused = !!ao.paused;

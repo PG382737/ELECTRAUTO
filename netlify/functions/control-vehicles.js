@@ -122,10 +122,11 @@ exports.handler = async (event) => {
             }
 
             // List all vehicles
-            const data = await supaFetch('control_vehicles?order=created_at.desc');
-
-            // Get active work orders to show live status
-            const activeOrders = await supaFetch('control_work_orders?ended_at=is.null');
+            const [data, activeOrders, mediaRows] = await Promise.all([
+                supaFetch('control_vehicles?order=created_at.desc'),
+                supaFetch('control_work_orders?ended_at=is.null'),
+                supaFetch('control_media?select=vehicle_id&vehicle_id=not.is.null')
+            ]);
             const activeMap = {};
             activeOrders.forEach(o => {
                 if (!activeMap[o.vehicle_id]) activeMap[o.vehicle_id] = [];
@@ -141,11 +142,18 @@ exports.handler = async (event) => {
             const activeEmpMap = {};
             activeEmps.forEach(e => { activeEmpMap[e.id] = e; });
 
+            // Count media per vehicle
+            const mediaCountMap = {};
+            (mediaRows || []).forEach(r => {
+                mediaCountMap[r.vehicle_id] = (mediaCountMap[r.vehicle_id] || 0) + 1;
+            });
+
             const enriched = data.map(v => {
                 const aos = activeMap[v.id] || [];
                 return {
                     ...v,
-                    active_orders: aos.map(ao => ({ ...ao, employee: activeEmpMap[ao.employee_id] || null }))
+                    active_orders: aos.map(ao => ({ ...ao, employee: activeEmpMap[ao.employee_id] || null })),
+                    media_count: mediaCountMap[v.id] || 0
                 };
             });
 
