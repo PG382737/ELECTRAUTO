@@ -362,7 +362,11 @@
                         <!-- Classify bar -->
                         <div class="media-classify-bar" id="media-classify-bar" style="display:none;">
                             <span id="media-classify-count">0 sélectionné(s)</span>
-                            <select id="media-classify-vehicle"></select>
+                            <div class="veh-search-select" id="media-classify-vehicle-wrap">
+                                <input type="text" class="veh-search-select__input" id="media-classify-vehicle-input" placeholder="Rechercher un véhicule..." autocomplete="off">
+                                <input type="hidden" id="media-classify-vehicle">
+                                <div class="veh-search-select__dropdown" id="media-classify-vehicle-dropdown"></div>
+                            </div>
                             <button class="btn btn--primary btn--sm" id="btn-media-assign">Assigner</button>
                             <button class="btn btn--ghost btn--sm" id="btn-media-classify-cancel">Annuler</button>
                         </div>

@@ -1780,25 +1780,66 @@
         if (wrap) wrap.style.display = visible ? 'flex' : 'none';
     }
 
+    function vehLabel(v) {
+        return (v.make || '') + (v.model ? ' ' + v.model : '') + (v.year ? ' ' + v.year : '') + (v.plate ? ' - ' + v.plate : '') + ' (' + (v.owner_name || '') + ')';
+    }
+
+    function initVehSearchSelect() {
+        var input = document.getElementById('media-classify-vehicle-input');
+        var hidden = document.getElementById('media-classify-vehicle');
+        var dropdown = document.getElementById('media-classify-vehicle-dropdown');
+        if (!input || !dropdown) return;
+
+        var sorted = allVehicles.slice().sort(function(a, b) {
+            var la = (a.make || '').toLowerCase();
+            var lb = (b.make || '').toLowerCase();
+            return la < lb ? -1 : la > lb ? 1 : 0;
+        });
+
+        function renderList(query) {
+            var q = (query || '').toLowerCase();
+            var matches = sorted.filter(function(v) {
+                return vehLabel(v).toLowerCase().indexOf(q) !== -1;
+            });
+            if (matches.length === 0) {
+                dropdown.innerHTML = '<div class="veh-search-select__empty">Aucun résultat</div>';
+            } else {
+                dropdown.innerHTML = matches.map(function(v) {
+                    return '<div class="veh-search-select__item" data-id="' + escHtml(v.id) + '">' + escHtml(vehLabel(v)) + '</div>';
+                }).join('');
+            }
+            dropdown.classList.add('veh-search-select__dropdown--open');
+        }
+
+        input.addEventListener('focus', function() { renderList(input.value); });
+        input.addEventListener('input', function() {
+            hidden.value = '';
+            renderList(input.value);
+        });
+        dropdown.addEventListener('mousedown', function(e) {
+            var item = e.target.closest('.veh-search-select__item');
+            if (item) {
+                hidden.value = item.getAttribute('data-id');
+                input.value = item.textContent;
+                dropdown.classList.remove('veh-search-select__dropdown--open');
+            }
+        });
+        input.addEventListener('blur', function() {
+            setTimeout(function() { dropdown.classList.remove('veh-search-select__dropdown--open'); }, 150);
+        });
+    }
+
     function enterClassifyMode() {
         mediaClassifyMode = true;
         selectedMediaIds = {};
         setMediaModeBtns(false);
         var bar = document.getElementById('media-classify-bar');
         if (bar) bar.style.display = 'flex';
-        var sel = document.getElementById('media-classify-vehicle');
-        if (sel) {
-            var sorted = allVehicles.slice().sort(function(a, b) {
-                var la = (a.make || '').toLowerCase();
-                var lb = (b.make || '').toLowerCase();
-                return la < lb ? -1 : la > lb ? 1 : 0;
-            });
-            sel.innerHTML = '<option value="">Choisir un véhicule...</option>' +
-                sorted.map(function(v) {
-                    var label = escHtml(v.make) + (v.model ? ' ' + escHtml(v.model) : '') + (v.year ? ' ' + v.year : '') + (v.plate ? ' - ' + escHtml(v.plate) : '') + ' (' + escHtml(v.owner_name) + ')';
-                    return '<option value="' + escHtml(v.id) + '">' + label + '</option>';
-                }).join('');
-        }
+        var input = document.getElementById('media-classify-vehicle-input');
+        var hidden = document.getElementById('media-classify-vehicle');
+        if (input) input.value = '';
+        if (hidden) hidden.value = '';
+        initVehSearchSelect();
         loadMedias(true);
     }
 
