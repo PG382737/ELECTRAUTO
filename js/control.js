@@ -411,6 +411,7 @@
                     loadMonitoring();
                 } else if (target === 'medias') {
                     document.getElementById('panel-medias').classList.add('active');
+                    lastMediaSignature = '';
                     loadMedias();
                     clearInterval(mediaPollingInterval);
                     mediaPollingInterval = setInterval(function() {
@@ -1686,12 +1687,15 @@
         return '<div class="' + cls + '" id="media-thumb-' + escHtml(m.id) + '" onclick="' + clickHandler + '">' + inner + '</div>';
     }
 
-    async function loadMedias() {
+    async function loadMedias(forceRender) {
         var gridNew = document.getElementById('media-grid-new');
         var groupsEl = document.getElementById('media-assigned-groups');
         if (!gridNew) return;
-        gridNew.innerHTML = '<div class="media-empty-state">Chargement...</div>';
-        if (groupsEl) groupsEl.innerHTML = '';
+        var isFirstLoad = !lastMediaSignature;
+        if (isFirstLoad) {
+            gridNew.innerHTML = '<div class="media-empty-state">Chargement...</div>';
+            if (groupsEl) groupsEl.innerHTML = '';
+        }
         try {
             var results = await Promise.all([
                 api('GET', '/api/media?filter=unassigned'),
@@ -1699,6 +1703,12 @@
             ]);
             var unassigned = results[0] || [];
             var assigned = results[1] || [];
+
+            // Check if data changed — skip re-render if identical
+            var sig = unassigned.map(function(m) { return m.id + ':' + (m.vehicle_id || ''); }).join(',')
+                + '|' + assigned.map(function(m) { return m.id + ':' + (m.vehicle_id || ''); }).join(',');
+            if (!forceRender && sig === lastMediaSignature) return;
+            lastMediaSignature = sig;
 
             // Badge counts
             var newBadge = document.getElementById('media-new-badge');
@@ -1788,7 +1798,7 @@
                     return '<option value="' + escHtml(v.id) + '">' + label + '</option>';
                 }).join('');
         }
-        loadMedias();
+        loadMedias(true);
     }
 
     function exitClassifyMode() {
@@ -1797,7 +1807,7 @@
         setMediaModeBtns(true);
         var bar = document.getElementById('media-classify-bar');
         if (bar) bar.style.display = 'none';
-        loadMedias();
+        loadMedias(true);
     }
 
     function enterDeleteMode() {
@@ -1806,7 +1816,7 @@
         setMediaModeBtns(false);
         var bar = document.getElementById('media-delete-bar');
         if (bar) bar.style.display = 'flex';
-        loadMedias();
+        loadMedias(true);
     }
 
     function exitDeleteMode() {
@@ -1815,7 +1825,7 @@
         setMediaModeBtns(true);
         var bar = document.getElementById('media-delete-bar');
         if (bar) bar.style.display = 'none';
-        loadMedias();
+        loadMedias(true);
     }
 
     async function deleteSelectedMedia() {
@@ -1884,6 +1894,7 @@
     var monitoringTimers = [];
     var monitoringInterval = null;
     var mediaPollingInterval = null;
+    var lastMediaSignature = '';
     var monitoringPauseOverrides = {};
     var monitoringPauseAtOverrides = {};
     var monitoringLoadingOrders = {};
