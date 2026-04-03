@@ -706,7 +706,7 @@
         var start = page * PAGE_SIZE;
         var pageData = filtered.slice(start, start + PAGE_SIZE);
 
-        html += '<table class="control-table"><thead><tr><th>Véhicule</th><th>Badge NFC</th><th>Statut</th><th>Médias</th><th style="text-align:right;">Actions</th></tr></thead><tbody>';
+        html += '<table class="control-table"><thead><tr><th>Véhicule</th><th>Badge NFC</th><th>Statut</th><th style="text-align:center;">Médias</th><th style="text-align:right;">Actions</th></tr></thead><tbody>';
         pageData.forEach(function(v) {
             var nfcBadge = v.nfc_tag_id
                 ? '<span class="nfc-badge nfc-badge--assigned">Assigné</span>'
