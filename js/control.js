@@ -1665,7 +1665,15 @@
         });
     }
 
+    var lastLoggedNotif = {};
+
     function logNotificationToServer(type, title, detail) {
+        // Deduplicate: skip if same notification was logged within 10 seconds
+        var key = type + '|' + title + '|' + (detail || '');
+        var now = Date.now();
+        if (lastLoggedNotif[key] && now - lastLoggedNotif[key] < 10000) return;
+        lastLoggedNotif[key] = now;
+
         var isSystem = detail && detail.indexOf('(sys)') !== -1;
         api('POST', '/api/notification-logs', {
             type: type,
@@ -1842,6 +1850,7 @@
     }
 
     async function pollWorkOrders() {
+        if (!knownOrdersReady) return; // Wait for initial load to finish
         try {
             var active = await api('GET', '/api/control-work-orders?active=true');
             if (!active) return;
@@ -1896,13 +1905,16 @@
         } catch(e) { console.error('pollWorkOrders error:', e); }
     }
 
+    var knownOrdersReady = false;
+
     function startNotifPolling() {
         if (notifPollingInterval) return;
         // Initial load of known orders (no notification on first load)
         api('GET', '/api/control-work-orders?active=true').then(function(active) {
             if (active) active.forEach(function(o) { knownOrderIds[o.id] = o; });
-        }).catch(function() {});
-        // Poll every 10 seconds
+            knownOrdersReady = true;
+        }).catch(function() { knownOrdersReady = true; });
+        // Poll every 5 seconds
         notifPollingInterval = setInterval(pollWorkOrders, 5000);
     }
 
