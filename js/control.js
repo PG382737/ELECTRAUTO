@@ -1674,7 +1674,7 @@
         if (lastLoggedNotif[key] && now - lastLoggedNotif[key] < 10000) return;
         lastLoggedNotif[key] = now;
 
-        var isSystem = detail && detail.indexOf('(sys)') !== -1;
+        var isSystem = (title && title.indexOf('(sys)') !== -1) || (detail && detail.indexOf('(sys)') !== -1);
         api('POST', '/api/notification-logs', {
             type: type,
             title: title,
@@ -2253,7 +2253,7 @@
                 var strip = document.getElementById('monitoring-action-' + o.id);
                 if (strip) strip.innerHTML = '<span class="timer-loader"></span>';
                 api('PATCH', '/api/control-work-orders', { action: 'resume', id: o.id });
-                addNotification('resume', 'Bon repris', orderLabel(o) + ' (sys)');
+                addNotification('resume', 'Bon repris (sys)', orderLabel(o));
                 if (knownOrderIds[o.id]) knownOrderIds[o.id].paused = false;
                 changed = true;
             } else if (!shouldRun && !o.paused) {
@@ -2262,7 +2262,7 @@
                 var strip = document.getElementById('monitoring-action-' + o.id);
                 if (strip) strip.innerHTML = '<span class="timer-loader"></span>';
                 api('PATCH', '/api/control-work-orders', { action: 'pause', id: o.id });
-                addNotification('pause', 'Bon mis en pause', orderLabel(o) + ' (sys)');
+                addNotification('pause', 'Bon mis en pause (sys)', orderLabel(o));
                 if (knownOrderIds[o.id]) knownOrderIds[o.id].paused = true;
                 changed = true;
             }
