@@ -80,9 +80,9 @@ exports.handler = async (event) => {
                 // Use Eastern Time (America/Toronto) for date calculations
                 const nowET = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Toronto' }));
 
+                let dateTo = null;
                 if (period === 'day') {
                     const todayET = new Date(nowET.getFullYear(), nowET.getMonth(), nowET.getDate());
-                    // Convert back: Eastern is UTC-5 (EST) or UTC-4 (EDT)
                     const offset = getETOffset(todayET);
                     dateFrom = new Date(todayET.getTime() + offset * 60 * 60 * 1000).toISOString();
                 } else if (period === 'week') {
@@ -91,6 +91,17 @@ exports.handler = async (event) => {
                     const mondayET = new Date(nowET.getFullYear(), nowET.getMonth(), nowET.getDate() - diff);
                     const offset = getETOffset(mondayET);
                     dateFrom = new Date(mondayET.getTime() + offset * 60 * 60 * 1000).toISOString();
+                } else if (period.startsWith('month:')) {
+                    // Specific month: month:2026-03
+                    const parts = period.split(':')[1].split('-');
+                    const y = parseInt(parts[0]);
+                    const m = parseInt(parts[1]) - 1;
+                    const firstET = new Date(y, m, 1);
+                    const lastET = new Date(y, m + 1, 1);
+                    const offset1 = getETOffset(firstET);
+                    const offset2 = getETOffset(lastET);
+                    dateFrom = new Date(firstET.getTime() + offset1 * 60 * 60 * 1000).toISOString();
+                    dateTo = new Date(lastET.getTime() + offset2 * 60 * 60 * 1000).toISOString();
                 } else if (period === 'month') {
                     const firstET = new Date(nowET.getFullYear(), nowET.getMonth(), 1);
                     const offset = getETOffset(firstET);
@@ -101,17 +112,36 @@ exports.handler = async (event) => {
                     dateFrom = new Date(janET.getTime() + offset * 60 * 60 * 1000).toISOString();
                 }
 
-                const stats = await supaFetch('rpc/control_employee_stats', {
-                    method: 'POST',
-                    body: { emp_id: params.id, date_from: dateFrom }
-                });
-
+                let stats;
                 // Also get recent work orders for this employee
-                let ordersQuery = `control_work_orders?employee_id=eq.${params.id}&ended_at=not.is.null&order=started_at.desc&limit=50`;
+                let ordersQuery = `control_work_orders?employee_id=eq.${params.id}&ended_at=not.is.null&order=started_at.desc&limit=200`;
                 if (period !== 'all') {
                     ordersQuery += `&started_at=gte.${encodeURIComponent(dateFrom)}`;
                 }
+                if (dateTo) {
+                    ordersQuery += `&started_at=lt.${encodeURIComponent(dateTo)}`;
+                }
                 const orders = await supaFetch(ordersQuery);
+
+                if (dateTo) {
+                    // Compute stats from filtered orders for specific month
+                    const vehicleSet = new Set();
+                    let totalSec = 0;
+                    orders.forEach(o => {
+                        totalSec += o.duration_seconds || 0;
+                        if (o.vehicle_id) vehicleSet.add(o.vehicle_id);
+                    });
+                    stats = {
+                        total_seconds: totalSec,
+                        vehicle_count: vehicleSet.size,
+                        avg_seconds_per_vehicle: vehicleSet.size > 0 ? Math.round(totalSec / vehicleSet.size) : 0
+                    };
+                } else {
+                    stats = await supaFetch('rpc/control_employee_stats', {
+                        method: 'POST',
+                        body: { emp_id: params.id, date_from: dateFrom }
+                    });
+                }
 
                 // Get vehicle info for each order
                 const vehicleIds = [...new Set(orders.map(o => o.vehicle_id))];

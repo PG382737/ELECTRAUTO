@@ -561,6 +561,7 @@
             // Set default period to month
             document.querySelectorAll('#emp-stats-periods .period-btn').forEach(function(b) { b.classList.remove('active'); });
             document.querySelector('#emp-stats-periods .period-btn[data-period="month"]').classList.add('active');
+            document.getElementById('emp-stats-month').value = '';
             loadEmployeeStats('month');
         } catch(e) {
             showToast('error', 'Erreur', e.message);
@@ -614,14 +615,16 @@
             var entryYear = parseInt(parts[0]);
             var entryMonth = parseInt(parts[1]) - 1;
             var include = false;
-            if (period === 'month') {
+            if (period.startsWith('month:')) {
+                var mp = period.split(':')[1].split('-');
+                include = entryYear === parseInt(mp[0]) && entryMonth === parseInt(mp[1]) - 1;
+            } else if (period === 'month') {
                 include = entryYear === now.getFullYear() && entryMonth === now.getMonth();
             } else if (period === 'year') {
                 include = entryYear === now.getFullYear();
             } else if (period === 'all') {
                 include = true;
             } else if (period === 'week' || period === 'day') {
-                // For day/week, use current month's billed hours as approximation
                 include = entryYear === now.getFullYear() && entryMonth === now.getMonth();
             }
             if (include) total += parseFloat(e.billed_hours) || 0;
@@ -2570,8 +2573,15 @@
             btn.addEventListener('click', function() {
                 document.querySelectorAll('#emp-stats-periods .period-btn').forEach(function(b) { b.classList.remove('active'); });
                 btn.classList.add('active');
+                document.getElementById('emp-stats-month').value = '';
                 loadEmployeeStats(btn.getAttribute('data-period'));
             });
+        });
+        document.getElementById('emp-stats-month').addEventListener('change', function() {
+            var val = this.value;
+            if (!val) return;
+            document.querySelectorAll('#emp-stats-periods .period-btn').forEach(function(b) { b.classList.remove('active'); });
+            loadEmployeeStats('month:' + val);
         });
 
         // Billed hours modal

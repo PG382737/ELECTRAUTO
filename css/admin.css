@@ -2488,6 +2488,20 @@ html::-webkit-scrollbar { display: none; }
     to { opacity: 1; transform: translateX(0) scale(1); }
 }
 
+/* ===== MONTH PICKER IN STATS ===== */
+.period-month-picker {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    padding: 6px 10px;
+    font-size: 0.82rem;
+    font-family: var(--font);
+    cursor: pointer;
+    margin-left: auto;
+}
+.period-month-picker:focus { border-color: var(--accent); outline: none; }
+
 /* ===== BILLED HOURS ===== */
 .form-group--third { flex: 1; min-width: 0; }
 .billed-hours-form { background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
