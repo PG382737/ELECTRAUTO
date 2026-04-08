@@ -561,6 +561,7 @@
             // Set default period to month
             document.querySelectorAll('#emp-stats-periods .period-btn').forEach(function(b) { b.classList.remove('active'); });
             document.querySelector('#emp-stats-periods .period-btn[data-period="month"]').classList.add('active');
+            populateMonthPicker();
             document.getElementById('emp-stats-month').value = '';
             loadEmployeeStats('month');
         } catch(e) {
@@ -724,11 +725,24 @@
         listEl.innerHTML = html;
     }
 
+    var MONTH_NAMES = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
     function formatMonth(dateStr) {
-        var months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
         var parts = dateStr.split('-');
         var m = parseInt(parts[1]) - 1;
-        return months[m] + ' ' + parts[0];
+        return MONTH_NAMES[m] + ' ' + parts[0];
+    }
+
+    function populateMonthPicker() {
+        var sel = document.getElementById('emp-stats-month');
+        var now = new Date();
+        var html = '<option value="">Mois...</option>';
+        for (var i = 0; i < 12; i++) {
+            var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            var val = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+            html += '<option value="' + val + '">' + MONTH_NAMES[d.getMonth()] + ' ' + d.getFullYear() + '</option>';
+        }
+        sel.innerHTML = html;
     }
 
     async function saveBilledHour() {
