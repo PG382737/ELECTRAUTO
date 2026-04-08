@@ -623,6 +623,39 @@
         </div>
     </div>
 
+    <!-- ===== EMPLOYEE BILLED HOURS MODAL ===== -->
+    <div class="modal-overlay" id="billed-hours-modal">
+        <div class="modal modal--wide">
+            <div class="modal__header">
+                <h2 id="billed-hours-title">Heures facturées</h2>
+                <button class="modal__close" id="billed-hours-close">&times;</button>
+            </div>
+            <div class="modal__body">
+                <div class="billed-hours-form" id="billed-hours-form">
+                    <div class="form-row">
+                        <div class="form-group form-group--third">
+                            <label>Mois</label>
+                            <input type="month" id="bh-month">
+                        </div>
+                        <div class="form-group form-group--third">
+                            <label>Heures facturées</label>
+                            <input type="number" id="bh-hours" step="0.25" min="0" placeholder="0">
+                        </div>
+                        <div class="form-group form-group--third">
+                            <label>Note</label>
+                            <input type="text" id="bh-note" placeholder="Optionnel">
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:8px;margin-top:4px;">
+                        <button class="btn btn--primary btn--sm" id="bh-save">Ajouter</button>
+                        <button class="btn btn--ghost btn--sm" id="bh-cancel" style="display:none;">Annuler</button>
+                    </div>
+                </div>
+                <div id="billed-hours-list" style="margin-top:20px;"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== VEHICLE MODAL ===== -->
     <div class="modal-overlay" id="vehicle-modal">
         <div class="modal modal--wide">

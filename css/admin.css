@@ -2488,6 +2488,10 @@ html::-webkit-scrollbar { display: none; }
     to { opacity: 1; transform: translateX(0) scale(1); }
 }
 
+/* ===== BILLED HOURS ===== */
+.form-group--third { flex: 1; min-width: 0; }
+.billed-hours-form { background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+
 /* Responsive */
 @media (max-width: 768px) {
     .nfc-scanner__title { font-size: 3.5rem; letter-spacing: 2px; }
@@ -2497,4 +2501,5 @@ html::-webkit-scrollbar { display: none; }
     .period-filters { flex-wrap: wrap; }
     .veh-detail-header { flex-direction: column; }
     .veh-detail-header img { width: 100%; height: auto; max-height: 200px; }
+    .billed-hours-form .form-row { flex-direction: column; }
 }

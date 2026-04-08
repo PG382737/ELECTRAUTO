@@ -467,6 +467,7 @@
             html += '<td>' + nfcBadge + '</td>';
             html += '<td><div class="col-actions col-actions--icons">';
             html += '<button class="icon-btn" title="Stats" onclick="Control.openEmployeeStats(\'' + emp.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></button>';
+            html += '<button class="icon-btn" title="Heures facturées" onclick="Control.openBilledHours(\'' + emp.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>';
             html += '<button class="icon-btn" title="Modifier" onclick="Control.editEmployee(\'' + emp.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
             html += '<button class="icon-btn icon-btn--danger" title="Supprimer" onclick="Control.deleteEmployee(\'' + emp.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>';
             html += '</div></td>';
@@ -612,6 +613,142 @@
     }
 
     function empStatsGoTo(p) { empStatsPage = p; renderEmpStatsHistory(); }
+
+    // ---- EMPLOYEE BILLED HOURS ----
+
+    var currentBilledEmpId = null;
+    var currentBilledEmpName = '';
+    var billedHoursData = [];
+    var editingBilledId = null;
+
+    async function openBilledHours(id) {
+        currentBilledEmpId = id;
+        editingBilledId = null;
+        try {
+            var emp = await api('GET', '/api/control-employees?id=' + id);
+            currentBilledEmpName = emp.first_name + ' ' + emp.last_name;
+            document.getElementById('billed-hours-title').textContent = 'Heures facturées — ' + currentBilledEmpName;
+            document.getElementById('billed-hours-modal').classList.add('active');
+            resetBilledForm();
+            loadBilledHours();
+        } catch(e) {
+            showToast('error', 'Erreur', e.message);
+        }
+    }
+
+    function resetBilledForm() {
+        editingBilledId = null;
+        var now = new Date();
+        var prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        document.getElementById('bh-month').value = prev.getFullYear() + '-' + String(prev.getMonth() + 1).padStart(2, '0');
+        document.getElementById('bh-hours').value = '';
+        document.getElementById('bh-note').value = '';
+        document.getElementById('bh-save').textContent = 'Ajouter';
+        document.getElementById('bh-cancel').style.display = 'none';
+    }
+
+    async function loadBilledHours() {
+        if (!currentBilledEmpId) return;
+        var listEl = document.getElementById('billed-hours-list');
+        try {
+            billedHoursData = await api('GET', '/api/employee-billed-hours?employee_id=' + currentBilledEmpId);
+            renderBilledHours();
+        } catch(e) {
+            listEl.innerHTML = '<p style="color:var(--danger);">Erreur: ' + escHtml(e.message) + '</p>';
+        }
+    }
+
+    function renderBilledHours() {
+        var listEl = document.getElementById('billed-hours-list');
+        if (!billedHoursData || billedHoursData.length === 0) {
+            listEl.innerHTML = '<p style="color:var(--text-muted);font-size:0.88rem;">Aucune entrée.</p>';
+            return;
+        }
+        var html = '<table class="control-table"><thead><tr><th>Mois</th><th style="text-align:right;">Heures facturées</th><th>Note</th><th style="text-align:right;">Actions</th></tr></thead><tbody>';
+        billedHoursData.forEach(function(entry) {
+            var monthLabel = formatMonth(entry.month);
+            html += '<tr>';
+            html += '<td>' + escHtml(monthLabel) + '</td>';
+            html += '<td style="text-align:right;font-weight:600;">' + parseFloat(entry.billed_hours).toFixed(2) + ' h</td>';
+            html += '<td style="color:var(--text-muted);font-size:0.85rem;">' + escHtml(entry.note || '') + '</td>';
+            html += '<td><div class="col-actions col-actions--icons" style="justify-content:flex-end;">';
+            html += '<button class="icon-btn" title="Modifier" onclick="Control.editBilledHour(\'' + entry.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
+            html += '<button class="icon-btn icon-btn--danger" title="Supprimer" onclick="Control.deleteBilledHour(\'' + entry.id + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>';
+            html += '</div></td>';
+            html += '</tr>';
+        });
+        html += '</tbody></table>';
+        listEl.innerHTML = html;
+    }
+
+    function formatMonth(dateStr) {
+        var months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+        var parts = dateStr.split('-');
+        var m = parseInt(parts[1]) - 1;
+        return months[m] + ' ' + parts[0];
+    }
+
+    async function saveBilledHour() {
+        var monthVal = document.getElementById('bh-month').value;
+        var hoursVal = parseFloat(document.getElementById('bh-hours').value);
+        var noteVal = document.getElementById('bh-note').value.trim();
+
+        if (!monthVal || isNaN(hoursVal) || hoursVal < 0) {
+            showToast('error', 'Erreur', 'Veuillez entrer un mois et un nombre d\'heures valide.');
+            return;
+        }
+
+        try {
+            if (editingBilledId) {
+                await api('PATCH', '/api/employee-billed-hours', {
+                    id: editingBilledId,
+                    billed_hours: hoursVal,
+                    note: noteVal
+                });
+                showToast('success', 'Modifié', 'Entrée mise à jour.');
+            } else {
+                await api('POST', '/api/employee-billed-hours', {
+                    employee_id: currentBilledEmpId,
+                    month: monthVal + '-01',
+                    billed_hours: hoursVal,
+                    note: noteVal
+                });
+                showToast('success', 'Ajouté', 'Heures facturées enregistrées.');
+            }
+            resetBilledForm();
+            loadBilledHours();
+        } catch(e) {
+            showToast('error', 'Erreur', e.message);
+        }
+    }
+
+    function editBilledHour(id) {
+        var entry = billedHoursData.find(function(e) { return e.id === id; });
+        if (!entry) return;
+        editingBilledId = id;
+        var parts = entry.month.split('-');
+        document.getElementById('bh-month').value = parts[0] + '-' + parts[1];
+        document.getElementById('bh-hours').value = entry.billed_hours;
+        document.getElementById('bh-note').value = entry.note || '';
+        document.getElementById('bh-save').textContent = 'Modifier';
+        document.getElementById('bh-cancel').style.display = '';
+    }
+
+    function cancelBilledEdit() {
+        resetBilledForm();
+    }
+
+    async function deleteBilledHour(id) {
+        showConfirmDelete('Supprimer cette entrée ?', 'Cette action est irréversible.', async function() {
+            try {
+                await api('DELETE', '/api/employee-billed-hours?id=' + id);
+                showToast('success', 'Supprimé', 'Entrée supprimée.');
+                loadBilledHours();
+            } catch(e) {
+                showToast('error', 'Erreur', e.message);
+            }
+        });
+    }
 
     var vehDetailOrders = [];
     var vehDetailPage = 0;
@@ -2397,6 +2534,12 @@
             });
         });
 
+        // Billed hours modal
+        var bhModal = document.getElementById('billed-hours-modal');
+        document.getElementById('billed-hours-close').addEventListener('click', function() { bhModal.classList.remove('active'); });
+        document.getElementById('bh-save').addEventListener('click', saveBilledHour);
+        document.getElementById('bh-cancel').addEventListener('click', cancelBilledEdit);
+
         // Vehicle modal buttons
         var vehModal = document.getElementById('vehicle-modal');
         document.getElementById('veh-cancel').addEventListener('click', function() { vehModal.classList.remove('active'); });
@@ -2493,6 +2636,9 @@
     // ---- PUBLIC API (for onclick handlers) ----
     window.Control = {
         openEmployeeStats: openEmployeeStats,
+        openBilledHours: openBilledHours,
+        editBilledHour: editBilledHour,
+        deleteBilledHour: deleteBilledHour,
         editEmployee: editEmployee,
         deleteEmployee: deleteEmployee,
         empGoTo: empGoTo,
