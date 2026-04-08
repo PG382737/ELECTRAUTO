@@ -576,17 +576,57 @@
         empStatsPage = 0;
         try {
             var data = await api('GET', '/api/control-employees?stats=true&id=' + currentEmpStatsId + '&period=' + period);
+            var billedData = await api('GET', '/api/employee-billed-hours?employee_id=' + currentEmpStatsId);
             var stats = data.stats;
 
             document.getElementById('emp-stat-hours').textContent = formatDuration(stats.total_seconds);
             document.getElementById('emp-stat-vehicles').textContent = stats.vehicle_count;
             document.getElementById('emp-stat-avg').textContent = formatDuration(stats.avg_seconds_per_vehicle);
 
+            // Calculate billed hours for the selected period
+            var billedHours = getBilledForPeriod(billedData || [], period);
+            var workedHours = stats.total_seconds / 3600;
+            var efficiency = workedHours > 0 ? Math.round((billedHours / workedHours) * 100) : 0;
+
+            document.getElementById('emp-stat-billed').textContent = billedHours > 0 ? billedHours.toFixed(1) + ' h' : '-';
+            var effEl = document.getElementById('emp-stat-efficiency');
+            if (billedHours > 0 && workedHours > 0) {
+                effEl.textContent = efficiency + '%';
+                effEl.style.color = efficiency >= 80 ? 'var(--success)' : efficiency >= 50 ? 'var(--accent)' : 'var(--danger)';
+            } else {
+                effEl.textContent = '-';
+                effEl.style.color = '';
+            }
+
             empStatsOrders = data.orders || [];
             renderEmpStatsHistory();
         } catch(e) {
             document.getElementById('emp-stats-history').innerHTML = '<p style="color:var(--danger);">Erreur: ' + escHtml(e.message) + '</p>';
         }
+    }
+
+    function getBilledForPeriod(entries, period) {
+        if (!entries || entries.length === 0) return 0;
+        var now = new Date();
+        var total = 0;
+        entries.forEach(function(e) {
+            var parts = e.month.split('-');
+            var entryYear = parseInt(parts[0]);
+            var entryMonth = parseInt(parts[1]) - 1;
+            var include = false;
+            if (period === 'month') {
+                include = entryYear === now.getFullYear() && entryMonth === now.getMonth();
+            } else if (period === 'year') {
+                include = entryYear === now.getFullYear();
+            } else if (period === 'all') {
+                include = true;
+            } else if (period === 'week' || period === 'day') {
+                // For day/week, use current month's billed hours as approximation
+                include = entryYear === now.getFullYear() && entryMonth === now.getMonth();
+            }
+            if (include) total += parseFloat(e.billed_hours) || 0;
+        });
+        return total;
     }
 
     function renderEmpStatsHistory() {
