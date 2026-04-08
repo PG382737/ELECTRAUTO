@@ -1471,7 +1471,19 @@
         });
     }
 
+    function logNotificationToServer(type, title, detail) {
+        var isSystem = detail && detail.indexOf('(sys)') !== -1;
+        api('POST', '/api/notification-logs', {
+            type: type,
+            title: title,
+            detail: detail || '',
+            is_system: isSystem
+        }).catch(function() {});
+    }
+
     function addNotification(type, title, detail) {
+        // Always log to server, even if user toggle is off
+        logNotificationToServer(type, title, detail);
         var prefs = getNotifPrefs();
         if (prefs[type] === false) return;
         notifications.unshift({
@@ -1555,6 +1567,77 @@
         renderNotifications();
     }
 
+    var notifHistoryOffset = 0;
+    var TYPE_LABELS = { start: 'Commencé', end: 'Terminé', pause: 'Pause', resume: 'Repris' };
+
+    function openNotifHistory() {
+        var modal = document.getElementById('notif-history-modal');
+        if (!modal) return;
+        modal.classList.add('active');
+        notifHistoryOffset = 0;
+        loadNotifHistory(false);
+    }
+
+    function closeNotifHistory() {
+        var modal = document.getElementById('notif-history-modal');
+        if (modal) modal.classList.remove('active');
+    }
+
+    async function loadNotifHistory(append) {
+        var list = document.getElementById('notif-history-list');
+        if (!list) return;
+        if (!append) {
+            list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:40px;">Chargement...</div>';
+            notifHistoryOffset = 0;
+        }
+        try {
+            var logs = await api('GET', '/api/notification-logs?limit=100&offset=' + notifHistoryOffset);
+            if (!append) list.innerHTML = '';
+            if ((!logs || logs.length === 0) && notifHistoryOffset === 0) {
+                list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:40px;">Aucune notification enregistrée.</div>';
+                return;
+            }
+            var table = list.querySelector('.notif-history-table');
+            var tbody;
+            if (!table) {
+                table = document.createElement('table');
+                table.className = 'notif-history-table';
+                table.innerHTML = '<thead><tr><th>Date</th><th>Type</th><th>Titre</th><th>Détail</th></tr></thead><tbody></tbody>';
+                list.appendChild(table);
+                tbody = table.querySelector('tbody');
+            } else {
+                tbody = table.querySelector('tbody');
+            }
+            // Remove old load-more button
+            var oldBtn = list.querySelector('.notif-history__load-more');
+            if (oldBtn) oldBtn.remove();
+
+            (logs || []).forEach(function(log) {
+                var tr = document.createElement('tr');
+                var d = new Date(log.created_at);
+                var dateStr = d.toLocaleDateString('fr-CA', { year: 'numeric', month: 'short', day: 'numeric' }) + ' à ' + d.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                var typeLabel = TYPE_LABELS[log.type] || log.type;
+                var sysTag = log.is_system ? '<span class="notif-history__sys">(sys)</span>' : '';
+                tr.innerHTML = '<td style="white-space:nowrap;color:var(--text-muted);font-size:0.82rem;">' + escHtml(dateStr) + '</td>' +
+                    '<td><span class="notif-history__type notif-history__type--' + escHtml(log.type) + '">' + escHtml(typeLabel) + '</span>' + sysTag + '</td>' +
+                    '<td>' + escHtml(log.title) + '</td>' +
+                    '<td style="color:var(--text-muted);">' + escHtml(log.detail || '') + '</td>';
+                tbody.appendChild(tr);
+            });
+
+            notifHistoryOffset += (logs || []).length;
+            if (logs && logs.length >= 100) {
+                var loadMore = document.createElement('div');
+                loadMore.className = 'notif-history__load-more';
+                loadMore.innerHTML = '<button class="btn btn--ghost btn--sm">Charger plus</button>';
+                loadMore.querySelector('button').addEventListener('click', function() { loadNotifHistory(true); });
+                list.appendChild(loadMore);
+            }
+        } catch(e) {
+            if (!append) list.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:40px;">Erreur: ' + escHtml(e.message) + '</div>';
+        }
+    }
+
     // Poll for work order changes
     function orderLabel(order) {
         var emp = order.employee;
@@ -1568,6 +1651,9 @@
         try {
             var active = await api('GET', '/api/control-work-orders?active=true');
             if (!active) return;
+
+            // Check pause boundaries on every poll (not just when monitoring is open)
+            checkPauseBoundaries(active);
 
             var currentIds = {};
             active.forEach(function(o) { currentIds[o.id] = o; });
@@ -1943,48 +2029,67 @@
     var lastPauseCheckTime = null;
     var lastPauseCheckDay = null;
 
+    function isInWorkPeriod(day, minutes) {
+        var bounds = PAUSE_BOUNDS[day] || [];
+        for (var i = 0; i < bounds.length; i += 2) {
+            var start = bounds[i];
+            var end = bounds[i + 1] !== undefined ? bounds[i + 1] : 1440;
+            if (minutes >= start && minutes < end) return true;
+        }
+        return false;
+    }
+
+    function applyPauseState(activeOrders, shouldRun) {
+        var changed = false;
+        activeOrders.forEach(function(o) {
+            if (shouldRun && o.paused) {
+                monitoringLoadingOrders[o.id] = true;
+                var strip = document.getElementById('monitoring-action-' + o.id);
+                if (strip) strip.innerHTML = '<span class="timer-loader"></span>';
+                api('PATCH', '/api/control-work-orders', { action: 'resume', id: o.id });
+                addNotification('resume', 'Bon repris', orderLabel(o) + ' (sys)');
+                if (knownOrderIds[o.id]) knownOrderIds[o.id].paused = false;
+                changed = true;
+            } else if (!shouldRun && !o.paused) {
+                monitoringPauseOverrides[o.id] = true;
+                monitoringPauseAtOverrides[o.id] = Date.now();
+                var strip = document.getElementById('monitoring-action-' + o.id);
+                if (strip) strip.innerHTML = '<span class="timer-loader"></span>';
+                api('PATCH', '/api/control-work-orders', { action: 'pause', id: o.id });
+                addNotification('pause', 'Bon mis en pause', orderLabel(o) + ' (sys)');
+                if (knownOrderIds[o.id]) knownOrderIds[o.id].paused = true;
+                changed = true;
+            }
+        });
+        if (changed) {
+            setTimeout(function() { loadMonitoring(); }, 500);
+        }
+    }
+
     function checkPauseBoundaries(activeOrders) {
         var et = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Toronto' }));
         var day = et.getDay();
         var t = et.getHours() * 60 + et.getMinutes();
+        var bounds = PAUSE_BOUNDS[day] || [];
 
         if (lastPauseCheckTime === null || lastPauseCheckDay !== day) {
             lastPauseCheckTime = t;
             lastPauseCheckDay = day;
+            // Retroactive check: apply correct state based on current time
+            if (bounds.length > 0) {
+                applyPauseState(activeOrders, isInWorkPeriod(day, t));
+            }
             return;
         }
 
-        var bounds = PAUSE_BOUNDS[day] || [];
         var prev = lastPauseCheckTime;
         lastPauseCheckTime = t;
         lastPauseCheckDay = day;
 
         for (var i = 0; i < bounds.length; i++) {
             if (prev < bounds[i] && t >= bounds[i]) {
-                if (i % 2 === 0) {
-                    // Work starts → resume all paused orders (show loader until server data)
-                    activeOrders.forEach(function(o) {
-                        if (o.paused) {
-                            monitoringLoadingOrders[o.id] = true;
-                            var strip = document.getElementById('monitoring-action-' + o.id);
-                            if (strip) strip.innerHTML = '<span class="timer-loader"></span>';
-                            api('PATCH', '/api/control-work-orders', { action: 'resume', id: o.id });
-                        }
-                    });
-                    setTimeout(function() { loadMonitoring(); }, 500);
-                } else {
-                    // Work ends → pause all active orders (show loader until server confirms)
-                    activeOrders.forEach(function(o) {
-                        if (!o.paused) {
-                            monitoringPauseOverrides[o.id] = true;
-                            monitoringPauseAtOverrides[o.id] = Date.now();
-                            var strip = document.getElementById('monitoring-action-' + o.id);
-                            if (strip) strip.innerHTML = '<span class="timer-loader"></span>';
-                            api('PATCH', '/api/control-work-orders', { action: 'pause', id: o.id });
-                        }
-                    });
-                    setTimeout(function() { loadMonitoring(); }, 500);
-                }
+                applyPauseState(activeOrders, i % 2 === 0);
+                break;
             }
         }
     }
@@ -2237,6 +2342,12 @@
         initNotifPrefs();
         document.getElementById('notif-toggle').addEventListener('click', toggleNotifPanel);
         document.getElementById('notif-clear').addEventListener('click', clearNotifications);
+
+        // Notification history
+        var btnHistory = document.getElementById('btn-notif-history');
+        if (btnHistory) btnHistory.addEventListener('click', openNotifHistory);
+        var btnHistoryClose = document.getElementById('notif-history-close');
+        if (btnHistoryClose) btnHistoryClose.addEventListener('click', closeNotifHistory);
 
         // Employee modal buttons
         var empModal = document.getElementById('employee-modal');

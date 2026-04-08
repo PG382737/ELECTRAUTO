@@ -189,6 +189,24 @@
                             </label>
                         </div>
                     </div>
+
+                    <!-- Historique Notifications -->
+                    <h2 style="font-size:1rem;margin-bottom:12px;">Historique des notifications</h2>
+                    <div style="background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;">
+                        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px;">Consultez l'historique complet de toutes les alertes et notifications du système.</p>
+                        <button class="btn btn--primary btn--sm" id="btn-notif-history">Voir l'historique</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notification History Modal -->
+            <div class="notif-history-modal" id="notif-history-modal">
+                <div class="notif-history-modal__header">
+                    <h1>Historique des notifications</h1>
+                    <button class="notif-history-modal__close" id="notif-history-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
+                <div class="notif-history-modal__body" id="notif-history-list">
+                    <div style="color:var(--text-muted);text-align:center;padding:40px;">Chargement...</div>
                 </div>
             </div>
 
