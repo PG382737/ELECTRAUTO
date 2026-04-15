@@ -12,6 +12,7 @@
     var completedVisible = false;
     var todoPollingInterval = null;
     var currentDetailId = null;
+    var allVehicleOptions = [];
 
     var PRIORITIES = { 1: { label: 'Urgente', color: '#e54545', icon: '!!!' }, 2: { label: 'Normale', color: '#cf8a2e', icon: '!!' }, 3: { label: 'Basse', color: '#22c55e', icon: '!' } };
     var CATEGORIES = ['Mécanique', 'Commande pièces', 'Administratif', 'Nettoyage', 'Autre'];
@@ -82,6 +83,70 @@
         setTimeout(function() { toast.classList.add('toast--removing'); setTimeout(function() { toast.remove(); }, 300); }, 5000);
     }
 
+    // ---- Vehicle Search Select ----
+
+    function renderVehicleDropdown(query) {
+        var dropdown = document.getElementById('todo-vehicle-dropdown');
+        if (!dropdown) return;
+        var q = (query || '').toLowerCase().trim();
+        var filtered = q ? allVehicleOptions.filter(function(v) { return v.label.toLowerCase().indexOf(q) !== -1; }) : allVehicleOptions;
+        var html = '';
+        if (filtered.length === 0) {
+            html = '<div class="search-select__option search-select__option--empty">Aucun véhicule trouvé</div>';
+        } else {
+            filtered.slice(0, 50).forEach(function(v) {
+                html += '<div class="search-select__option" data-id="' + v.id + '">' + escHtml(v.label) + '</div>';
+            });
+        }
+        dropdown.innerHTML = html;
+    }
+
+    function selectVehicle(id, label) {
+        document.getElementById('todo-vehicle').value = id;
+        document.getElementById('todo-vehicle-search').value = label;
+        document.getElementById('todo-vehicle-dropdown').classList.remove('active');
+        var clearBtn = document.getElementById('todo-vehicle-clear');
+        clearBtn.style.display = id ? '' : 'none';
+    }
+
+    function clearVehicle() {
+        document.getElementById('todo-vehicle').value = '';
+        document.getElementById('todo-vehicle-search').value = '';
+        document.getElementById('todo-vehicle-clear').style.display = 'none';
+        renderVehicleDropdown('');
+    }
+
+    function initVehicleSearch() {
+        var input = document.getElementById('todo-vehicle-search');
+        var dropdown = document.getElementById('todo-vehicle-dropdown');
+        var clearBtn = document.getElementById('todo-vehicle-clear');
+
+        input.addEventListener('input', function() {
+            renderVehicleDropdown(this.value);
+            dropdown.classList.add('active');
+        });
+
+        input.addEventListener('focus', function() {
+            renderVehicleDropdown(this.value);
+            dropdown.classList.add('active');
+        });
+
+        dropdown.addEventListener('click', function(e) {
+            var opt = e.target.closest('.search-select__option');
+            if (!opt || opt.classList.contains('search-select__option--empty')) return;
+            selectVehicle(opt.dataset.id, opt.textContent);
+        });
+
+        clearBtn.addEventListener('click', function() { clearVehicle(); });
+
+        // Close on click outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#todo-vehicle-wrap')) {
+                dropdown.classList.remove('active');
+            }
+        });
+    }
+
     // ---- Populate dropdowns ----
 
     async function loadDropdownData() {
@@ -107,18 +172,17 @@
             });
             document.getElementById('todo-filter-assignee').innerHTML = filterOptions;
 
-            // Vehicle select
-            var vehOptions = '<option value="">— Aucun —</option>';
+            // Vehicle search select
             vehs.sort(function(a, b) {
                 var la = (a.make || '') + ' ' + (a.model || '');
                 var lb = (b.make || '') + ' ' + (b.model || '');
                 return la.localeCompare(lb);
             });
-            vehs.forEach(function(v) {
-                var label = v.make + (v.model ? ' ' + v.model : '') + (v.plate ? ' - ' + v.plate : '');
-                vehOptions += '<option value="' + v.id + '">' + escHtml(label) + '</option>';
+            allVehicleOptions = vehs.map(function(v) {
+                var label = v.make + (v.model ? ' ' + v.model : '') + (v.year ? ' ' + v.year : '') + (v.plate ? ' - ' + v.plate : '') + (v.owner_name ? ' (' + v.owner_name + ')' : '');
+                return { id: v.id, label: label };
             });
-            document.getElementById('todo-vehicle').innerHTML = vehOptions;
+            renderVehicleDropdown('');
         } catch(e) { console.error('loadDropdownData:', e); }
     }
 
@@ -297,7 +361,14 @@
         document.getElementById('todo-created-by').value = todo ? (todo.created_by || '') : '';
         document.getElementById('todo-assigned-to').value = todo ? (todo.assigned_to || '') : '';
         document.getElementById('todo-due-date').value = todo ? (todo.due_date || '') : '';
-        document.getElementById('todo-vehicle').value = todo ? (todo.vehicle_id || '') : '';
+
+        // Vehicle search select
+        if (todo && todo.vehicle_id) {
+            var vOpt = allVehicleOptions.find(function(v) { return v.id === todo.vehicle_id; });
+            selectVehicle(todo.vehicle_id, vOpt ? vOpt.label : '');
+        } else {
+            clearVehicle();
+        }
 
         // Disable created_by when editing
         document.getElementById('todo-created-by').disabled = !!todo;
@@ -517,6 +588,9 @@
         document.getElementById('btn-new-todo').addEventListener('click', function() {
             loadDropdownData().then(function() { openTodoModal(null); });
         });
+
+        // Vehicle search
+        initVehicleSearch();
 
         // Modal close/save
         document.getElementById('todo-modal-close').addEventListener('click', function() { document.getElementById('todo-modal').classList.remove('active'); });

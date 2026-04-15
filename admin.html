@@ -899,7 +899,12 @@
                     </div>
                     <div class="form-group form-group--half">
                         <label>Véhicule lié</label>
-                        <select id="todo-vehicle"><option value="">— Aucun —</option></select>
+                        <div class="search-select" id="todo-vehicle-wrap">
+                            <input type="hidden" id="todo-vehicle" value="">
+                            <input type="text" class="search-select__input" id="todo-vehicle-search" placeholder="Rechercher un véhicule..." autocomplete="off">
+                            <button type="button" class="search-select__clear" id="todo-vehicle-clear" style="display:none;">&times;</button>
+                            <div class="search-select__dropdown" id="todo-vehicle-dropdown"></div>
+                        </div>
                     </div>
                 </div>
             </div>
