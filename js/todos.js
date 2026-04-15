@@ -625,16 +625,23 @@
             document.getElementById(id).addEventListener('change', renderActiveTodos);
         });
 
-        // Initial badge load + polling only if authenticated
+        // Initial load only if authenticated
         var dash = document.getElementById('dashboard');
         if (dash && dash.style.display !== 'none') {
-            api('GET', '/api/control-todos?count=true').then(function(data) {
-                var badge = document.getElementById('todo-sidebar-badge');
-                if (badge && data.count > 0) {
-                    badge.textContent = data.count;
-                    badge.style.display = '';
-                }
-            }).catch(function() {});
+            // If todos tab is already active (session restore happened before this script loaded)
+            var todosTab = document.getElementById('tab-todos');
+            if (todosTab && todosTab.classList.contains('active')) {
+                loadDropdownData();
+                loadTodos();
+            } else {
+                api('GET', '/api/control-todos?count=true').then(function(data) {
+                    var badge = document.getElementById('todo-sidebar-badge');
+                    if (badge && data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.style.display = '';
+                    }
+                }).catch(function() {});
+            }
             startTodoPolling();
         }
     }
