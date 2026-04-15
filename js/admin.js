@@ -337,6 +337,11 @@ function switchToTab(tabName) {
     if (tabName === 'todos' && window.Todos) {
         window.Todos.loadTodos();
     }
+
+    // Ensure todo badge polling is running after auth
+    if (window.Todos && window.Todos.ensurePolling) {
+        window.Todos.ensurePolling();
+    }
 }
 
 document.querySelectorAll('.sidebar__link[data-tab]').forEach(function(link) {

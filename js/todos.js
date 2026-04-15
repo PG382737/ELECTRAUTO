@@ -545,17 +545,18 @@
             document.getElementById(id).addEventListener('change', renderActiveTodos);
         });
 
-        // Initial badge load
-        api('GET', '/api/control-todos?count=true').then(function(data) {
-            var badge = document.getElementById('todo-sidebar-badge');
-            if (badge && data.count > 0) {
-                badge.textContent = data.count;
-                badge.style.display = '';
-            }
-        }).catch(function() {});
-
-        // Start polling for live updates
-        startTodoPolling();
+        // Initial badge load + polling only if authenticated
+        var dash = document.getElementById('dashboard');
+        if (dash && dash.style.display !== 'none') {
+            api('GET', '/api/control-todos?count=true').then(function(data) {
+                var badge = document.getElementById('todo-sidebar-badge');
+                if (badge && data.count > 0) {
+                    badge.textContent = data.count;
+                    badge.style.display = '';
+                }
+            }).catch(function() {});
+            startTodoPolling();
+        }
     }
 
     if (document.readyState === 'loading') {
@@ -573,7 +574,16 @@
         addNote: addNote,
         deleteNote: deleteNote,
         reopenTodo: reopenTodo,
-        deleteTodo: deleteTodo
+        deleteTodo: deleteTodo,
+        ensurePolling: function() {
+            if (!todoPollingInterval) {
+                api('GET', '/api/control-todos?count=true').then(function(data) {
+                    var badge = document.getElementById('todo-sidebar-badge');
+                    if (badge && data.count > 0) { badge.textContent = data.count; badge.style.display = ''; }
+                }).catch(function() {});
+                startTodoPolling();
+            }
+        }
     };
 
 })();

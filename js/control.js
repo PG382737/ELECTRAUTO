@@ -2693,9 +2693,11 @@
         });
 
         // Auto-init if control tab was already activated before this script loaded
+        // Only if user is authenticated (dashboard visible = session restored)
         if (!window._controlInitDone) {
+            var dashboard = document.getElementById('dashboard');
             var controlTab = document.getElementById('tab-control');
-            if (controlTab && controlTab.classList.contains('active')) {
+            if (dashboard && dashboard.style.display !== 'none' && controlTab && controlTab.classList.contains('active')) {
                 window._controlInitDone = true;
                 initControl();
             }
