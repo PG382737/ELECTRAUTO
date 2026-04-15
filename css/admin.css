@@ -2942,7 +2942,7 @@ html::-webkit-scrollbar { display: none; }
     display: flex;
     gap: 10px;
     margin-bottom: 16px;
-    align-items: flex-end;
+    align-items: stretch;
 }
 .todo-notes__compose textarea {
     flex: 1;
