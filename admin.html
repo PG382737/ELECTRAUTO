@@ -282,6 +282,37 @@
 
             <!-- ===== TODO TAB ===== -->
             <div class="tab" id="tab-todos">
+                <!-- Coming Soon Overlay -->
+                <div class="todo-coming-soon" id="todo-coming-soon">
+                    <div class="todo-coming-soon__content">
+                        <div class="todo-coming-soon__icon"></div>
+                        <h2 class="todo-coming-soon__title">Section Tâches</h2>
+                        <p class="todo-coming-soon__subtitle">En cours de développement</p>
+                        <div class="todo-coming-soon__countdown" id="todo-countdown">
+                            <div class="todo-countdown__block">
+                                <span class="todo-countdown__value" id="cd-days">0</span>
+                                <span class="todo-countdown__label">jours</span>
+                            </div>
+                            <div class="todo-countdown__sep">:</div>
+                            <div class="todo-countdown__block">
+                                <span class="todo-countdown__value" id="cd-hours">0</span>
+                                <span class="todo-countdown__label">heures</span>
+                            </div>
+                            <div class="todo-countdown__sep">:</div>
+                            <div class="todo-countdown__block">
+                                <span class="todo-countdown__value" id="cd-mins">0</span>
+                                <span class="todo-countdown__label">minutes</span>
+                            </div>
+                            <div class="todo-countdown__sep">:</div>
+                            <div class="todo-countdown__block">
+                                <span class="todo-countdown__value" id="cd-secs">0</span>
+                                <span class="todo-countdown__label">secondes</span>
+                            </div>
+                        </div>
+                        <p class="todo-coming-soon__msg">Cette fonctionnalité sera disponible très bientôt. Restez à l'affût!</p>
+                    </div>
+                </div>
+                <div id="todo-real-content" style="display:none;">
                 <div class="main__header">
                     <h1>Tâches</h1>
                     <button class="btn btn--primary" id="btn-new-todo">
@@ -333,6 +364,7 @@
                         </div>
                         <div id="todo-completed-list" class="todo-list" style="display:none;"></div>
                     </div>
+                </div>
                 </div>
             </div>
 
