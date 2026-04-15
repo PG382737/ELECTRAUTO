@@ -77,6 +77,11 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                     Notes
                 </button>
+                <button class="sidebar__link" data-tab="todos">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    Todo
+                    <span class="sidebar__badge" id="todo-sidebar-badge" style="display:none;">0</span>
+                </button>
                 <button class="sidebar__link" data-tab="blog">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                     Blog
@@ -271,6 +276,62 @@
                         <button class="btn btn--primary" id="btn-send-note">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                         </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== TODO TAB ===== -->
+            <div class="tab" id="tab-todos">
+                <div class="main__header">
+                    <h1>Tâches</h1>
+                    <button class="btn btn--primary" id="btn-new-todo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M12 5v14m-7-7h14"/></svg>
+                        Nouvelle tâche
+                    </button>
+                </div>
+                <!-- Filters bar -->
+                <div class="todo-filters" id="todo-filters">
+                    <div class="todo-filter-group">
+                        <select class="todo-filter-select" id="todo-filter-priority">
+                            <option value="">Toutes priorités</option>
+                            <option value="1">Urgente</option>
+                            <option value="2">Normale</option>
+                            <option value="3">Basse</option>
+                        </select>
+                        <select class="todo-filter-select" id="todo-filter-category">
+                            <option value="">Toutes catégories</option>
+                            <option value="Mécanique">Mécanique</option>
+                            <option value="Commande pièces">Commande pièces</option>
+                            <option value="Administratif">Administratif</option>
+                            <option value="Nettoyage">Nettoyage</option>
+                            <option value="Autre">Autre</option>
+                        </select>
+                        <select class="todo-filter-select" id="todo-filter-assignee">
+                            <option value="">Tous les employés</option>
+                        </select>
+                    </div>
+                    <div class="todo-filter-group">
+                        <select class="todo-filter-select" id="todo-sort">
+                            <option value="priority">Tri: Priorité</option>
+                            <option value="due_date">Tri: Date limite</option>
+                            <option value="created_at">Tri: Date création</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Todo sections -->
+                <div class="todo-sections">
+                    <div class="todo-section">
+                        <div class="todo-section__header">
+                            <h2>À faire <span class="todo-section__count" id="todo-active-count">0</span></h2>
+                        </div>
+                        <div id="todo-active-list" class="todo-list"></div>
+                    </div>
+                    <div class="todo-section todo-section--completed">
+                        <div class="todo-section__header todo-section__header--toggle" id="todo-completed-toggle">
+                            <h2>Complétées <span class="todo-section__count" id="todo-completed-count">0</span></h2>
+                            <svg class="todo-section__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                        <div id="todo-completed-list" class="todo-list" style="display:none;"></div>
                     </div>
                 </div>
             </div>
@@ -784,6 +845,103 @@
     </div>
 
     <!-- ===== TOAST NOTIFICATIONS ===== -->
+    <!-- ===== TODO MODAL (Create/Edit) ===== -->
+    <div class="modal-overlay" id="todo-modal">
+        <div class="modal modal--wide">
+            <div class="modal__header">
+                <h2 id="todo-modal-title">Nouvelle tâche</h2>
+                <button class="modal__close" id="todo-modal-close">&times;</button>
+            </div>
+            <div class="modal__body">
+                <input type="hidden" id="todo-edit-id">
+                <div class="form-group">
+                    <label>Titre *</label>
+                    <input type="text" id="todo-title" placeholder="Décrire la tâche...">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="todo-description" rows="3" placeholder="Détails supplémentaires (optionnel)"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group form-group--half">
+                        <label>Priorité</label>
+                        <select id="todo-priority">
+                            <option value="1">Urgente</option>
+                            <option value="2" selected>Normale</option>
+                            <option value="3">Basse</option>
+                        </select>
+                    </div>
+                    <div class="form-group form-group--half">
+                        <label>Catégorie</label>
+                        <select id="todo-category">
+                            <option value="Mécanique">Mécanique</option>
+                            <option value="Commande pièces">Commande pièces</option>
+                            <option value="Administratif">Administratif</option>
+                            <option value="Nettoyage">Nettoyage</option>
+                            <option value="Autre" selected>Autre</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group form-group--half">
+                        <label>Créée par</label>
+                        <select id="todo-created-by"><option value="">— Aucun —</option></select>
+                    </div>
+                    <div class="form-group form-group--half">
+                        <label>Assignée à</label>
+                        <select id="todo-assigned-to"><option value="">— Aucun —</option></select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group form-group--half">
+                        <label>Date limite</label>
+                        <input type="date" id="todo-due-date">
+                    </div>
+                    <div class="form-group form-group--half">
+                        <label>Véhicule lié</label>
+                        <select id="todo-vehicle"><option value="">— Aucun —</option></select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal__footer">
+                <button class="btn btn--ghost" id="todo-modal-cancel">Annuler</button>
+                <button class="btn btn--primary" id="todo-modal-save">Sauvegarder</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TODO DETAIL MODAL ===== -->
+    <div class="modal-overlay" id="todo-detail-modal">
+        <div class="modal modal--wide">
+            <div class="modal__header">
+                <h2 id="todo-detail-title">Détail de la tâche</h2>
+                <button class="modal__close" id="todo-detail-close">&times;</button>
+            </div>
+            <div class="modal__body" id="todo-detail-body"></div>
+            <div class="modal__footer" id="todo-detail-footer"></div>
+        </div>
+    </div>
+
+    <!-- ===== TODO COMPLETE MODAL ===== -->
+    <div class="modal-overlay" id="todo-complete-modal">
+        <div class="modal modal--sm">
+            <div class="modal__header">
+                <h2>Compléter la tâche</h2>
+                <button class="modal__close" id="todo-complete-close">&times;</button>
+            </div>
+            <div class="modal__body">
+                <p style="margin-bottom:16px;">Qui a complété cette tâche ?</p>
+                <div class="form-group">
+                    <select id="todo-complete-by"><option value="">— Sélectionner —</option></select>
+                </div>
+            </div>
+            <div class="modal__footer">
+                <button class="btn btn--ghost" id="todo-complete-cancel">Annuler</button>
+                <button class="btn btn--primary" id="todo-complete-confirm">Compléter</button>
+            </div>
+        </div>
+    </div>
+
     <div class="toast-container" id="toast-container"></div>
 
     <!-- ===== NFC SCANNER FULLSCREEN ===== -->
@@ -945,5 +1103,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
     <script src="js/admin.js"></script>
     <script src="js/control.js"></script>
+    <script src="js/todos.js"></script>
 </body>
 </html>

@@ -332,6 +332,11 @@ function switchToTab(tabName) {
         window._controlInitDone = true;
         window._controlModule.initControl();
     }
+
+    // Load todos when switching to todos tab
+    if (tabName === 'todos' && window.Todos) {
+        window.Todos.loadTodos();
+    }
 }
 
 document.querySelectorAll('.sidebar__link[data-tab]').forEach(function(link) {

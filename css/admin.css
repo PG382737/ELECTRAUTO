@@ -2506,6 +2506,207 @@ html::-webkit-scrollbar { display: none; }
 .form-group--third { flex: 1; min-width: 0; }
 .billed-hours-form { background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
 
+/* ===== SIDEBAR BADGE ===== */
+.sidebar__badge {
+    background: var(--accent);
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: 700;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    margin-left: auto;
+}
+
+/* ===== TODO SECTION ===== */
+.todo-filters {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+.todo-filter-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.todo-filter-select {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    padding: 7px 12px;
+    font-size: 0.82rem;
+    font-family: var(--font);
+    cursor: pointer;
+}
+.todo-filter-select:focus { border-color: var(--accent); outline: none; }
+
+.todo-sections { display: flex; flex-direction: column; gap: 24px; }
+
+.todo-section__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.todo-section__header h2 { font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.todo-section__count {
+    background: var(--bg-hover);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+.todo-section__header--toggle { cursor: pointer; user-select: none; justify-content: space-between; }
+.todo-section__arrow { width: 18px; height: 18px; color: var(--text-muted); transition: transform 0.2s; }
+
+.todo-list { display: flex; flex-direction: column; gap: 8px; }
+
+.todo-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+}
+
+/* Todo Card */
+.todo-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+}
+.todo-card:hover { border-color: var(--accent); background: var(--bg-hover); }
+.todo-card--overdue { border-left: 3px solid var(--danger); }
+.todo-card--due-soon { border-left: 3px solid var(--accent); }
+.todo-card--completed { opacity: 0.6; }
+.todo-card--completed:hover { opacity: 0.85; }
+
+.todo-card__flag {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.65rem;
+    margin-top: 2px;
+}
+.todo-card__content { flex: 1; min-width: 0; }
+.todo-card__title { font-weight: 600; font-size: 0.92rem; line-height: 1.4; word-break: break-word; }
+.todo-card__meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.todo-meta-tag {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    background: rgba(207,138,46,0.12);
+    color: var(--accent);
+    border-radius: 4px;
+    font-weight: 500;
+}
+.todo-meta-assignee {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+.todo-meta-assignee::before { content: '👤 '; }
+.todo-meta-vehicle {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+.todo-meta-vehicle::before { content: '🚗 '; }
+.todo-meta-date {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+.todo-meta-date::before { content: '📅 '; }
+.todo-meta-date--overdue { color: var(--danger); font-weight: 600; }
+.todo-meta-date--soon { color: var(--accent); font-weight: 500; }
+.todo-meta-completed { font-size: 0.78rem; color: var(--success); }
+
+.todo-card__complete {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+    transition: all 0.15s;
+}
+.todo-card__complete svg { width: 16px; height: 16px; }
+.todo-card__complete:hover { border-color: var(--success); color: var(--success); background: rgba(34,197,94,0.1); }
+
+/* Todo Detail */
+.todo-detail-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.todo-detail-row { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; }
+.todo-detail-label { color: var(--text-muted); font-size: 0.82rem; min-width: 100px; flex-shrink: 0; }
+.todo-detail-value { font-weight: 500; }
+.todo-priority-badge { display: inline-block; padding: 3px 10px; border-radius: 4px; color: #fff; font-size: 0.78rem; font-weight: 600; }
+.todo-detail-desc {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    font-size: 0.88rem;
+    color: var(--text);
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+/* Todo Notes */
+.todo-notes-section { border-top: 1px solid var(--border); padding-top: 20px; }
+.todo-notes-input { display: flex; gap: 8px; margin-bottom: 16px; }
+.todo-notes-input textarea {
+    flex: 1;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    padding: 10px 14px;
+    font-family: var(--font);
+    font-size: 0.88rem;
+    resize: vertical;
+}
+.todo-notes-input textarea:focus { border-color: var(--accent); outline: none; }
+.todo-note-item {
+    position: relative;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+}
+.todo-note-item__delete {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+.todo-note-item__delete:hover { color: var(--danger); }
+.todo-note-item__date { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
+.todo-note-item__text { font-size: 0.88rem; line-height: 1.5; }
+
 /* Responsive */
 @media (max-width: 768px) {
     .nfc-scanner__title { font-size: 3.5rem; letter-spacing: 2px; }
@@ -2515,5 +2716,7 @@ html::-webkit-scrollbar { display: none; }
     .period-filters { flex-wrap: wrap; }
     .veh-detail-header { flex-direction: column; }
     .veh-detail-header img { width: 100%; height: auto; max-height: 200px; }
+    .todo-filters { flex-direction: column; }
+    .todo-card__meta { flex-direction: column; gap: 4px; }
     .billed-hours-form .form-row { flex-direction: column; }
 }
