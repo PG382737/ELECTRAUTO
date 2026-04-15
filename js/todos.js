@@ -316,7 +316,7 @@
                 html += '<span class="todo-card__chip todo-card__chip--vehicle">' + escHtml(vehLabel(t.vehicle_id)) + '</span>';
             }
             if (isCompleted && t.completed_by) {
-                html += '<span class="todo-card__chip todo-card__chip--done">Complétée par ' + escHtml(empName(t.completed_by)) + '</span>';
+                html += '<span class="todo-card__chip todo-card__chip--done todo-card__chip--right">Complétée par ' + escHtml(empName(t.completed_by)) + '</span>';
             }
             html += '</div>';
         }
@@ -491,7 +491,7 @@
             if (overdue) {
                 html += '<div class="todo-detail__status todo-detail__status--overdue">En retard</div>';
             } else if (t.completed_at) {
-                html += '<div class="todo-detail__status todo-detail__status--done">Complétée</div>';
+                html += '<div class="todo-detail__status todo-detail__status--done">Complétée par ' + (t.completed_by ? escHtml(empName(t.completed_by)) : '') + '</div>';
             }
 
             // Info cards
@@ -523,8 +523,8 @@
 
             if (t.completed_at) {
                 html += '<div class="todo-detail__card todo-detail__card--success">';
-                html += '<div class="todo-detail__card-label">Complétée</div>';
-                html += '<div class="todo-detail__card-value">' + formatDateTime(t.completed_at) + (t.completed_by ? ' · ' + escHtml(empName(t.completed_by)) : '') + '</div>';
+                html += '<div class="todo-detail__card-label">Complétée par</div>';
+                html += '<div class="todo-detail__card-value">' + (t.completed_by ? escHtml(empName(t.completed_by)) + ' · ' : '') + formatDateTime(t.completed_at) + '</div>';
                 html += '</div>';
             }
 

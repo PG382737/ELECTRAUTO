@@ -2778,6 +2778,7 @@ html::-webkit-scrollbar { display: none; }
     margin-right: 6px;
     vertical-align: middle;
 }
+.todo-card__chip--right { margin-left: auto; }
 .todo-card__chip--done {
     background: rgba(34,197,94,0.08);
     color: var(--success);
