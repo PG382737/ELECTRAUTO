@@ -481,12 +481,10 @@
 
             var html = '';
 
-            // Subheader: created by + date (always visible, compact)
+            // Subheader bar: created by (left) + date (right)
             html += '<div class="todo-detail__sub">';
-            var subParts = [];
-            if (t.created_by) subParts.push('Par ' + escHtml(empName(t.created_by)));
-            subParts.push(formatDateTime(t.created_at));
-            html += subParts.join(' · ');
+            html += '<span class="todo-detail__sub-left">' + (t.created_by ? escHtml(empName(t.created_by)) : '') + '</span>';
+            html += '<span class="todo-detail__sub-right">' + formatDateTime(t.created_at) + '</span>';
             html += '</div>';
 
             // Status banner for overdue

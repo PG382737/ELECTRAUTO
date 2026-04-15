@@ -2838,13 +2838,22 @@ html::-webkit-scrollbar { display: none; }
     border-bottom-color: var(--success);
 }
 
-/* Todo Detail - Subheader */
+/* Todo Detail - Subheader Bar */
 .todo-detail__sub {
-    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78rem;
     color: var(--text-muted);
     margin-bottom: 16px;
+    padding: 10px 16px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
     letter-spacing: 0.2px;
 }
+.todo-detail__sub-left { font-weight: 500; }
+.todo-detail__sub-right { opacity: 0.7; }
 
 /* Todo Detail - Status Banner */
 .todo-detail__status {
