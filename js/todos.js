@@ -275,43 +275,57 @@
         var p = PRIORITIES[t.priority] || PRIORITIES[2];
         var overdue = isOverdue(t);
         var dueSoon = isDueSoon(t);
-        var overdueClass = overdue ? ' todo-card--overdue' : (dueSoon ? ' todo-card--due-soon' : '');
-        var completedClass = isCompleted ? ' todo-card--completed' : '';
+        var stateClass = overdue ? ' todo-card--overdue' : (dueSoon ? ' todo-card--due-soon' : '');
+        if (isCompleted) stateClass += ' todo-card--completed';
 
-        var html = '<div class="todo-card' + overdueClass + completedClass + '" onclick="Todos.openDetail(\'' + t.id + '\')">';
+        var html = '<div class="todo-card' + stateClass + '" onclick="Todos.openDetail(\'' + t.id + '\')">';
 
-        // Priority flag
-        html += '<div class="todo-card__flag" style="background:' + p.color + ';" title="' + p.label + '">' + p.icon + '</div>';
+        // Priority accent bar (left edge)
+        html += '<div class="todo-card__accent" style="background:' + p.color + ';"></div>';
 
-        // Content
-        html += '<div class="todo-card__content">';
+        // Main body
+        html += '<div class="todo-card__body">';
+
+        // Header row: priority label + category + date
+        html += '<div class="todo-card__header">';
+        html += '<span class="todo-card__priority" style="color:' + p.color + ';">' + p.label + '</span>';
+        if (t.category) html += '<span class="todo-card__category">' + escHtml(t.category) + '</span>';
+        if (t.due_date) {
+            var dateClass = overdue ? ' todo-card__date--overdue' : (dueSoon ? ' todo-card__date--soon' : '');
+            html += '<span class="todo-card__date' + dateClass + '">' + (overdue ? 'En retard · ' : '') + formatDate(t.due_date) + '</span>';
+        }
+        html += '</div>';
+
+        // Title
         html += '<div class="todo-card__title">' + escHtml(t.title) + '</div>';
 
         // Description preview
         if (t.description) {
-            var preview = t.description.length > 120 ? t.description.substring(0, 120) + '…' : t.description;
+            var preview = t.description.length > 100 ? t.description.substring(0, 100) + '…' : t.description;
             html += '<div class="todo-card__desc">' + escHtml(preview) + '</div>';
         }
 
-        // Meta line
-        var meta = [];
-        if (t.category) meta.push('<span class="todo-meta-tag">' + escHtml(t.category) + '</span>');
-        if (t.assigned_to && empName(t.assigned_to)) meta.push('<span class="todo-meta-assignee">' + escHtml(empName(t.assigned_to)) + '</span>');
-        if (t.vehicle_id && vehLabel(t.vehicle_id)) meta.push('<span class="todo-meta-vehicle">' + escHtml(vehLabel(t.vehicle_id)) + '</span>');
-        if (t.due_date) {
-            var dueCls = overdue ? ' todo-meta-date--overdue' : (dueSoon ? ' todo-meta-date--soon' : '');
-            meta.push('<span class="todo-meta-date' + dueCls + '">' + formatDate(t.due_date) + '</span>');
+        // Footer: assignee, vehicle, completed info
+        var hasFooter = (t.assigned_to && empName(t.assigned_to)) || (t.vehicle_id && vehLabel(t.vehicle_id)) || (isCompleted && t.completed_by);
+        if (hasFooter) {
+            html += '<div class="todo-card__footer">';
+            if (t.assigned_to && empName(t.assigned_to)) {
+                html += '<span class="todo-card__chip todo-card__chip--person">' + escHtml(empName(t.assigned_to)) + '</span>';
+            }
+            if (t.vehicle_id && vehLabel(t.vehicle_id)) {
+                html += '<span class="todo-card__chip todo-card__chip--vehicle">' + escHtml(vehLabel(t.vehicle_id)) + '</span>';
+            }
+            if (isCompleted && t.completed_by) {
+                html += '<span class="todo-card__chip todo-card__chip--done">Complétée par ' + escHtml(empName(t.completed_by)) + '</span>';
+            }
+            html += '</div>';
         }
-        if (isCompleted && t.completed_by) {
-            meta.push('<span class="todo-meta-completed">Complétée par ' + escHtml(empName(t.completed_by)) + '</span>');
-        }
-        if (meta.length > 0) html += '<div class="todo-card__meta">' + meta.join('') + '</div>';
 
-        html += '</div>';
+        html += '</div>'; // end body
 
-        // Action buttons
+        // Complete button
         if (!isCompleted) {
-            html += '<button class="todo-card__complete" onclick="event.stopPropagation();Todos.promptComplete(\'' + t.id + '\')" title="Compléter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></button>';
+            html += '<button class="todo-card__check" onclick="event.stopPropagation();Todos.promptComplete(\'' + t.id + '\')" title="Compléter"></button>';
         }
 
         html += '</div>';

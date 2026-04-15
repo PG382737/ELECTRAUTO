@@ -2642,82 +2642,201 @@ html::-webkit-scrollbar { display: none; }
 /* Todo Card */
 .todo-card {
     display: flex;
-    align-items: flex-start;
-    gap: 12px;
+    align-items: stretch;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 14px 16px;
     cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    overflow: hidden;
+    position: relative;
 }
-.todo-card:hover { border-color: var(--accent); background: var(--bg-hover); }
-.todo-card--overdue { border-left: 3px solid var(--danger); }
-.todo-card--due-soon { border-left: 3px solid var(--accent); }
-.todo-card--completed { opacity: 0.6; }
-.todo-card--completed:hover { opacity: 0.85; }
+.todo-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 2px 16px rgba(207,138,46,0.06);
+    background: rgba(30,30,34,0.8);
+}
+.todo-card--overdue { border-color: rgba(229,69,69,0.3); }
+.todo-card--overdue:hover { border-color: var(--danger); box-shadow: 0 2px 16px rgba(229,69,69,0.08); }
+.todo-card--due-soon { border-color: rgba(207,138,46,0.3); }
+.todo-card--completed { opacity: 0.5; }
+.todo-card--completed:hover { opacity: 0.75; }
 
-.todo-card__flag {
+/* Left accent bar */
+.todo-card__accent {
     flex-shrink: 0;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
+    width: 4px;
+    min-height: 100%;
+}
+
+/* Card body */
+.todo-card__body {
+    flex: 1;
+    min-width: 0;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Header row */
+.todo-card__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.todo-card__priority {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+.todo-card__category {
+    font-size: 0.72rem;
+    padding: 2px 10px;
+    background: rgba(207,138,46,0.1);
+    color: var(--accent);
+    border-radius: 20px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+}
+.todo-card__date {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-left: auto;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+}
+.todo-card__date--overdue {
+    color: var(--danger);
+    font-weight: 700;
+}
+.todo-card__date--soon {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* Title */
+.todo-card__title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    word-break: break-word;
+    color: var(--text);
+}
+
+/* Description */
+.todo-card__desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+/* Footer chips */
+.todo-card__footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+}
+.todo-card__chip {
+    font-size: 0.72rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+}
+.todo-card__chip--person {
+    background: rgba(138,138,150,0.1);
+    color: var(--text-muted);
+}
+.todo-card__chip--person::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    margin-right: 6px;
+    vertical-align: middle;
+}
+.todo-card__chip--vehicle {
+    background: rgba(207,138,46,0.08);
+    color: rgba(207,138,46,0.8);
+}
+.todo-card__chip--vehicle::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-right: 6px;
+    vertical-align: middle;
+}
+.todo-card__chip--done {
+    background: rgba(34,197,94,0.08);
+    color: var(--success);
+}
+.todo-card__chip--done::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+/* Check button */
+.todo-card__check {
+    flex-shrink: 0;
+    width: 48px;
+    border: none;
+    border-left: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
-    font-weight: 800;
-    font-size: 0.65rem;
-    margin-top: 2px;
+    transition: background 0.2s;
+    position: relative;
 }
-.todo-card__content { flex: 1; min-width: 0; }
-.todo-card__title { font-weight: 600; font-size: 0.92rem; line-height: 1.4; word-break: break-word; }
-.todo-card__desc { font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; line-height: 1.4; word-break: break-word; }
-.todo-card__meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
-.todo-meta-tag {
-    font-size: 0.75rem;
-    padding: 2px 8px;
-    background: rgba(207,138,46,0.12);
-    color: var(--accent);
-    border-radius: 4px;
-    font-weight: 500;
-}
-.todo-meta-assignee {
-    font-size: 0.78rem;
-    color: var(--text-muted);
-}
-.todo-meta-assignee::before { content: '👤 '; }
-.todo-meta-vehicle {
-    font-size: 0.78rem;
-    color: var(--text-muted);
-}
-.todo-meta-vehicle::before { content: '🚗 '; }
-.todo-meta-date {
-    font-size: 0.78rem;
-    color: var(--text-muted);
-}
-.todo-meta-date::before { content: '📅 '; }
-.todo-meta-date--overdue { color: var(--danger); font-weight: 600; }
-.todo-meta-date--soon { color: var(--accent); font-weight: 500; }
-.todo-meta-completed { font-size: 0.78rem; color: var(--success); }
-
-.todo-card__complete {
-    flex-shrink: 0;
-    width: 32px;
-    height: 32px;
+.todo-card__check::before {
+    content: '';
+    width: 22px;
+    height: 22px;
     border: 2px solid var(--border);
     border-radius: 50%;
-    background: transparent;
-    color: var(--text-muted);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 2px;
-    transition: all 0.15s;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
-.todo-card__complete svg { width: 16px; height: 16px; }
-.todo-card__complete:hover { border-color: var(--success); color: var(--success); background: rgba(34,197,94,0.1); }
+.todo-card__check::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 5px;
+    border-left: 2px solid transparent;
+    border-bottom: 2px solid transparent;
+    transform: rotate(-45deg);
+    margin-top: -2px;
+    transition: border-color 0.2s;
+}
+.todo-card__check:hover {
+    background: rgba(34,197,94,0.05);
+}
+.todo-card__check:hover::before {
+    border-color: var(--success);
+    box-shadow: 0 0 8px rgba(34,197,94,0.15);
+}
+.todo-card__check:hover::after {
+    border-left-color: var(--success);
+    border-bottom-color: var(--success);
+}
 
 /* Todo Detail */
 .todo-detail-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
