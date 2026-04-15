@@ -481,43 +481,101 @@
 
             var html = '';
 
-            // Info grid
-            html += '<div class="todo-detail-grid">';
-            html += '<div class="todo-detail-row"><span class="todo-detail-label">Priorité</span><span class="todo-detail-value"><span class="todo-priority-badge" style="background:' + p.color + ';">' + p.label + '</span></span></div>';
-            html += '<div class="todo-detail-row"><span class="todo-detail-label">Catégorie</span><span class="todo-detail-value">' + escHtml(t.category || 'Autre') + '</span></div>';
-            if (t.created_by) html += '<div class="todo-detail-row"><span class="todo-detail-label">Créée par</span><span class="todo-detail-value">' + escHtml(empName(t.created_by)) + '</span></div>';
-            if (t.assigned_to) html += '<div class="todo-detail-row"><span class="todo-detail-label">Assignée à</span><span class="todo-detail-value">' + escHtml(empName(t.assigned_to)) + '</span></div>';
+            // Status banner for overdue
+            if (overdue) {
+                html += '<div class="todo-detail__status todo-detail__status--overdue">En retard</div>';
+            } else if (t.completed_at) {
+                html += '<div class="todo-detail__status todo-detail__status--done">Complétée</div>';
+            }
+
+            // Info cards - 2 column grid
+            html += '<div class="todo-detail__info">';
+
+            // Priority + Category
+            html += '<div class="todo-detail__card">';
+            html += '<div class="todo-detail__card-label">Priorité</div>';
+            html += '<div class="todo-detail__card-value"><span class="todo-detail__priority-dot" style="background:' + p.color + ';"></span>' + p.label + '</div>';
+            html += '</div>';
+            html += '<div class="todo-detail__card">';
+            html += '<div class="todo-detail__card-label">Catégorie</div>';
+            html += '<div class="todo-detail__card-value">' + escHtml(t.category || 'Autre') + '</div>';
+            html += '</div>';
+
+            // Created by + Assigned to
+            if (t.created_by) {
+                html += '<div class="todo-detail__card">';
+                html += '<div class="todo-detail__card-label">Créée par</div>';
+                html += '<div class="todo-detail__card-value">' + escHtml(empName(t.created_by)) + '</div>';
+                html += '</div>';
+            }
+            if (t.assigned_to) {
+                html += '<div class="todo-detail__card">';
+                html += '<div class="todo-detail__card-label">Assignée à</div>';
+                html += '<div class="todo-detail__card-value">' + escHtml(empName(t.assigned_to)) + '</div>';
+                html += '</div>';
+            }
+
+            // Due date + Vehicle
             if (t.due_date) {
-                var dueClass = overdue ? ' style="color:var(--danger);font-weight:600;"' : '';
-                html += '<div class="todo-detail-row"><span class="todo-detail-label">Date limite</span><span class="todo-detail-value"' + dueClass + '>' + formatDate(t.due_date) + (overdue ? ' (EN RETARD)' : '') + '</span></div>';
+                html += '<div class="todo-detail__card' + (overdue ? ' todo-detail__card--danger' : '') + '">';
+                html += '<div class="todo-detail__card-label">Date limite</div>';
+                html += '<div class="todo-detail__card-value">' + formatDate(t.due_date) + '</div>';
+                html += '</div>';
             }
             if (t.vehicle) {
                 var vLabel = t.vehicle.make + (t.vehicle.model ? ' ' + t.vehicle.model : '') + (t.vehicle.plate ? ' - ' + t.vehicle.plate : '');
-                html += '<div class="todo-detail-row"><span class="todo-detail-label">Véhicule</span><span class="todo-detail-value"><a href="#" onclick="event.preventDefault();document.getElementById(\'todo-detail-modal\').classList.remove(\'active\');Control.openVehicleDetail(\'' + t.vehicle.id + '\')" style="color:var(--accent);">' + escHtml(vLabel) + '</a></span></div>';
+                html += '<div class="todo-detail__card todo-detail__card--link" onclick="event.stopPropagation();document.getElementById(\'todo-detail-modal\').classList.remove(\'active\');Control.openVehicleDetail(\'' + t.vehicle.id + '\')">';
+                html += '<div class="todo-detail__card-label">Véhicule</div>';
+                html += '<div class="todo-detail__card-value">' + escHtml(vLabel) + '</div>';
+                html += '</div>';
             }
+
+            // Completed info + Created date
             if (t.completed_at) {
-                html += '<div class="todo-detail-row"><span class="todo-detail-label">Complétée</span><span class="todo-detail-value" style="color:var(--success);">' + formatDateTime(t.completed_at) + (t.completed_by ? ' par ' + escHtml(empName(t.completed_by)) : '') + '</span></div>';
+                html += '<div class="todo-detail__card todo-detail__card--success">';
+                html += '<div class="todo-detail__card-label">Complétée le</div>';
+                html += '<div class="todo-detail__card-value">' + formatDateTime(t.completed_at) + (t.completed_by ? '<br><span style="font-size:0.8rem;opacity:0.7;">par ' + escHtml(empName(t.completed_by)) + '</span>' : '') + '</div>';
+                html += '</div>';
             }
-            html += '<div class="todo-detail-row"><span class="todo-detail-label">Créée le</span><span class="todo-detail-value">' + formatDateTime(t.created_at) + '</span></div>';
+            html += '<div class="todo-detail__card">';
+            html += '<div class="todo-detail__card-label">Créée le</div>';
+            html += '<div class="todo-detail__card-value">' + formatDateTime(t.created_at) + '</div>';
             html += '</div>';
+
+            html += '</div>'; // end info
 
             // Description
             if (t.description) {
-                html += '<div class="todo-detail-desc">' + escHtml(t.description).replace(/\n/g, '<br>') + '</div>';
+                html += '<div class="todo-detail__section">';
+                html += '<div class="todo-detail__section-title">Description</div>';
+                html += '<div class="todo-detail__desc">' + escHtml(t.description).replace(/\n/g, '<br>') + '</div>';
+                html += '</div>';
             }
 
             // Notes section
-            html += '<div class="todo-notes-section">';
-            html += '<h3 style="font-size:0.95rem;margin-bottom:12px;">Notes</h3>';
-            html += '<div class="todo-notes-input"><textarea id="todo-note-text" rows="2" placeholder="Ajouter une note..."></textarea>';
-            html += '<button class="btn btn--primary" onclick="Todos.addNote()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div>';
-            html += '<div id="todo-notes-list">';
+            html += '<div class="todo-detail__section">';
+            html += '<div class="todo-detail__section-title">Notes <span class="todo-detail__section-count">' + (t.notes ? t.notes.length : 0) + '</span></div>';
+
+            // Note input
+            html += '<div class="todo-notes__compose">';
+            html += '<textarea id="todo-note-text" rows="1" placeholder="Écrire une note..."></textarea>';
+            html += '<button class="todo-notes__send" onclick="Todos.addNote()" title="Envoyer">Envoyer</button>';
+            html += '</div>';
+
+            // Notes list
+            html += '<div class="todo-notes__list" id="todo-notes-list">';
             if (t.notes && t.notes.length > 0) {
                 t.notes.forEach(function(n) {
-                    html += '<div class="todo-note-item"><button class="todo-note-item__delete" onclick="Todos.deleteNote(\'' + n.id + '\')">&times;</button><div class="todo-note-item__date">' + formatDateTime(n.created_at) + '</div><div class="todo-note-item__text">' + escHtml(n.text) + '</div></div>';
+                    html += '<div class="todo-notes__item">';
+                    html += '<div class="todo-notes__item-header">';
+                    html += '<span class="todo-notes__item-date">' + formatDateTime(n.created_at) + '</span>';
+                    html += '<button class="todo-notes__item-delete" onclick="event.stopPropagation();Todos.deleteNote(\'' + n.id + '\')">Supprimer</button>';
+                    html += '</div>';
+                    html += '<div class="todo-notes__item-text">' + escHtml(n.text) + '</div>';
+                    html += '</div>';
                 });
             } else {
-                html += '<p style="color:var(--text-muted);font-size:0.85rem;">Aucune note.</p>';
+                html += '<div class="todo-notes__empty">Aucune note pour cette tâche.</div>';
             }
             html += '</div></div>';
 

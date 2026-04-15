@@ -2838,60 +2838,198 @@ html::-webkit-scrollbar { display: none; }
     border-bottom-color: var(--success);
 }
 
-/* Todo Detail */
-.todo-detail-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-.todo-detail-row { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; }
-.todo-detail-label { color: var(--text-muted); font-size: 0.82rem; min-width: 100px; flex-shrink: 0; }
-.todo-detail-value { font-weight: 500; }
-.todo-priority-badge { display: inline-block; padding: 3px 10px; border-radius: 4px; color: #fff; font-size: 0.78rem; font-weight: 600; }
-.todo-detail-desc {
+/* Todo Detail - Status Banner */
+.todo-detail__status {
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+.todo-detail__status--overdue {
+    background: rgba(229,69,69,0.1);
+    color: var(--danger);
+    border: 1px solid rgba(229,69,69,0.2);
+}
+.todo-detail__status--done {
+    background: rgba(34,197,94,0.08);
+    color: var(--success);
+    border: 1px solid rgba(34,197,94,0.15);
+}
+
+/* Todo Detail - Info Cards Grid */
+.todo-detail__info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+.todo-detail__card {
     background: var(--bg-input);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    padding: 14px 16px;
+    padding: 12px 16px;
+    transition: border-color 0.2s;
+}
+.todo-detail__card--danger { border-color: rgba(229,69,69,0.3); }
+.todo-detail__card--success { border-color: rgba(34,197,94,0.2); }
+.todo-detail__card--link { cursor: pointer; }
+.todo-detail__card--link:hover { border-color: var(--accent); }
+.todo-detail__card--link .todo-detail__card-value { color: var(--accent); }
+.todo-detail__card-label {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+.todo-detail__card-value {
     font-size: 0.88rem;
+    font-weight: 500;
     color: var(--text);
-    line-height: 1.6;
-    margin-bottom: 20px;
+    line-height: 1.4;
+}
+.todo-detail__priority-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
 }
 
-/* Todo Notes */
-.todo-notes-section { border-top: 1px solid var(--border); padding-top: 20px; }
-.todo-notes-input { display: flex; gap: 8px; margin-bottom: 16px; }
-.todo-notes-input textarea {
+/* Todo Detail - Sections */
+.todo-detail__section {
+    margin-bottom: 24px;
+}
+.todo-detail__section-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.todo-detail__section-count {
+    font-size: 0.72rem;
+    background: var(--bg-hover);
+    color: var(--text-muted);
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+.todo-detail__desc {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+    font-size: 0.88rem;
+    color: var(--text);
+    line-height: 1.7;
+}
+
+/* Todo Notes - Compose */
+.todo-notes__compose {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    align-items: flex-end;
+}
+.todo-notes__compose textarea {
     flex: 1;
     background: var(--bg-input);
     border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius);
     color: var(--text);
-    padding: 10px 14px;
+    padding: 12px 16px;
     font-family: var(--font);
     font-size: 0.88rem;
-    resize: vertical;
+    resize: none;
+    outline: none;
+    transition: border-color 0.2s;
+    min-height: 44px;
+    box-sizing: border-box;
 }
-.todo-notes-input textarea:focus { border-color: var(--accent); outline: none; }
-.todo-note-item {
-    position: relative;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 12px 14px;
-    margin-bottom: 8px;
+.todo-notes__compose textarea:focus { border-color: var(--accent); }
+.todo-notes__send {
+    flex-shrink: 0;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 12px 20px;
+    font-family: var(--font);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: background 0.2s;
+    white-space: nowrap;
 }
-.todo-note-item__delete {
-    position: absolute;
-    top: 8px;
-    right: 10px;
+.todo-notes__send:hover { background: var(--accent-hover); }
+
+/* Todo Notes - List */
+.todo-notes__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+.todo-notes__item {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+}
+.todo-notes__item:last-child { border-bottom: none; }
+.todo-notes__item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+.todo-notes__item-date {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    letter-spacing: 0.2px;
+}
+.todo-notes__item-delete {
     background: none;
     border: none;
     color: var(--text-muted);
     cursor: pointer;
-    font-size: 1.1rem;
-    line-height: 1;
+    font-family: var(--font);
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s, background 0.15s;
 }
-.todo-note-item__delete:hover { color: var(--danger); }
-.todo-note-item__date { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
-.todo-note-item__text { font-size: 0.88rem; line-height: 1.5; }
+.todo-notes__item:hover .todo-notes__item-delete { opacity: 1; }
+.todo-notes__item-delete:hover {
+    color: var(--danger);
+    background: rgba(229,69,69,0.08);
+}
+.todo-notes__item-text {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--text);
+    word-break: break-word;
+}
+.todo-notes__empty {
+    text-align: center;
+    padding: 24px 16px;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    font-style: italic;
+}
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -2903,6 +3041,7 @@ html::-webkit-scrollbar { display: none; }
     .veh-detail-header { flex-direction: column; }
     .veh-detail-header img { width: 100%; height: auto; max-height: 200px; }
     .todo-filters { flex-direction: column; }
-    .todo-card__meta { flex-direction: column; gap: 4px; }
+    .todo-detail__info { grid-template-columns: 1fr; }
+    .todo-card__footer { flex-direction: column; gap: 4px; }
     .billed-hours-form .form-row { flex-direction: column; }
 }
