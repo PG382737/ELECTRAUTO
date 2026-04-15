@@ -494,14 +494,9 @@
                 html += '<div class="todo-detail__status todo-detail__status--done">Complétée</div>';
             }
 
-            // Info cards - only contextual info (not created by/date)
-            var hasCards = true; // priority + category always shown
-            html += '<div class="todo-detail__info">';
+            // Info cards with priority color as top accent
+            html += '<div class="todo-detail__info" style="border-top:3px solid ' + p.color + ';">';
 
-            html += '<div class="todo-detail__card">';
-            html += '<div class="todo-detail__card-label">Priorité</div>';
-            html += '<div class="todo-detail__card-value"><span class="todo-detail__priority-dot" style="background:' + p.color + ';"></span>' + p.label + '</div>';
-            html += '</div>';
             html += '<div class="todo-detail__card">';
             html += '<div class="todo-detail__card-label">Catégorie</div>';
             html += '<div class="todo-detail__card-value">' + escHtml(t.category || 'Autre') + '</div>';
