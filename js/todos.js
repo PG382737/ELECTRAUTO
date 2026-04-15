@@ -287,6 +287,12 @@
         html += '<div class="todo-card__content">';
         html += '<div class="todo-card__title">' + escHtml(t.title) + '</div>';
 
+        // Description preview
+        if (t.description) {
+            var preview = t.description.length > 120 ? t.description.substring(0, 120) + '…' : t.description;
+            html += '<div class="todo-card__desc">' + escHtml(preview) + '</div>';
+        }
+
         // Meta line
         var meta = [];
         if (t.category) meta.push('<span class="todo-meta-tag">' + escHtml(t.category) + '</span>');
