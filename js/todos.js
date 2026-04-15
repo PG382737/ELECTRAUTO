@@ -494,8 +494,8 @@
                 html += '<div class="todo-detail__status todo-detail__status--done">Complétée</div>';
             }
 
-            // Info cards with priority color as top accent
-            html += '<div class="todo-detail__info" style="border-top:3px solid ' + p.color + ';">';
+            // Info cards
+            html += '<div class="todo-detail__info">';
 
             html += '<div class="todo-detail__card">';
             html += '<div class="todo-detail__card-label">Catégorie</div>';
@@ -567,6 +567,10 @@
 
             document.getElementById('todo-detail-title').textContent = t.title;
             document.getElementById('todo-detail-body').innerHTML = html;
+
+            // Priority accent on modal top
+            var detailModal = document.getElementById('todo-detail-modal').querySelector('.modal');
+            detailModal.style.borderTop = '3px solid ' + p.color;
 
             // Footer buttons
             var footer = '';
