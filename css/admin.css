@@ -2838,6 +2838,14 @@ html::-webkit-scrollbar { display: none; }
     border-bottom-color: var(--success);
 }
 
+/* Todo Detail - Subheader */
+.todo-detail__sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    letter-spacing: 0.2px;
+}
+
 /* Todo Detail - Status Banner */
 .todo-detail__status {
     padding: 10px 16px;

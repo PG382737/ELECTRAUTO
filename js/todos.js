@@ -481,6 +481,14 @@
 
             var html = '';
 
+            // Subheader: created by + date (always visible, compact)
+            html += '<div class="todo-detail__sub">';
+            var subParts = [];
+            if (t.created_by) subParts.push('Par ' + escHtml(empName(t.created_by)));
+            subParts.push(formatDateTime(t.created_at));
+            html += subParts.join(' · ');
+            html += '</div>';
+
             // Status banner for overdue
             if (overdue) {
                 html += '<div class="todo-detail__status todo-detail__status--overdue">En retard</div>';
@@ -488,10 +496,10 @@
                 html += '<div class="todo-detail__status todo-detail__status--done">Complétée</div>';
             }
 
-            // Info cards - 2 column grid
+            // Info cards - only contextual info (not created by/date)
+            var hasCards = true; // priority + category always shown
             html += '<div class="todo-detail__info">';
 
-            // Priority + Category
             html += '<div class="todo-detail__card">';
             html += '<div class="todo-detail__card-label">Priorité</div>';
             html += '<div class="todo-detail__card-value"><span class="todo-detail__priority-dot" style="background:' + p.color + ';"></span>' + p.label + '</div>';
@@ -501,21 +509,12 @@
             html += '<div class="todo-detail__card-value">' + escHtml(t.category || 'Autre') + '</div>';
             html += '</div>';
 
-            // Created by + Assigned to
-            if (t.created_by) {
-                html += '<div class="todo-detail__card">';
-                html += '<div class="todo-detail__card-label">Créée par</div>';
-                html += '<div class="todo-detail__card-value">' + escHtml(empName(t.created_by)) + '</div>';
-                html += '</div>';
-            }
             if (t.assigned_to) {
                 html += '<div class="todo-detail__card">';
                 html += '<div class="todo-detail__card-label">Assignée à</div>';
                 html += '<div class="todo-detail__card-value">' + escHtml(empName(t.assigned_to)) + '</div>';
                 html += '</div>';
             }
-
-            // Due date + Vehicle
             if (t.due_date) {
                 html += '<div class="todo-detail__card' + (overdue ? ' todo-detail__card--danger' : '') + '">';
                 html += '<div class="todo-detail__card-label">Date limite</div>';
@@ -529,18 +528,12 @@
                 html += '<div class="todo-detail__card-value">' + escHtml(vLabel) + '</div>';
                 html += '</div>';
             }
-
-            // Completed info + Created date
             if (t.completed_at) {
                 html += '<div class="todo-detail__card todo-detail__card--success">';
-                html += '<div class="todo-detail__card-label">Complétée le</div>';
-                html += '<div class="todo-detail__card-value">' + formatDateTime(t.completed_at) + (t.completed_by ? '<br><span style="font-size:0.8rem;opacity:0.7;">par ' + escHtml(empName(t.completed_by)) + '</span>' : '') + '</div>';
+                html += '<div class="todo-detail__card-label">Complétée</div>';
+                html += '<div class="todo-detail__card-value">' + formatDateTime(t.completed_at) + (t.completed_by ? ' · ' + escHtml(empName(t.completed_by)) : '') + '</div>';
                 html += '</div>';
             }
-            html += '<div class="todo-detail__card">';
-            html += '<div class="todo-detail__card-label">Créée le</div>';
-            html += '<div class="todo-detail__card-value">' + formatDateTime(t.created_at) + '</div>';
-            html += '</div>';
 
             html += '</div>'; // end info
 
