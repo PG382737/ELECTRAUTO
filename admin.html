@@ -947,6 +947,21 @@
         </div>
     </div>
 
+    <!-- Confirm Delete Modal -->
+    <div class="modal-overlay" id="todo-delete-modal">
+        <div class="modal modal--sm">
+            <div class="modal__body" style="text-align:center;padding:32px 24px;">
+                <div class="todo-delete__icon"></div>
+                <h3 class="todo-delete__title">Supprimer cette tâche ?</h3>
+                <p class="todo-delete__msg">Cette action est irréversible. La tâche et toutes ses notes seront supprimées définitivement.</p>
+            </div>
+            <div class="modal__footer" style="justify-content:center;gap:12px;">
+                <button class="btn btn--ghost" id="todo-delete-cancel">Annuler</button>
+                <button class="btn btn--danger" id="todo-delete-confirm">Supprimer</button>
+            </div>
+        </div>
+    </div>
+
     <div class="toast-container" id="toast-container"></div>
 
     <!-- ===== NFC SCANNER FULLSCREEN ===== -->

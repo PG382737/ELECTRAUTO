@@ -502,25 +502,25 @@
             html += '<div class="todo-detail__card-value">' + escHtml(t.category || 'Autre') + '</div>';
             html += '</div>';
 
-            if (t.assigned_to) {
-                html += '<div class="todo-detail__card">';
-                html += '<div class="todo-detail__card-label">Assignée à</div>';
-                html += '<div class="todo-detail__card-value">' + escHtml(empName(t.assigned_to)) + '</div>';
-                html += '</div>';
-            }
-            if (t.due_date) {
-                html += '<div class="todo-detail__card' + (overdue ? ' todo-detail__card--danger' : '') + '">';
-                html += '<div class="todo-detail__card-label">Date limite</div>';
-                html += '<div class="todo-detail__card-value">' + formatDate(t.due_date) + '</div>';
-                html += '</div>';
-            }
+            html += '<div class="todo-detail__card">';
+            html += '<div class="todo-detail__card-label">Assignée à</div>';
+            html += '<div class="todo-detail__card-value">' + (t.assigned_to ? escHtml(empName(t.assigned_to)) : '<span class="todo-detail__empty">—</span>') + '</div>';
+            html += '</div>';
+
+            html += '<div class="todo-detail__card' + (overdue ? ' todo-detail__card--danger' : '') + '">';
+            html += '<div class="todo-detail__card-label">Date limite</div>';
+            html += '<div class="todo-detail__card-value">' + (t.due_date ? formatDate(t.due_date) : '<span class="todo-detail__empty">—</span>') + '</div>';
+            html += '</div>';
+
+            var vLabel = '';
             if (t.vehicle) {
-                var vLabel = t.vehicle.make + (t.vehicle.model ? ' ' + t.vehicle.model : '') + (t.vehicle.plate ? ' - ' + t.vehicle.plate : '');
-                html += '<div class="todo-detail__card todo-detail__card--link" onclick="event.stopPropagation();document.getElementById(\'todo-detail-modal\').classList.remove(\'active\');Control.openVehicleDetail(\'' + t.vehicle.id + '\')">';
-                html += '<div class="todo-detail__card-label">Véhicule</div>';
-                html += '<div class="todo-detail__card-value">' + escHtml(vLabel) + '</div>';
-                html += '</div>';
+                vLabel = t.vehicle.make + (t.vehicle.model ? ' ' + t.vehicle.model : '') + (t.vehicle.plate ? ' - ' + t.vehicle.plate : '');
             }
+            html += '<div class="todo-detail__card' + (t.vehicle ? ' todo-detail__card--link" onclick="event.stopPropagation();document.getElementById(\'todo-detail-modal\').classList.remove(\'active\');Control.openVehicleDetail(\'' + t.vehicle.id + '\')"' : '"') + '>';
+            html += '<div class="todo-detail__card-label">Véhicule</div>';
+            html += '<div class="todo-detail__card-value">' + (t.vehicle ? escHtml(vLabel) : '<span class="todo-detail__empty">—</span>') + '</div>';
+            html += '</div>';
+
             if (t.completed_at) {
                 html += '<div class="todo-detail__card todo-detail__card--success">';
                 html += '<div class="todo-detail__card-label">Complétée</div>';
@@ -635,10 +635,18 @@
         } catch(e) { showToast('error', 'Erreur', e.message); }
     }
 
-    async function deleteTodo(id) {
-        if (!confirm('Supprimer cette tâche ? Cette action est irréversible.')) return;
+    var pendingDeleteId = null;
+
+    function deleteTodo(id) {
+        pendingDeleteId = id;
+        document.getElementById('todo-delete-modal').classList.add('active');
+    }
+
+    async function confirmDelete() {
+        if (!pendingDeleteId) return;
         try {
-            await api('DELETE', '/api/control-todos?id=' + id);
+            await api('DELETE', '/api/control-todos?id=' + pendingDeleteId);
+            document.getElementById('todo-delete-modal').classList.remove('active');
             document.getElementById('todo-detail-modal').classList.remove('active');
             showToast('success', 'Supprimée', 'Tâche supprimée.');
             loadTodos();
@@ -668,6 +676,10 @@
         document.getElementById('todo-complete-close').addEventListener('click', function() { document.getElementById('todo-complete-modal').classList.remove('active'); });
         document.getElementById('todo-complete-cancel').addEventListener('click', function() { document.getElementById('todo-complete-modal').classList.remove('active'); });
         document.getElementById('todo-complete-confirm').addEventListener('click', confirmComplete);
+
+        // Delete modal
+        document.getElementById('todo-delete-cancel').addEventListener('click', function() { document.getElementById('todo-delete-modal').classList.remove('active'); });
+        document.getElementById('todo-delete-confirm').addEventListener('click', confirmDelete);
 
         // Completed toggle
         document.getElementById('todo-completed-toggle').addEventListener('click', function() {

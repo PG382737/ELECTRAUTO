@@ -2912,6 +2912,7 @@ html::-webkit-scrollbar { display: none; }
     color: var(--text);
     line-height: 1.4;
 }
+.todo-detail__empty { color: var(--text-muted); opacity: 0.4; }
 .todo-detail__priority-dot {
     display: inline-block;
     width: 8px;
@@ -3048,6 +3049,42 @@ html::-webkit-scrollbar { display: none; }
     color: var(--text-muted);
     font-size: 0.82rem;
     font-style: italic;
+}
+
+/* Todo Delete Confirm */
+.modal--sm { max-width: 420px; }
+.todo-delete__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(229,69,69,0.1);
+    border: 2px solid rgba(229,69,69,0.2);
+    margin: 0 auto 20px;
+    position: relative;
+}
+.todo-delete__icon::before,
+.todo-delete__icon::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 22px;
+    height: 2px;
+    background: var(--danger);
+    border-radius: 1px;
+}
+.todo-delete__icon::before { transform: translate(-50%, -50%) rotate(45deg); }
+.todo-delete__icon::after { transform: translate(-50%, -50%) rotate(-45deg); }
+.todo-delete__title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text);
+}
+.todo-delete__msg {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
 }
 
 /* Responsive */
