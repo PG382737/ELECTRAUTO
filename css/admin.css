@@ -3365,7 +3365,14 @@ body.mobile-mode .modal__footer {
     gap: 8px;
     border-top: 1px solid var(--border);
 }
-body.mobile-mode .modal__footer .btn { flex: 1; padding: 12px 16px; font-size: 0.9rem; }
+body.mobile-mode .modal__footer .btn {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    justify-content: center;
+    text-align: center;
+    margin-left: 0 !important;
+}
 
 /* Form inputs bigger on mobile for touch */
 body.mobile-mode .form-group input,
