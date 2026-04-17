@@ -678,6 +678,8 @@
 
         // Detail modal
         document.getElementById('todo-detail-close').addEventListener('click', function() { document.getElementById('todo-detail-modal').classList.remove('active'); });
+        var detailBack = document.getElementById('todo-detail-back');
+        if (detailBack) detailBack.addEventListener('click', function() { document.getElementById('todo-detail-modal').classList.remove('active'); });
 
         // Complete modal
         document.getElementById('todo-complete-close').addEventListener('click', function() { document.getElementById('todo-complete-modal').classList.remove('active'); });

@@ -3360,6 +3360,38 @@ body.mobile-mode .modal-overlay .modal__body {
 }
 body.mobile-mode .modal__header { padding: 16px 20px; }
 body.mobile-mode .modal__header h2 { font-size: 1.1rem; }
+
+/* Back button: hidden by default, shown only on mobile inside detail modal header */
+.modal__back { display: none; }
+body.mobile-mode #todo-detail-modal .modal__back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-right: 12px;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    color: var(--text);
+    position: relative;
+    flex-shrink: 0;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+body.mobile-mode #todo-detail-modal .modal__back::before {
+    content: '';
+    display: block;
+    width: 12px;
+    height: 12px;
+    border-left: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+    margin-left: 4px;
+}
+body.mobile-mode #todo-detail-modal .modal__back:active { opacity: 0.5; }
+body.mobile-mode #todo-detail-modal .modal__close { display: none; }
 body.mobile-mode .modal__footer {
     padding: 14px 16px;
     gap: 8px;
