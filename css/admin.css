@@ -3177,7 +3177,14 @@ body.mobile-mode .mobile-header {
     border-bottom: 1px solid var(--border);
     z-index: 900;
 }
-.mobile-header__brand { display: flex; align-items: center; }
+.mobile-header__brand { display: flex; align-items: baseline; gap: 8px; }
+.mobile-header__tag {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
 .mobile-header__logo {
     font-size: 1.1rem;
     font-weight: 700;
