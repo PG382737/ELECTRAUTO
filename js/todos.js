@@ -657,57 +657,9 @@
         } catch(e) { showToast('error', 'Erreur', e.message); }
     }
 
-    // ---- Coming Soon Countdown ----
-
-    // Friday April 18, 2026 at 11:00 AM New York time (EDT = UTC-4)
-    var LAUNCH_DATE = new Date('2026-04-18T15:00:00Z'); // 11 AM EDT = 15:00 UTC
-
-    function isLaunched() {
-        return new Date() >= LAUNCH_DATE;
-    }
-
-    function startCountdown() {
-        var comingSoon = document.getElementById('todo-coming-soon');
-        var realContent = document.getElementById('todo-real-content');
-        if (!comingSoon) return;
-
-        if (isLaunched()) {
-            comingSoon.style.display = 'none';
-            realContent.style.display = '';
-            return;
-        }
-
-        function tick() {
-            var now = new Date();
-            var diff = LAUNCH_DATE - now;
-
-            if (diff <= 0) {
-                comingSoon.style.display = 'none';
-                realContent.style.display = '';
-                return;
-            }
-
-            var days = Math.floor(diff / 86400000);
-            var hours = Math.floor((diff % 86400000) / 3600000);
-            var mins = Math.floor((diff % 3600000) / 60000);
-            var secs = Math.floor((diff % 60000) / 1000);
-
-            document.getElementById('cd-days').textContent = days;
-            document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
-            document.getElementById('cd-mins').textContent = String(mins).padStart(2, '0');
-            document.getElementById('cd-secs').textContent = String(secs).padStart(2, '0');
-        }
-
-        tick();
-        setInterval(tick, 1000);
-    }
-
     // ---- Init ----
 
     function init() {
-        // Coming soon check
-        startCountdown();
-
         // New todo button
         document.getElementById('btn-new-todo').addEventListener('click', function() {
             loadDropdownData().then(function() { openTodoModal(null); });
