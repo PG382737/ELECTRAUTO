@@ -7,6 +7,22 @@ var PASSWORD_HASH = 'be50e4db19df4d208d3a3440926126de8806191de1818f9e251a80cab62
 var MAX_ATTEMPTS = 5;
 var lockoutInterval = null;
 
+// ---- Mobile Detection ----
+function isMobileDevice() {
+    var ua = navigator.userAgent;
+    var isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(ua);
+    var isSmallScreen = window.matchMedia('(max-width: 1024px)').matches;
+    var hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    return isMobileUA || (isSmallScreen && hasTouch);
+}
+
+if (isMobileDevice()) {
+    document.documentElement.classList.add('mobile-mode');
+    document.addEventListener('DOMContentLoaded', function() {
+        document.body.classList.add('mobile-mode');
+    });
+}
+
 // ---- SHA-256 ----
 async function sha256(str) {
     var buf = new TextEncoder().encode(str);
@@ -97,6 +113,12 @@ function enterDashboard(password) {
     loadDelays();
     loadSecuritySettings();
     initSecurityToggles();
+
+    // Mobile: force Tâches tab
+    if (isMobileDevice()) {
+        switchToTab('todos');
+        return;
+    }
 
     // Check URL param ?view=scanner → go to control tab
     var urlParams = new URLSearchParams(window.location.search);
@@ -353,7 +375,7 @@ document.querySelectorAll('.sidebar__link[data-tab]').forEach(function(link) {
 // ============================================
 // LOGOUT
 // ============================================
-document.getElementById('btn-logout').addEventListener('click', function() {
+function doLogout() {
     adminPassword = '';
     setLockout({});
     clearSession();
@@ -366,7 +388,10 @@ document.getElementById('btn-logout').addEventListener('click', function() {
     document.getElementById('login-pwd').value = '';
     document.getElementById('login-error').textContent = '';
     document.getElementById('login-attempts').textContent = '';
-});
+}
+document.getElementById('btn-logout').addEventListener('click', doLogout);
+var mobileLogout = document.getElementById('btn-logout-mobile');
+if (mobileLogout) mobileLogout.addEventListener('click', doLogout);
 
 // ============================================
 // CONFIGURATION SETTINGS

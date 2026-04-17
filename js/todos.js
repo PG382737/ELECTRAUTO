@@ -660,10 +660,13 @@
     // ---- Init ----
 
     function init() {
-        // New todo button
-        document.getElementById('btn-new-todo').addEventListener('click', function() {
+        // New todo button (desktop + mobile FAB)
+        function handleNewTodo() {
             loadDropdownData().then(function() { openTodoModal(null); });
-        });
+        }
+        document.getElementById('btn-new-todo').addEventListener('click', handleNewTodo);
+        var fab = document.getElementById('btn-new-todo-fab');
+        if (fab) fab.addEventListener('click', handleNewTodo);
 
         // Vehicle search
         initVehicleSearch();

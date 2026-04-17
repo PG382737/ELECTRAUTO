@@ -3102,3 +3102,260 @@ html::-webkit-scrollbar { display: none; }
     .todo-card__footer { flex-direction: column; gap: 4px; }
     .billed-hours-form .form-row { flex-direction: column; }
 }
+
+/* ================================================
+   MOBILE MODE - iPhone/Android/Tablet
+   ================================================ */
+
+/* Mobile header (hidden by default, shown in mobile-mode) */
+.mobile-header { display: none; }
+
+body.mobile-mode {
+    overflow-x: hidden;
+}
+
+/* Hide sidebar, show mobile header */
+body.mobile-mode .sidebar { display: none !important; }
+body.mobile-mode .dash { flex-direction: column; }
+body.mobile-mode .main {
+    margin-left: 0;
+    padding: 0;
+    padding-top: 60px;
+    padding-bottom: 80px;
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* Mobile header bar */
+body.mobile-mode .mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    padding: 0 16px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    z-index: 900;
+}
+.mobile-header__brand { display: flex; align-items: center; }
+.mobile-header__logo {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--text);
+}
+.mobile-header__logo span { color: var(--accent); }
+.mobile-header__logout {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+}
+.mobile-header__logout:hover,
+.mobile-header__logout:active {
+    color: var(--danger);
+    border-color: var(--danger);
+}
+.mobile-header__logout svg { width: 20px; height: 20px; }
+
+/* Hide all tabs except todos on mobile */
+body.mobile-mode .tab:not(#tab-todos) { display: none !important; }
+
+/* Tâches tab mobile layout */
+body.mobile-mode #tab-todos { padding: 16px; }
+
+/* Hide the desktop header/button in mobile (FAB will replace) */
+body.mobile-mode #tab-todos > .main__header {
+    margin-bottom: 16px;
+    padding: 0;
+}
+body.mobile-mode #tab-todos > .main__header h1 {
+    font-size: 1.3rem;
+}
+body.mobile-mode #tab-todos > .main__header #btn-new-todo {
+    display: none;
+}
+
+/* Filters - horizontal scrollable chip bar */
+body.mobile-mode .todo-filters {
+    flex-direction: row;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+body.mobile-mode .todo-filters::-webkit-scrollbar { display: none; }
+body.mobile-mode .todo-filter-group {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+}
+body.mobile-mode .todo-filter-select {
+    flex-shrink: 0;
+    min-width: auto;
+    padding: 8px 32px 8px 14px;
+    font-size: 0.85rem;
+    border-radius: 20px;
+    background-color: var(--bg-input);
+}
+
+/* Todo cards on mobile - bigger, more padding */
+body.mobile-mode .todo-card {
+    border-radius: 12px;
+}
+body.mobile-mode .todo-card__accent { width: 5px; }
+body.mobile-mode .todo-card__body { padding: 18px 16px; gap: 10px; }
+body.mobile-mode .todo-card__title {
+    font-size: 1rem;
+    line-height: 1.35;
+}
+body.mobile-mode .todo-card__desc {
+    font-size: 0.85rem;
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+body.mobile-mode .todo-card__header { gap: 8px; }
+body.mobile-mode .todo-card__priority { font-size: 0.65rem; }
+body.mobile-mode .todo-card__category { font-size: 0.7rem; padding: 3px 10px; }
+body.mobile-mode .todo-card__date { font-size: 0.7rem; }
+body.mobile-mode .todo-card__footer {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+body.mobile-mode .todo-card__chip { font-size: 0.7rem; padding: 4px 10px; }
+
+/* Bigger check button for touch */
+body.mobile-mode .todo-card__check { width: 56px; }
+body.mobile-mode .todo-card__check::before { width: 26px; height: 26px; }
+body.mobile-mode .todo-card__check::after { width: 12px; height: 6px; }
+
+/* Section headers on mobile */
+body.mobile-mode .todo-section__header h2 { font-size: 0.95rem; }
+body.mobile-mode .todo-sections { gap: 20px; }
+
+/* Floating Action Button (FAB) for new task */
+body.mobile-mode::after { content: ''; display: none; }
+.mobile-fab {
+    display: none;
+}
+body.mobile-mode .mobile-fab {
+    display: flex;
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(207,138,46,0.35);
+    z-index: 800;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+body.mobile-mode .mobile-fab:active {
+    transform: scale(0.95);
+    box-shadow: 0 3px 10px rgba(207,138,46,0.45);
+}
+.mobile-fab::before,
+.mobile-fab::after {
+    content: '';
+    position: absolute;
+    background: #fff;
+    border-radius: 2px;
+}
+.mobile-fab::before { width: 22px; height: 3px; }
+.mobile-fab::after { width: 3px; height: 22px; }
+
+/* Modals full-screen on mobile */
+body.mobile-mode .modal-overlay {
+    padding: 0;
+    align-items: stretch;
+}
+body.mobile-mode .modal-overlay .modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: 100vh;
+    height: 100vh;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+}
+body.mobile-mode .modal-overlay .modal--sm {
+    max-width: 100%;
+    height: auto;
+    max-height: 100vh;
+    margin: auto;
+    border-radius: var(--radius);
+    width: calc(100% - 32px);
+}
+body.mobile-mode .modal-overlay.active { align-items: stretch; }
+body.mobile-mode .modal-overlay .modal__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    -webkit-overflow-scrolling: touch;
+}
+body.mobile-mode .modal__header { padding: 16px 20px; }
+body.mobile-mode .modal__header h2 { font-size: 1.1rem; }
+body.mobile-mode .modal__footer {
+    padding: 14px 16px;
+    gap: 8px;
+    border-top: 1px solid var(--border);
+}
+body.mobile-mode .modal__footer .btn { flex: 1; padding: 12px 16px; font-size: 0.9rem; }
+
+/* Form inputs bigger on mobile for touch */
+body.mobile-mode .form-group input,
+body.mobile-mode .form-group select,
+body.mobile-mode .form-group textarea {
+    padding: 12px 14px;
+    font-size: 16px; /* prevents iOS zoom */
+}
+body.mobile-mode .search-select__input { font-size: 16px; padding: 12px 40px 12px 14px; }
+body.mobile-mode .form-row { flex-direction: column; gap: 0; }
+body.mobile-mode .form-group--half { flex: 1; }
+
+/* Detail modal mobile tweaks */
+body.mobile-mode .todo-detail__info { grid-template-columns: 1fr; gap: 8px; }
+body.mobile-mode .todo-detail__card { padding: 14px 16px; }
+body.mobile-mode .todo-detail__section-title { font-size: 0.78rem; }
+
+/* Notes compose on mobile */
+body.mobile-mode .todo-notes__compose {
+    flex-direction: column;
+    gap: 8px;
+}
+body.mobile-mode .todo-notes__compose textarea { width: 100%; }
+body.mobile-mode .todo-notes__send {
+    width: 100%;
+    padding: 12px;
+}
+
+/* Delete confirm modal smaller on mobile */
+body.mobile-mode #todo-delete-modal .modal {
+    height: auto;
+    max-height: 85vh;
+    margin: auto 16px;
+    border-radius: var(--radius);
+    width: calc(100% - 32px);
+}
