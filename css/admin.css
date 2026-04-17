@@ -3110,20 +3110,56 @@ html::-webkit-scrollbar { display: none; }
 /* Mobile header (hidden by default, shown in mobile-mode) */
 .mobile-header { display: none; }
 
+/* Disable pinch/double-tap zoom behaviour + kill 300ms tap delay site-wide in mobile mode.
+   The viewport meta already sets maximum-scale=1 / user-scalable=no, this is belt-and-suspenders
+   and also removes the iOS magnifying-glass text-select behaviour on quick double-taps. */
+html.mobile-mode,
 body.mobile-mode {
     overflow-x: hidden;
+    overscroll-behavior-y: contain;
+    touch-action: manipulation;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+/* Prevent any stray image from exploding the layout or triggering zoom */
+body.mobile-mode img {
+    max-width: 100%;
+    height: auto;
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+/* Buttons / interactive elements: no tap highlight, no tap delay, no double-tap zoom */
+body.mobile-mode button,
+body.mobile-mode a,
+body.mobile-mode .todo-card,
+body.mobile-mode .todo-card__check,
+body.mobile-mode .mobile-fab,
+body.mobile-mode .mobile-header__logout,
+body.mobile-mode .todo-section__header--toggle {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Body-scroll lock while any modal is open (JS toggles .modal-open on body) */
+body.mobile-mode.modal-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
 }
 
 /* Hide sidebar, show mobile header */
 body.mobile-mode .sidebar { display: none !important; }
-body.mobile-mode .dash { flex-direction: column; }
+body.mobile-mode .dash { flex-direction: column; min-height: 100vh; min-height: 100dvh; }
 body.mobile-mode .main {
     margin-left: 0;
     padding: 0;
-    padding-top: 60px;
-    padding-bottom: 80px;
+    padding-top: calc(60px + env(safe-area-inset-top));
+    padding-bottom: calc(100px + env(safe-area-inset-bottom));
     width: 100%;
     min-height: 100vh;
+    min-height: 100dvh;
 }
 
 /* Mobile header bar */
@@ -3135,8 +3171,8 @@ body.mobile-mode .mobile-header {
     top: 0;
     left: 0;
     right: 0;
-    height: 60px;
-    padding: 0 16px;
+    height: calc(60px + env(safe-area-inset-top));
+    padding: env(safe-area-inset-top) 16px 0 16px;
     background: var(--bg-card);
     border-bottom: 1px solid var(--border);
     z-index: 900;
@@ -3206,10 +3242,11 @@ body.mobile-mode .todo-filter-group {
 body.mobile-mode .todo-filter-select {
     flex-shrink: 0;
     min-width: auto;
-    padding: 8px 32px 8px 14px;
-    font-size: 0.85rem;
+    padding: 10px 32px 10px 14px;
+    font-size: 16px; /* must be >=16px to prevent iOS auto-zoom on focus */
     border-radius: 20px;
     background-color: var(--bg-input);
+    min-height: 44px; /* ensure accessible tap target */
 }
 
 /* Todo cards on mobile - bigger, more padding */
@@ -3286,34 +3323,62 @@ body.mobile-mode .mobile-fab:active {
 .mobile-fab::before { width: 22px; height: 3px; }
 .mobile-fab::after { width: 3px; height: 22px; }
 
-/* Modals full-screen on mobile */
+/* Modals full-screen on mobile.
+   Key fixes:
+   - Use 100dvh (dynamic viewport height) so iOS Safari address bar collapse doesn't clip the footer.
+   - Overlay itself does NOT scroll; only .modal__body scrolls. This prevents the "nested scroll"
+     feeling where you drag and the whole page jumps.
+   - align-items/justify-content keep modals positioned consistently.
+*/
 body.mobile-mode .modal-overlay {
     padding: 0;
     align-items: stretch;
+    justify-content: center;
+    overflow: hidden; /* no overlay-level scroll; inner body handles it */
+    overscroll-behavior: contain;
 }
 body.mobile-mode .modal-overlay .modal {
     width: 100%;
     max-width: 100%;
     max-height: 100vh;
+    max-height: 100dvh;
     height: 100vh;
+    height: 100dvh;
     border-radius: 0;
     display: flex;
     flex-direction: column;
+    /* respect iPhone notch + home indicator */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    box-sizing: border-box;
+}
+/* Small modals (confirm dialogs) stay centered and compact on mobile */
+body.mobile-mode .modal-overlay:has(.modal--sm) {
+    align-items: center;
+    padding: 16px;
 }
 body.mobile-mode .modal-overlay .modal--sm {
     max-width: 100%;
     height: auto;
-    max-height: 100vh;
+    max-height: calc(100dvh - 64px);
     margin: auto;
     border-radius: var(--radius);
-    width: calc(100% - 32px);
+    width: 100%;
+    padding-top: 0;
+    padding-bottom: 0;
 }
-body.mobile-mode .modal-overlay.active { align-items: stretch; }
+body.mobile-mode .modal-overlay.active {
+    align-items: stretch;
+    display: flex;
+}
 body.mobile-mode .modal-overlay .modal__body {
-    flex: 1;
+    flex: 1 1 auto;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 20px;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    min-height: 0; /* required inside flex column so children can shrink+scroll */
 }
 body.mobile-mode .modal__header { padding: 16px 20px; }
 body.mobile-mode .modal__header h2 { font-size: 1.1rem; }
@@ -3345,17 +3410,77 @@ body.mobile-mode .todo-notes__compose {
     flex-direction: column;
     gap: 8px;
 }
-body.mobile-mode .todo-notes__compose textarea { width: 100%; }
+body.mobile-mode .todo-notes__compose textarea {
+    width: 100%;
+    font-size: 16px; /* prevent iOS focus zoom */
+}
 body.mobile-mode .todo-notes__send {
     width: 100%;
     padding: 12px;
+    min-height: 44px;
 }
 
 /* Delete confirm modal smaller on mobile */
 body.mobile-mode #todo-delete-modal .modal {
     height: auto;
-    max-height: 85vh;
+    max-height: 85dvh;
     margin: auto 16px;
     border-radius: var(--radius);
     width: calc(100% - 32px);
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+/* Login screen: inputs must be >=16px to avoid iOS focus zoom.
+   Login appears before any dashboard JS runs, so these override the base .login__box input rules on mobile. */
+body.mobile-mode .login__box input,
+body.mobile-mode #tfa-code {
+    font-size: 16px;
+}
+body.mobile-mode #tfa-code {
+    font-size: 1.5rem; /* decorative OTP input - 1.5rem of 14px base = 21px, safe */
+}
+body.mobile-mode .login {
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 20px calc(20px + env(safe-area-inset-right)) 20px calc(20px + env(safe-area-inset-left));
+}
+
+/* Ensure todo list has breathing room above the FAB so the last card / reopen button is reachable */
+body.mobile-mode .todo-sections {
+    padding-bottom: 40px;
+}
+
+/* FAB: respect the iPhone home-indicator safe area */
+body.mobile-mode .mobile-fab {
+    right: calc(20px + env(safe-area-inset-right));
+    bottom: calc(20px + env(safe-area-inset-bottom));
+}
+
+/* Horizontal scroll for vehicle-search dropdown inside full-screen modals.
+   Ensures the dropdown doesn't push the layout wider than the viewport. */
+body.mobile-mode .search-select__dropdown {
+    max-height: 40vh;
+    max-height: 40dvh;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure all hidden tabs are truly out of flow on mobile - stops them from
+   contributing to layout / horizontal overflow if they contain wide desktop tables. */
+body.mobile-mode .tab:not(#tab-todos) {
+    display: none !important;
+    visibility: hidden;
+}
+
+/* Toast container should clear safe areas and the mobile header */
+body.mobile-mode .toast-container {
+    top: calc(60px + env(safe-area-inset-top) + 10px);
+    right: calc(10px + env(safe-area-inset-right));
+    left: calc(10px + env(safe-area-inset-left));
+    max-width: none;
+}
+body.mobile-mode .toast {
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
 }

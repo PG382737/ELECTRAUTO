@@ -20,7 +20,73 @@ if (isMobileDevice()) {
     document.documentElement.classList.add('mobile-mode');
     document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.add('mobile-mode');
+        initMobileModalScrollLock();
+        preventPinchZoom();
     });
+}
+
+// ---- Mobile modal scroll lock ----
+// Adds/removes `.modal-open` on <body> when any `.modal-overlay.active` exists.
+// This pairs with CSS `body.mobile-mode.modal-open { overflow:hidden; position:fixed; }`
+// to prevent background scroll & rubber-band while a modal is open.
+function initMobileModalScrollLock() {
+    var savedScrollY = 0;
+    function update() {
+        var anyActive = document.querySelector('.modal-overlay.active');
+        if (anyActive) {
+            if (!document.body.classList.contains('modal-open')) {
+                savedScrollY = window.scrollY || window.pageYOffset || 0;
+                document.body.style.top = '-' + savedScrollY + 'px';
+                document.body.classList.add('modal-open');
+            }
+        } else {
+            if (document.body.classList.contains('modal-open')) {
+                document.body.classList.remove('modal-open');
+                document.body.style.top = '';
+                window.scrollTo(0, savedScrollY);
+            }
+        }
+    }
+    // Observe attribute changes on every modal overlay
+    var overlays = document.querySelectorAll('.modal-overlay');
+    var obs = new MutationObserver(update);
+    overlays.forEach(function(el) {
+        obs.observe(el, { attributes: true, attributeFilter: ['class'] });
+    });
+    // Handle overlays added later (rare, but safe)
+    var bodyObs = new MutationObserver(function(mutations) {
+        mutations.forEach(function(m) {
+            m.addedNodes && m.addedNodes.forEach(function(n) {
+                if (n.nodeType === 1 && n.classList && n.classList.contains('modal-overlay')) {
+                    obs.observe(n, { attributes: true, attributeFilter: ['class'] });
+                }
+            });
+        });
+    });
+    bodyObs.observe(document.body, { childList: true, subtree: true });
+}
+
+// ---- Prevent pinch zoom / double-tap zoom on iOS (belt-and-suspenders with viewport meta) ----
+function preventPinchZoom() {
+    // Pinch zoom via gesture events (iOS Safari)
+    document.addEventListener('gesturestart', function(e) { e.preventDefault(); }, { passive: false });
+    document.addEventListener('gesturechange', function(e) { e.preventDefault(); }, { passive: false });
+    document.addEventListener('gestureend', function(e) { e.preventDefault(); }, { passive: false });
+    // Double-tap zoom (older iOS)
+    var lastTouchEnd = 0;
+    document.addEventListener('touchend', function(e) {
+        var now = Date.now();
+        if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, { passive: false });
+    // Prevent multi-touch pinch via touchmove when 2+ fingers
+    document.addEventListener('touchmove', function(e) {
+        if (e.touches && e.touches.length > 1) {
+            e.preventDefault();
+        }
+    }, { passive: false });
 }
 
 // ---- SHA-256 ----
