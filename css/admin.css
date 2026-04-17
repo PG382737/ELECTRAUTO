@@ -3290,6 +3290,7 @@ body.mobile-mode .mobile-fab:active {
     transform: scale(0.95);
     box-shadow: 0 3px 10px rgba(207,138,46,0.45);
 }
+body.mobile-mode.modal-open .mobile-fab { display: none; }
 .mobile-fab::before,
 .mobile-fab::after {
     content: '';
