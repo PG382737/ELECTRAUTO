@@ -183,6 +183,7 @@ function enterDashboard(password) {
     // Mobile: force Tâches tab
     if (isMobileDevice()) {
         switchToTab('todos');
+        window.scrollTo(0, 0);
         return;
     }
 

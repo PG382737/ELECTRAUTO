@@ -3416,6 +3416,19 @@ body.mobile-mode .form-group textarea {
     font-size: 16px; /* prevents iOS zoom */
 }
 body.mobile-mode .search-select__input { font-size: 16px; padding: 12px 40px 12px 14px; }
+
+/* iOS: input[type=date] has an intrinsic min-width that overflows narrow containers. Strip native styling and clamp. */
+body.mobile-mode input[type="date"],
+body.mobile-mode input[type="time"],
+body.mobile-mode input[type="datetime-local"] {
+    -webkit-appearance: none;
+    appearance: none;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+}
 body.mobile-mode .form-row { flex-direction: column; gap: 0; }
 body.mobile-mode .form-group--half { flex: 1; }
 
