@@ -3223,31 +3223,8 @@ body.mobile-mode #tab-todos > .main__header #btn-new-todo {
     display: none;
 }
 
-/* Filters - horizontal scrollable chip bar */
-body.mobile-mode .todo-filters {
-    flex-direction: row;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 8px;
-    margin-bottom: 16px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-}
-body.mobile-mode .todo-filters::-webkit-scrollbar { display: none; }
-body.mobile-mode .todo-filter-group {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    flex-shrink: 0;
-}
-body.mobile-mode .todo-filter-select {
-    flex-shrink: 0;
-    min-width: auto;
-    padding: 10px 32px 10px 14px;
-    font-size: 16px; /* must be >=16px to prevent iOS auto-zoom on focus */
-    border-radius: 20px;
-    background-color: var(--bg-input);
-    min-height: 44px; /* ensure accessible tap target */
-}
+/* Filters hidden on mobile */
+body.mobile-mode .todo-filters { display: none; }
 
 /* Todo cards on mobile - bigger, more padding */
 body.mobile-mode .todo-card {
