@@ -677,9 +677,15 @@
         document.getElementById('todo-modal-save').addEventListener('click', saveTodo);
 
         // Detail modal
-        document.getElementById('todo-detail-close').addEventListener('click', function() { document.getElementById('todo-detail-modal').classList.remove('active'); });
-        var detailBack = document.getElementById('todo-detail-back');
-        if (detailBack) detailBack.addEventListener('click', function() { document.getElementById('todo-detail-modal').classList.remove('active'); });
+        var detailModalEl = document.getElementById('todo-detail-modal');
+        function closeDetailModal() { detailModalEl.classList.remove('active'); }
+        document.getElementById('todo-detail-close').addEventListener('click', closeDetailModal);
+        var detailBackHeader = document.getElementById('btn-detail-back-header');
+        if (detailBackHeader) detailBackHeader.addEventListener('click', closeDetailModal);
+        // Keep body.detail-open in sync with the detail modal state (covers all close paths)
+        new MutationObserver(function() {
+            document.body.classList.toggle('detail-open', detailModalEl.classList.contains('active'));
+        }).observe(detailModalEl, { attributes: true, attributeFilter: ['class'] });
 
         // Complete modal
         document.getElementById('todo-complete-close').addEventListener('click', function() { document.getElementById('todo-complete-modal').classList.remove('active'); });

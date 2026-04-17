@@ -3205,6 +3205,40 @@ body.mobile-mode .mobile-header {
 }
 .mobile-header__logout svg { width: 20px; height: 20px; }
 
+/* Back button in mobile header (shown only when detail modal is open) */
+.mobile-header__back { display: none; }
+body.mobile-mode.detail-open .mobile-header__back {
+    display: flex;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    padding: 0;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+body.mobile-mode.detail-open .mobile-header__back::before {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-left: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+    margin-left: 4px;
+}
+body.mobile-mode.detail-open .mobile-header__back:active {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+body.mobile-mode.detail-open .mobile-header__logout { display: none; }
+
 /* Hide all tabs except todos on mobile */
 body.mobile-mode .tab:not(#tab-todos) { display: none !important; }
 
@@ -3318,15 +3352,14 @@ body.mobile-mode .modal-overlay {
 body.mobile-mode .modal-overlay .modal {
     width: 100%;
     max-width: 100%;
-    max-height: 100vh;
-    max-height: 100dvh;
-    height: 100vh;
-    height: 100dvh;
+    max-height: calc(100vh - 60px - env(safe-area-inset-top));
+    max-height: calc(100dvh - 60px - env(safe-area-inset-top));
+    height: calc(100vh - 60px - env(safe-area-inset-top));
+    height: calc(100dvh - 60px - env(safe-area-inset-top));
+    margin-top: calc(60px + env(safe-area-inset-top));
     border-radius: 0;
     display: flex;
     flex-direction: column;
-    /* respect iPhone notch + home indicator */
-    padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
     box-sizing: border-box;
 }
@@ -3361,37 +3394,6 @@ body.mobile-mode .modal-overlay .modal__body {
 body.mobile-mode .modal__header { padding: 16px 20px; }
 body.mobile-mode .modal__header h2 { font-size: 1.1rem; }
 
-/* Back button: hidden by default, shown only on mobile inside detail modal header */
-.modal__back { display: none; }
-body.mobile-mode #todo-detail-modal .modal__back {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: none;
-    padding: 0;
-    margin-right: 12px;
-    width: 36px;
-    height: 36px;
-    cursor: pointer;
-    color: var(--text);
-    position: relative;
-    flex-shrink: 0;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-}
-body.mobile-mode #todo-detail-modal .modal__back::before {
-    content: '';
-    display: block;
-    width: 12px;
-    height: 12px;
-    border-left: 2px solid currentColor;
-    border-bottom: 2px solid currentColor;
-    transform: rotate(45deg);
-    margin-left: 4px;
-}
-body.mobile-mode #todo-detail-modal .modal__back:active { opacity: 0.5; }
-body.mobile-mode #todo-detail-modal .modal__close { display: none; }
 body.mobile-mode .modal__footer {
     padding: 14px 16px;
     gap: 8px;
