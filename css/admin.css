@@ -3183,7 +3183,7 @@ body.mobile-mode .mobile-header {
     font-weight: 600;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: var(--text-muted);
+    color: var(--accent);
 }
 .mobile-header__logo {
     font-size: 1.1rem;
