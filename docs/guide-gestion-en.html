@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Management Panel - Complete Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; line-height: 1.7; padding: 60px 80px; max-width: 900px; margin: 0 auto; font-size: 14px; }
+  @media print {
+    body { padding: 40px 50px; font-size: 12px; }
+    .page-break { page-break-before: always; }
+    .no-break { page-break-inside: avoid; }
+  }
+
+  /* Header */
+  .doc-header { text-align: center; margin-bottom: 50px; padding-bottom: 40px; border-bottom: 3px solid #cf8a2e; }
+  .doc-header h1 { font-size: 2.2em; font-weight: 800; color: #0e0e10; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .doc-header .subtitle { font-size: 1.1em; color: #cf8a2e; font-weight: 600; margin-bottom: 16px; }
+  .doc-header p { color: #666; font-size: 0.95em; max-width: 600px; margin: 0 auto; }
+
+  /* Sections */
+  h2 { font-size: 1.4em; font-weight: 700; color: #0e0e10; margin: 40px 0 12px; padding-bottom: 8px; border-bottom: 2px solid #f0e6d4; }
+  h3 { font-size: 1.05em; font-weight: 600; color: #333; margin: 24px 0 8px; }
+  p { margin-bottom: 12px; color: #444; }
+  strong { color: #1a1a1a; }
+
+  /* Lists */
+  ul, ol { margin: 8px 0 16px 24px; color: #444; }
+  li { margin-bottom: 6px; }
+  li strong { color: #cf8a2e; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 0.92em; }
+  th { background: #0e0e10; color: #fff; padding: 10px 16px; text-align: left; font-weight: 600; font-size: 0.9em; }
+  td { padding: 10px 16px; border-bottom: 1px solid #e8e8e8; }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  /* Feature cards */
+  .overview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0 30px; }
+  .overview-card { background: #f8f5f0; border: 1px solid #e8e0d4; border-radius: 10px; padding: 18px 20px; }
+  .overview-card h4 { font-size: 0.95em; color: #cf8a2e; margin-bottom: 4px; font-weight: 700; }
+  .overview-card p { font-size: 0.88em; margin: 0; color: #666; }
+
+  /* Highlight box */
+  .highlight { background: #fffbf5; border-left: 4px solid #cf8a2e; padding: 16px 20px; margin: 16px 0 20px; border-radius: 0 8px 8px 0; }
+  .highlight p { margin: 0; color: #555; font-size: 0.92em; }
+
+  /* Efficiency colors */
+  .eff-green { color: #22c55e; font-weight: 700; }
+  .eff-orange { color: #cf8a2e; font-weight: 700; }
+  .eff-red { color: #e54545; font-weight: 700; }
+
+  /* Section numbers */
+  .section-num { display: inline-block; background: #cf8a2e; color: #fff; width: 28px; height: 28px; border-radius: 50%; text-align: center; line-height: 28px; font-weight: 700; font-size: 0.85em; margin-right: 8px; }
+
+  /* Divider */
+  hr { border: none; height: 1px; background: #e8e8e8; margin: 36px 0; }
+
+  /* Summary box */
+  .summary-table { background: #0e0e10; border-radius: 12px; overflow: hidden; margin: 20px 0; }
+  .summary-table th { background: #cf8a2e; color: #0e0e10; }
+  .summary-table td { color: #e0e0e0; border-bottom-color: #2a2a30; }
+  .summary-table tr:nth-child(even) td { background: #18181b; }
+
+  /* Footer */
+  .doc-footer { text-align: center; margin-top: 50px; padding-top: 30px; border-top: 2px solid #f0e6d4; color: #999; font-size: 0.85em; font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <h1>Management Panel</h1>
+  <div class="subtitle">Complete Guide</div>
+  <p>Your shop, simplified. Centralize employee management, vehicle tracking, real-time work order monitoring, media management and billing from any browser.</p>
+</div>
+
+<!-- ACCESS -->
+<h2>Secure Access</h2>
+<p>The panel is protected by a password and two-factor authentication (2FA). Upon login, a 6-digit code is sent by email. You can check the <strong>"Don't ask again for 30 days"</strong> option to simplify frequent logins.</p>
+<div class="highlight"><p>After multiple failed attempts, access is temporarily locked to protect your account.</p></div>
+
+<!-- OVERVIEW -->
+<h2>Overview</h2>
+<p>The management panel contains 5 main sections:</p>
+<div class="overview-grid">
+  <div class="overview-card"><h4>Employees</h4><p>Manage your team and their NFC badges</p></div>
+  <div class="overview-card"><h4>Vehicles</h4><p>Complete directory of all vehicles</p></div>
+  <div class="overview-card"><h4>Monitoring</h4><p>Real-time work order tracking</p></div>
+  <div class="overview-card"><h4>Media</h4><p>Photos and documents linked to vehicles</p></div>
+  <div class="overview-card"><h4>Dashboard</h4><p>Full-screen NFC scanner for the workstation</p></div>
+  <div class="overview-card"><h4>Notifications</h4><p>Real-time alerts with complete history</p></div>
+</div>
+
+<hr>
+
+<!-- EMPLOYEES -->
+<h2><span class="section-num">1</span> Employees</h2>
+
+<h3>Adding an Employee</h3>
+<p>Click <strong>"New Employee"</strong> and fill in:</p>
+<ul>
+  <li>First name and last name</li>
+  <li>Hire date</li>
+  <li>NFC badge (optional, can be assigned later)</li>
+</ul>
+
+<h3>Employee List</h3>
+<p>The list displays all your employees with their hire date and NFC badge status. Each employee has 4 quick actions:</p>
+<ul>
+  <li><strong>Statistics</strong>: View employee performance</li>
+  <li><strong>Billed Hours</strong>: Manage monthly billed hours</li>
+  <li><strong>Edit</strong>: Modify employee information</li>
+  <li><strong>Delete</strong>: Remove the employee from the system</li>
+</ul>
+
+<h3>Employee Statistics</h3>
+<p>By clicking on an employee's name or the statistics icon, you access a detailed dashboard:</p>
+
+<p><strong>Period Filters:</strong> Today, This Week, This Month, This Year, All, or a specific month via the selector.</p>
+
+<p><strong>Statistics Cards:</strong></p>
+<ul>
+  <li><strong>Hours Worked</strong>: Total punched hours for the period</li>
+  <li><strong>Billed Hours</strong>: Total hours billed to customers</li>
+  <li><strong>Efficiency</strong>: Billed hours / worked hours ratio
+    <br><span class="eff-green">Green: 80% and above</span> &bull; <span class="eff-orange">Orange: 50-79%</span> &bull; <span class="eff-red">Red: below 50%</span></li>
+  <li><strong>Vehicles</strong>: Number of vehicles worked on</li>
+  <li><strong>Average Time / Vehicle</strong>: Average duration per vehicle</li>
+</ul>
+
+<p><strong>Recent History:</strong> Paginated table showing each work order with date, vehicle, and duration.</p>
+
+<h3>Billed Hours</h3>
+<p>The clock icon opens the billed hours manager. This is where you enter the hours billed to customers.</p>
+<ol>
+  <li>Select the month (defaults to the previous month)</li>
+  <li>Enter the number of billed hours</li>
+  <li>Add an optional note (e.g., "1 week vacation", "overtime")</li>
+  <li>Click <strong>Add</strong></li>
+</ol>
+<p>You can edit or delete any entry at any time.</p>
+
+<h3>NFC Badges</h3>
+<p>Each employee can have an NFC badge assigned. This badge is used to "punch" work orders via the scanner.</p>
+<ol>
+  <li>Edit the employee or create a new one</li>
+  <li>Click <strong>Scan</strong></li>
+  <li>Hold the NFC badge in front of the reader</li>
+  <li>The badge is automatically associated</li>
+</ol>
+
+<hr>
+<div class="page-break"></div>
+
+<!-- VEHICLES -->
+<h2><span class="section-num">2</span> Vehicles</h2>
+
+<h3>Adding a Vehicle</h3>
+<p>Click <strong>"New Vehicle"</strong> and fill in:</p>
+<ul>
+  <li><strong>Owner</strong> (required) and contact info (phone, email)</li>
+  <li><strong>Reference</strong>: internal file number</li>
+  <li><strong>Make</strong> (required), model, year, color</li>
+  <li><strong>License plate</strong> and <strong>VIN</strong></li>
+  <li><strong>Vehicle photo</strong>: for quick identification</li>
+  <li><strong>NFC badge</strong>: assign directly to the vehicle (optional)</li>
+</ul>
+
+<h3>Vehicle List</h3>
+<p>The list displays all vehicles with a search bar for quick filtering. Each vehicle shows:</p>
+<ul>
+  <li>Make, model, and year</li>
+  <li>Owner name and license plate</li>
+  <li>Status (active, paused, or inactive)</li>
+  <li>Number of assigned media</li>
+  <li>Actions: Detail, Edit, Delete</li>
+</ul>
+
+<h3>Vehicle Detail Page</h3>
+<p>By clicking on a vehicle name, you open its complete profile:</p>
+<ul>
+  <li><strong>Photo and information</strong>: all vehicle data</li>
+  <li><strong>Active work order</strong>: real-time timer, assigned employee, status</li>
+  <li><strong>Statistics</strong>: total repairs, total time, number of employees</li>
+  <li><strong>Work history</strong>: paginated table of all past work orders</li>
+  <li><strong>Media</strong>: linked photos with shareable link</li>
+  <li><strong>Notes</strong>: add, view, and delete internal notes</li>
+</ul>
+
+<hr>
+
+<!-- MONITORING -->
+<h2><span class="section-num">3</span> Monitoring</h2>
+<p>Monitoring is the real-time control center for your shop. A pulsing green dot confirms that data refreshes automatically every 5 seconds.</p>
+
+<h3>Active Work Orders</h3>
+<p>Each active work order displays:</p>
+<ul>
+  <li><strong>Real-time timer</strong>: elapsed time updated every second</li>
+  <li><strong>Vehicle</strong>: make, model, and plate</li>
+  <li><strong>Employee</strong>: assigned employee's name</li>
+  <li><strong>Status</strong>: Active (amber strip) or Paused (green strip)</li>
+  <li><strong>Actions</strong>: Pause/Resume, Stop</li>
+</ul>
+
+<h3>Automatic Pause</h3>
+<p>The system automatically manages pauses according to the configured schedule:</p>
+<ul>
+  <li>Automatic pause at noon (lunch break)</li>
+  <li>Automatic resume at 1 PM</li>
+  <li>Automatic pause at 5 PM (end of day)</li>
+  <li>Automatic resume the next morning</li>
+</ul>
+<div class="highlight"><p>Automatic actions are identified by the <strong>(sys)</strong> suffix in notifications.</p></div>
+
+<h3>Recent Activity</h3>
+<p>An activity feed shows the latest completed work orders with their total duration.</p>
+
+<hr>
+<div class="page-break"></div>
+
+<!-- MEDIA -->
+<h2><span class="section-num">4</span> Media</h2>
+
+<h3>Unclassified Photos</h3>
+<p>New photos appear in the <strong>"New"</strong> section. A badge indicates the number of unclassified media.</p>
+
+<h3>Classifying Photos</h3>
+<ol>
+  <li>Click <strong>"Classify"</strong> to activate classification mode</li>
+  <li>Select the photos to classify</li>
+  <li>Search for the vehicle in the search field (instant filtering)</li>
+  <li>Click <strong>"Assign"</strong> to link the photos to the vehicle</li>
+</ol>
+
+<h3>Classified Photos</h3>
+<p>Classified photos are grouped by vehicle. The vehicle name is clickable and leads directly to its detail page.</p>
+
+<h3>Deleting and Sharing</h3>
+<p>Activate deletion mode with the trash icon to select and delete photos. Each photo can be shared via a direct link by clicking the copy icon.</p>
+
+<hr>
+
+<!-- DASHBOARD -->
+<h2><span class="section-num">5</span> Dashboard (NFC Scanner)</h2>
+<p>The Dashboard is designed to be permanently displayed on a workstation in the shop.</p>
+
+<h3>Full-Screen Scanner</h3>
+<p>Click <strong>"Open Scanner"</strong> to enter full-screen mode:</p>
+<ol>
+  <li>The screen waits for an NFC scan</li>
+  <li>An employee holds their badge in front of the reader</li>
+  <li>The system identifies the employee and displays their name</li>
+  <li>The employee scans a vehicle's badge</li>
+  <li>The work order is automatically created or closed</li>
+</ol>
+
+<div class="highlight">
+  <p><strong>Already have an active work order?</strong> The scan automatically closes it.<br>
+  <strong>No active work order?</strong> The scan creates a new one.</p>
+</div>
+
+<h3>NFC Reader Setup</h3>
+<p>The Dashboard shows the NFC reader connection status (green = connected, red = disconnected). Installation instructions are included in the interface: ACR122U driver, NFC Reader application, USB connection. Automatic startup with Windows option available.</p>
+
+<hr>
+
+<!-- NOTIFICATIONS -->
+<h2>Notifications</h2>
+<p>A bell in the top right displays a badge with the number of new notifications:</p>
+<ul>
+  <li><strong>Work order started</strong>: a new work order has been opened</li>
+  <li><strong>Work order completed</strong>: a work order has been finished</li>
+  <li><strong>Work order paused</strong>: a work order has been paused</li>
+  <li><strong>Work order resumed</strong>: a work order has resumed after a pause</li>
+</ul>
+<p>In <strong>Configuration</strong>, you can enable/disable each type individually. The complete history is accessible via <strong>Configuration > Notification History</strong>.</p>
+
+<hr>
+
+<!-- CONFIGURATION -->
+<h2>Configuration</h2>
+<table>
+  <tr><th>Setting</th><th>Description</th></tr>
+  <tr><td><strong>Security (2FA)</strong></td><td>Enable or disable two-factor authentication</td></tr>
+  <tr><td><strong>Pause Schedule</strong></td><td>Define working hours for each day of the week</td></tr>
+  <tr><td><strong>Notifications</strong></td><td>Choose which notification types appear in the bell</td></tr>
+  <tr><td><strong>History</strong></td><td>View the complete history of all alerts</td></tr>
+</table>
+
+<hr>
+<div class="page-break"></div>
+
+<!-- SUMMARY -->
+<h2>Summary</h2>
+<table class="summary-table">
+  <tr><th>Feature</th><th>What it does</th></tr>
+  <tr><td>Employee management</td><td>Add, edit, delete, assign NFC badges</td></tr>
+  <tr><td>Employee statistics</td><td>Hours worked, billed, efficiency, history</td></tr>
+  <tr><td>Billed hours</td><td>Monthly entry, editing, notes</td></tr>
+  <tr><td>Vehicle management</td><td>Complete profile with photo, history, notes, media</td></tr>
+  <tr><td>Real-time monitoring</td><td>Live timers, manual pause/resume</td></tr>
+  <tr><td>Automatic pause</td><td>Smart management based on configured schedule</td></tr>
+  <tr><td>NFC scanner</td><td>Quick work order punch via badge</td></tr>
+  <tr><td>Media management</td><td>Upload, classify by vehicle, share</td></tr>
+  <tr><td>Notifications</td><td>Real-time alerts with complete history</td></tr>
+  <tr><td>Configuration</td><td>2FA, schedules, notification preferences</td></tr>
+</table>
+
+<div class="doc-footer">
+  <p>This system is designed to simplify the daily management of your auto repair shop.<br>Everything is centralized, automated, and accessible in real-time.</p>
+</div>
+
+</body>
+</html>

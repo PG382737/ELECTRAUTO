@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Panneau de gestion - Guide complet</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; color: #1a1a1a; line-height: 1.7; padding: 60px 80px; max-width: 900px; margin: 0 auto; font-size: 14px; }
+  @media print {
+    body { padding: 40px 50px; font-size: 12px; }
+    .page-break { page-break-before: always; }
+    .no-break { page-break-inside: avoid; }
+  }
+
+  /* Header */
+  .doc-header { text-align: center; margin-bottom: 50px; padding-bottom: 40px; border-bottom: 3px solid #cf8a2e; }
+  .doc-header h1 { font-size: 2.2em; font-weight: 800; color: #0e0e10; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .doc-header .subtitle { font-size: 1.1em; color: #cf8a2e; font-weight: 600; margin-bottom: 16px; }
+  .doc-header p { color: #666; font-size: 0.95em; max-width: 600px; margin: 0 auto; }
+
+  /* Sections */
+  h2 { font-size: 1.4em; font-weight: 700; color: #0e0e10; margin: 40px 0 12px; padding-bottom: 8px; border-bottom: 2px solid #f0e6d4; }
+  h3 { font-size: 1.05em; font-weight: 600; color: #333; margin: 24px 0 8px; }
+  p { margin-bottom: 12px; color: #444; }
+  strong { color: #1a1a1a; }
+
+  /* Lists */
+  ul, ol { margin: 8px 0 16px 24px; color: #444; }
+  li { margin-bottom: 6px; }
+  li strong { color: #cf8a2e; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 0.92em; }
+  th { background: #0e0e10; color: #fff; padding: 10px 16px; text-align: left; font-weight: 600; font-size: 0.9em; }
+  td { padding: 10px 16px; border-bottom: 1px solid #e8e8e8; }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  /* Feature cards */
+  .overview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0 30px; }
+  .overview-card { background: #f8f5f0; border: 1px solid #e8e0d4; border-radius: 10px; padding: 18px 20px; }
+  .overview-card h4 { font-size: 0.95em; color: #cf8a2e; margin-bottom: 4px; font-weight: 700; }
+  .overview-card p { font-size: 0.88em; margin: 0; color: #666; }
+
+  /* Highlight box */
+  .highlight { background: #fffbf5; border-left: 4px solid #cf8a2e; padding: 16px 20px; margin: 16px 0 20px; border-radius: 0 8px 8px 0; }
+  .highlight p { margin: 0; color: #555; font-size: 0.92em; }
+
+  /* Efficiency colors */
+  .eff-green { color: #22c55e; font-weight: 700; }
+  .eff-orange { color: #cf8a2e; font-weight: 700; }
+  .eff-red { color: #e54545; font-weight: 700; }
+
+  /* Section numbers */
+  .section-num { display: inline-block; background: #cf8a2e; color: #fff; width: 28px; height: 28px; border-radius: 50%; text-align: center; line-height: 28px; font-weight: 700; font-size: 0.85em; margin-right: 8px; }
+
+  /* Divider */
+  hr { border: none; height: 1px; background: #e8e8e8; margin: 36px 0; }
+
+  /* Summary box */
+  .summary-table { background: #0e0e10; border-radius: 12px; overflow: hidden; margin: 20px 0; }
+  .summary-table th { background: #cf8a2e; color: #0e0e10; }
+  .summary-table td { color: #e0e0e0; border-bottom-color: #2a2a30; }
+  .summary-table tr:nth-child(even) td { background: #18181b; }
+
+  /* Footer */
+  .doc-footer { text-align: center; margin-top: 50px; padding-top: 30px; border-top: 2px solid #f0e6d4; color: #999; font-size: 0.85em; font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <h1>Panneau de gestion</h1>
+  <div class="subtitle">Guide complet</div>
+  <p>Votre atelier, simplifie. Centralisez la gestion de vos employes, vehicules, travaux en temps reel, medias et facturation depuis n'importe quel navigateur.</p>
+</div>
+
+<!-- ACCESS -->
+<h2>Acces securise</h2>
+<p>Le panneau est protege par un mot de passe et une authentification a deux facteurs (2FA). Lors de la connexion, un code a 6 chiffres est envoye par courriel. Vous pouvez cocher l'option <strong>"Ne plus demander pendant 30 jours"</strong> pour simplifier vos connexions frequentes.</p>
+<div class="highlight"><p>Apres plusieurs tentatives echouees, l'acces est temporairement verrouille pour proteger votre compte.</p></div>
+
+<!-- OVERVIEW -->
+<h2>Vue d'ensemble</h2>
+<p>Le panneau de gestion contient 5 sections principales :</p>
+<div class="overview-grid">
+  <div class="overview-card"><h4>Employes</h4><p>Gerer votre equipe et leurs badges NFC</p></div>
+  <div class="overview-card"><h4>Voitures</h4><p>Repertoire complet de tous les vehicules</p></div>
+  <div class="overview-card"><h4>Monitoring</h4><p>Suivi en temps reel des bons de travail</p></div>
+  <div class="overview-card"><h4>Medias</h4><p>Photos et documents lies aux vehicules</p></div>
+  <div class="overview-card"><h4>Dashboard</h4><p>Scanner NFC plein ecran pour le poste de travail</p></div>
+  <div class="overview-card"><h4>Notifications</h4><p>Alertes en temps reel avec historique complet</p></div>
+</div>
+
+<hr>
+
+<!-- EMPLOYEES -->
+<h2><span class="section-num">1</span> Employes</h2>
+
+<h3>Ajouter un employe</h3>
+<p>Cliquez sur <strong>"Nouvel employe"</strong> et remplissez :</p>
+<ul>
+  <li>Prenom et nom</li>
+  <li>Date d'embauche</li>
+  <li>Badge NFC (optionnel, peut etre assigne plus tard)</li>
+</ul>
+
+<h3>Liste des employes</h3>
+<p>La liste affiche tous vos employes avec leur date d'embauche et le statut de leur badge NFC. Chaque employe a 4 actions rapides :</p>
+<ul>
+  <li><strong>Statistiques</strong> : Voir les performances de l'employe</li>
+  <li><strong>Heures facturees</strong> : Gerer les heures facturees mensuelles</li>
+  <li><strong>Modifier</strong> : Modifier les informations de l'employe</li>
+  <li><strong>Supprimer</strong> : Retirer l'employe du systeme</li>
+</ul>
+
+<h3>Statistiques d'un employe</h3>
+<p>En cliquant sur le nom d'un employe ou sur l'icone de statistiques, vous accedez a un tableau de bord detaille :</p>
+
+<p><strong>Filtres de periode :</strong> Aujourd'hui, Cette semaine, Ce mois, Cette annee, Tout, ou un mois specifique via le selecteur.</p>
+
+<p><strong>Cartes de statistiques :</strong></p>
+<ul>
+  <li><strong>Heures travaillees</strong> : Total des heures punchees pour la periode</li>
+  <li><strong>Heures facturees</strong> : Total des heures facturees au client</li>
+  <li><strong>Efficacite</strong> : Ratio heures facturees / heures travaillees
+    <br><span class="eff-green">Vert : 80% et plus</span> &bull; <span class="eff-orange">Orange : 50-79%</span> &bull; <span class="eff-red">Rouge : moins de 50%</span></li>
+  <li><strong>Vehicules</strong> : Nombre de vehicules travailles</li>
+  <li><strong>Temps moyen / vehicule</strong> : Duree moyenne par vehicule</li>
+</ul>
+
+<p><strong>Historique recent :</strong> Tableau pagine montrant chaque bon de travail avec la date, le vehicule et la duree.</p>
+
+<h3>Heures facturees</h3>
+<p>L'icone horloge ouvre le gestionnaire d'heures facturees. C'est ici que vous entrez les heures facturees aux clients.</p>
+<ol>
+  <li>Selectionnez le mois (par defaut le mois precedent)</li>
+  <li>Entrez le nombre d'heures facturees</li>
+  <li>Ajoutez une note optionnelle (ex: "vacance 1 semaine", "overtime")</li>
+  <li>Cliquez <strong>Ajouter</strong></li>
+</ol>
+<p>Vous pouvez modifier ou supprimer chaque entree a tout moment.</p>
+
+<h3>Badges NFC</h3>
+<p>Chaque employe peut avoir un badge NFC assigne. Ce badge sert a "puncher" les bons de travail via le scanner.</p>
+<ol>
+  <li>Modifiez l'employe ou creez-en un nouveau</li>
+  <li>Cliquez sur <strong>Scanner</strong></li>
+  <li>Passez le badge NFC devant le lecteur</li>
+  <li>Le badge est automatiquement associe</li>
+</ol>
+
+<hr>
+<div class="page-break"></div>
+
+<!-- VEHICLES -->
+<h2><span class="section-num">2</span> Voitures</h2>
+
+<h3>Ajouter un vehicule</h3>
+<p>Cliquez sur <strong>"Nouveau vehicule"</strong> et remplissez :</p>
+<ul>
+  <li><strong>Proprietaire</strong> (obligatoire) et coordonnees (telephone, courriel)</li>
+  <li><strong>Reference</strong> : numero de dossier interne</li>
+  <li><strong>Marque</strong> (obligatoire), modele, annee, couleur</li>
+  <li><strong>Plaque d'immatriculation</strong> et <strong>NIV (VIN)</strong></li>
+  <li><strong>Photo du vehicule</strong> : pour identifier rapidement le vehicule</li>
+  <li><strong>Badge NFC</strong> : assigne directement au vehicule (optionnel)</li>
+</ul>
+
+<h3>Liste des vehicules</h3>
+<p>La liste affiche tous les vehicules avec une barre de recherche pour filtrer rapidement. Chaque vehicule montre :</p>
+<ul>
+  <li>Marque, modele et annee</li>
+  <li>Nom du proprietaire et plaque</li>
+  <li>Statut (en cours, en pause, ou inactif)</li>
+  <li>Nombre de medias assignes</li>
+  <li>Actions : Detail, Modifier, Supprimer</li>
+</ul>
+
+<h3>Fiche detaillee d'un vehicule</h3>
+<p>En cliquant sur le nom d'un vehicule, vous ouvrez sa fiche complete :</p>
+<ul>
+  <li><strong>Photo et informations</strong> : toutes les donnees du vehicule</li>
+  <li><strong>Bon de travail actif</strong> : chronometre en temps reel, employe assigne, statut</li>
+  <li><strong>Statistiques</strong> : nombre de reparations, temps total, nombre d'employes</li>
+  <li><strong>Historique des travaux</strong> : tableau pagine de tous les bons passes</li>
+  <li><strong>Medias</strong> : photos liees avec lien de partage</li>
+  <li><strong>Notes</strong> : ajoutez, consultez et supprimez des notes internes</li>
+</ul>
+
+<hr>
+
+<!-- MONITORING -->
+<h2><span class="section-num">3</span> Monitoring</h2>
+<p>Le monitoring est le centre de controle en temps reel de votre atelier. Un point vert pulsant confirme que les donnees se rafraichissent automatiquement toutes les 5 secondes.</p>
+
+<h3>Bons de travail en cours</h3>
+<p>Chaque bon de travail actif affiche :</p>
+<ul>
+  <li><strong>Chronometre en temps reel</strong> : duree mise a jour chaque seconde</li>
+  <li><strong>Vehicule</strong> : marque, modele et plaque</li>
+  <li><strong>Employe</strong> : nom de l'employe assigne</li>
+  <li><strong>Statut</strong> : En cours (bande ambre) ou En pause (bande verte)</li>
+  <li><strong>Actions</strong> : Pause/Reprendre, Arreter</li>
+</ul>
+
+<h3>Pause automatique</h3>
+<p>Le systeme gere automatiquement les pauses selon l'horaire configure :</p>
+<ul>
+  <li>Pause automatique a midi (heure du diner)</li>
+  <li>Reprise automatique a 13h</li>
+  <li>Pause automatique a 17h (fin de journee)</li>
+  <li>Reprise automatique le lendemain matin</li>
+</ul>
+<div class="highlight"><p>Les actions automatiques sont identifiees par le suffixe <strong>(sys)</strong> dans les notifications.</p></div>
+
+<h3>Activite recente</h3>
+<p>Un fil d'activite montre les derniers bons de travail termines avec leur duree totale.</p>
+
+<hr>
+<div class="page-break"></div>
+
+<!-- MEDIA -->
+<h2><span class="section-num">4</span> Medias</h2>
+
+<h3>Photos non classees</h3>
+<p>Les nouvelles photos apparaissent dans la section <strong>"Nouveau"</strong>. Un badge indique le nombre de medias non classes.</p>
+
+<h3>Classer des photos</h3>
+<ol>
+  <li>Cliquez sur <strong>"Classer"</strong> pour activer le mode de classement</li>
+  <li>Selectionnez les photos a classer</li>
+  <li>Recherchez le vehicule dans le champ de recherche (filtrage instantane)</li>
+  <li>Cliquez <strong>"Assigner"</strong> pour associer les photos au vehicule</li>
+</ol>
+
+<h3>Photos classees</h3>
+<p>Les photos classees sont regroupees par vehicule. Le nom du vehicule est cliquable et mene directement a sa fiche detaillee.</p>
+
+<h3>Supprimer et partager</h3>
+<p>Activez le mode suppression avec l'icone poubelle pour selectionner et supprimer des photos. Chaque photo peut etre partagee via un lien direct en cliquant sur l'icone de copie.</p>
+
+<hr>
+
+<!-- DASHBOARD -->
+<h2><span class="section-num">5</span> Dashboard (Scanner NFC)</h2>
+<p>Le Dashboard est concu pour etre affiche en permanence sur un poste de travail dans l'atelier.</p>
+
+<h3>Scanner plein ecran</h3>
+<p>Cliquez sur <strong>"Ouvrir le scanner"</strong> pour passer en mode plein ecran :</p>
+<ol>
+  <li>L'ecran attend un scan NFC</li>
+  <li>Un employe passe son badge devant le lecteur</li>
+  <li>Le systeme identifie l'employe et affiche son nom</li>
+  <li>L'employe passe le badge d'un vehicule</li>
+  <li>Le bon de travail est automatiquement cree ou ferme</li>
+</ol>
+
+<div class="highlight">
+  <p><strong>Deja un bon actif ?</strong> Le scan le ferme automatiquement.<br>
+  <strong>Pas de bon actif ?</strong> Le scan en cree un nouveau.</p>
+</div>
+
+<h3>Configuration du lecteur NFC</h3>
+<p>Le Dashboard affiche l'etat de connexion du lecteur (vert = connecte, rouge = deconnecte). Instructions d'installation incluses dans l'interface : driver ACR122U, application NFC Reader, branchement USB. Option de demarrage automatique avec Windows disponible.</p>
+
+<hr>
+
+<!-- NOTIFICATIONS -->
+<h2>Notifications</h2>
+<p>Une cloche en haut a droite affiche un badge avec le nombre de nouvelles notifications :</p>
+<ul>
+  <li><strong>Bon commence</strong> : un nouveau bon de travail a ete ouvert</li>
+  <li><strong>Bon termine</strong> : un bon de travail a ete complete</li>
+  <li><strong>Bon en pause</strong> : un bon de travail a ete mis en pause</li>
+  <li><strong>Bon repris</strong> : un bon de travail a repris apres une pause</li>
+</ul>
+<p>Dans <strong>Configuration</strong>, vous pouvez activer/desactiver chaque type individuellement. L'historique complet est accessible via <strong>Configuration > Historique des notifications</strong>.</p>
+
+<hr>
+
+<!-- CONFIGURATION -->
+<h2>Configuration</h2>
+<table>
+  <tr><th>Reglage</th><th>Description</th></tr>
+  <tr><td><strong>Securite (2FA)</strong></td><td>Activer ou desactiver l'authentification a deux facteurs</td></tr>
+  <tr><td><strong>Horaire de pause</strong></td><td>Definir les plages horaires de travail par jour de la semaine</td></tr>
+  <tr><td><strong>Notifications</strong></td><td>Choisir quels types de notification apparaissent dans la cloche</td></tr>
+  <tr><td><strong>Historique</strong></td><td>Consulter l'historique complet de toutes les alertes</td></tr>
+</table>
+
+<hr>
+<div class="page-break"></div>
+
+<!-- SUMMARY -->
+<h2>En resume</h2>
+<table class="summary-table">
+  <tr><th>Fonctionnalite</th><th>Ce que ca fait</th></tr>
+  <tr><td>Gestion des employes</td><td>Ajouter, modifier, supprimer, assigner des badges NFC</td></tr>
+  <tr><td>Statistiques employe</td><td>Heures travaillees, facturees, efficacite, historique</td></tr>
+  <tr><td>Heures facturees</td><td>Entree mensuelle, modification, notes</td></tr>
+  <tr><td>Gestion des vehicules</td><td>Fiche complete avec photo, historique, notes, medias</td></tr>
+  <tr><td>Monitoring temps reel</td><td>Chronometres en direct, pause/reprise manuelle</td></tr>
+  <tr><td>Pause automatique</td><td>Gestion intelligente selon l'horaire configure</td></tr>
+  <tr><td>Scanner NFC</td><td>Punch rapide des bons de travail par badge</td></tr>
+  <tr><td>Gestion des medias</td><td>Upload, classement par vehicule, partage</td></tr>
+  <tr><td>Notifications</td><td>Alertes en temps reel avec historique complet</td></tr>
+  <tr><td>Configuration</td><td>2FA, horaires, preferences de notification</td></tr>
+</table>
+
+<div class="doc-footer">
+  <p>Ce systeme est concu pour simplifier la gestion quotidienne de votre atelier mecanique.<br>Tout est centralise, automatise et accessible en temps reel.</p>
+</div>
+
+</body>
+</html>
