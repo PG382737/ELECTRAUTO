@@ -23,7 +23,7 @@
             <!-- Step 1: Password -->
             <form id="login-form">
                 <input type="password" id="login-pwd" data-i18n-placeholder="login.password_placeholder" placeholder="Mot de passe" autocomplete="off">
-                <button type="submit" class="btn btn--primary btn--full" id="login-btn" data-i18n="login.submit">Acc\u00e9der</button>
+                <button type="submit" class="btn btn--primary btn--full" id="login-btn" data-i18n="login.submit">Accéder</button>
                 <div class="login__attempts" id="login-attempts"></div>
                 <div class="login__error" id="login-error"></div>
             </form>
@@ -32,15 +32,15 @@
             <form id="tfa-form" style="display:none;">
                 <div class="tfa-info">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    <p data-i18n="login.2fa_check_email">V\u00e9rifiez vos courriels</p>
+                    <p data-i18n="login.2fa_check_email">Vérifiez vos courriels</p>
                 </div>
-                <input type="text" id="tfa-code" data-i18n-placeholder="login.2fa_code_placeholder" placeholder="Code \u00e0 6 chiffres" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
+                <input type="text" id="tfa-code" data-i18n-placeholder="login.2fa_code_placeholder" placeholder="Code à 6 chiffres" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
                 <label class="tfa-remember">
                     <input type="checkbox" id="tfa-remember-check">
                     <span class="tfa-toggle"></span>
                     <span data-i18n="login.2fa_remember">Ne plus demander pendant 30 jours</span>
                 </label>
-                <button type="submit" class="btn btn--primary btn--full" id="tfa-btn" data-i18n="login.2fa_verify">V\u00e9rifier</button>
+                <button type="submit" class="btn btn--primary btn--full" id="tfa-btn" data-i18n="login.2fa_verify">Vérifier</button>
                 <div class="login__error" id="tfa-error"></div>
                 <button type="button" class="tfa-back" id="tfa-back" data-i18n="login.2fa_back">Retour</button>
             </form>
@@ -48,8 +48,8 @@
             <!-- Lockout -->
             <div class="lockout" id="lockout-screen" style="display:none;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1"/></svg>
-                <h3 data-i18n="login.lockout_title">Acc\u00e8s bloqu\u00e9</h3>
-                <p data-i18n="login.lockout_msg">Trop de tentatives \u00e9chou\u00e9es.</p>
+                <h3 data-i18n="login.lockout_title">Accès bloqué</h3>
+                <p data-i18n="login.lockout_msg">Trop de tentatives échouées.</p>
                 <div class="lockout__timer" id="lockout-timer"></div>
             </div>
         </div>
@@ -83,7 +83,7 @@
                 </button>
                 <button class="sidebar__link" data-tab="delays">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    <span data-i18n="sidebar.delays">D\u00e9lais</span>
+                    <span data-i18n="sidebar.delays">Délais</span>
                 </button>
                 <button class="sidebar__link" data-tab="notes">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -106,7 +106,7 @@
             <div class="sidebar__bottom">
                 <button class="sidebar__link sidebar__link--muted" id="btn-logout">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                    <span data-i18n="sidebar.logout">D\u00e9connexion</span>
+                    <span data-i18n="sidebar.logout">Déconnexion</span>
                 </button>
             </div>
         </aside>
@@ -155,8 +155,8 @@
                     <div style="background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px;">
                         <div style="display:flex;align-items:center;justify-content:space-between;">
                             <div>
-                                <strong style="font-size:1rem;" data-i18n="config.2fa_title">V\u00e9rification 2FA</strong>
-                                <p style="color:var(--text-muted);font-size:0.85rem;margin-top:4px;" data-i18n="config.2fa_desc">Exiger un code d'authentification \u00e0 deux facteurs lors de la connexion.</p>
+                                <strong style="font-size:1rem;" data-i18n="config.2fa_title">Vérification 2FA</strong>
+                                <p style="color:var(--text-muted);font-size:0.85rem;margin-top:4px;" data-i18n="config.2fa_desc">Exiger un code d'authentification à deux facteurs lors de la connexion.</p>
                             </div>
                             <label class="toggle-switch">
                                 <input type="checkbox" id="security-2fa" checked>
@@ -243,9 +243,9 @@
             <!-- ===== DELAYS TAB ===== -->
             <div class="tab" id="tab-delays">
                 <div class="main__header">
-                    <h1 data-i18n="delays.title">D\u00e9lais de rendez-vous</h1>
+                    <h1 data-i18n="delays.title">Délais de rendez-vous</h1>
                 </div>
-                <p class="tab__desc" data-i18n="delays.desc">S\u00e9lectionnez le d\u00e9lai actuel pour chaque type de service. Ces informations seront affich\u00e9es aux clients sur la page de prise de rendez-vous.</p>
+                <p class="tab__desc" data-i18n="delays.desc">Sélectionnez le délai actuel pour chaque type de service. Ces informations seront affichées aux clients sur la page de prise de rendez-vous.</p>
 
                 <div class="delays-grid">
                     <!-- Service -->
@@ -256,10 +256,10 @@
                         </div>
                         <div class="delay-options" id="delay-service">
                             <button class="delay-opt" data-value="less-24h" data-i18n="delays.less_24h">Moins de 24h</button>
-                            <button class="delay-opt" data-value="1-2-days" data-i18n="delays.1_2_days">1 \u00e0 2 jours</button>
-                            <button class="delay-opt" data-value="2-4-days" data-i18n="delays.2_4_days">2 \u00e0 4 jours</button>
+                            <button class="delay-opt" data-value="1-2-days" data-i18n="delays.1_2_days">1 à 2 jours</button>
+                            <button class="delay-opt" data-value="2-4-days" data-i18n="delays.2_4_days">2 à 4 jours</button>
                             <button class="delay-opt" data-value="less-1-week" data-i18n="delays.less_1_week">Moins d'une semaine</button>
-                            <button class="delay-opt" data-value="1-2-weeks" data-i18n="delays.1_2_weeks">1 \u00e0 2 semaines</button>
+                            <button class="delay-opt" data-value="1-2-weeks" data-i18n="delays.1_2_weeks">1 à 2 semaines</button>
                             <button class="delay-opt" data-value="less-1-month" data-i18n="delays.less_1_month">Moins de 1 mois</button>
                         </div>
                     </div>
@@ -268,14 +268,14 @@
                     <div class="delay-card">
                         <div class="delay-card__head">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                            <h2 data-i18n="delays.repair">R\u00e9paration</h2>
+                            <h2 data-i18n="delays.repair">Réparation</h2>
                         </div>
                         <div class="delay-options" id="delay-repair">
                             <button class="delay-opt" data-value="less-24h" data-i18n="delays.less_24h">Moins de 24h</button>
-                            <button class="delay-opt" data-value="1-2-days" data-i18n="delays.1_2_days">1 \u00e0 2 jours</button>
-                            <button class="delay-opt" data-value="2-4-days" data-i18n="delays.2_4_days">2 \u00e0 4 jours</button>
+                            <button class="delay-opt" data-value="1-2-days" data-i18n="delays.1_2_days">1 à 2 jours</button>
+                            <button class="delay-opt" data-value="2-4-days" data-i18n="delays.2_4_days">2 à 4 jours</button>
                             <button class="delay-opt" data-value="less-1-week" data-i18n="delays.less_1_week">Moins d'une semaine</button>
-                            <button class="delay-opt" data-value="1-2-weeks" data-i18n="delays.1_2_weeks">1 \u00e0 2 semaines</button>
+                            <button class="delay-opt" data-value="1-2-weeks" data-i18n="delays.1_2_weeks">1 à 2 semaines</button>
                             <button class="delay-opt" data-value="less-1-month" data-i18n="delays.less_1_month">Moins de 1 mois</button>
                         </div>
                     </div>
@@ -293,11 +293,11 @@
                     <div class="notes-feed" id="notes-feed">
                         <div class="empty-state">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                            <p data-i18n="notes.empty">Aucune note. \u00c9crivez votre premi\u00e8re note ci-dessous.</p>
+                            <p data-i18n="notes.empty">Aucune note. Écrivez votre première note ci-dessous.</p>
                         </div>
                     </div>
                     <div class="notes-input">
-                        <textarea id="note-text" data-i18n-placeholder="notes.placeholder" placeholder="\u00c9crire une note..." rows="2"></textarea>
+                        <textarea id="note-text" data-i18n-placeholder="notes.placeholder" placeholder="Écrire une note..." rows="2"></textarea>
                         <button class="btn btn--primary" id="btn-send-note">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                         </button>
@@ -371,7 +371,7 @@
                         <div class="control-subtabs">
                             <button class="control-subtab active" data-subtab="employees">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                                <span data-i18n="control.employees">Employ\u00e9s</span>
+                                <span data-i18n="control.employees">Employés</span>
                             </button>
                             <button class="control-subtab" data-subtab="vehicles">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/></svg>
@@ -407,10 +407,10 @@
                     <!-- Employees panel -->
                     <div class="control-panel active" id="panel-employees">
                         <div class="main__header">
-                            <h1 data-i18n="emp.title">Employ\u00e9s</h1>
+                            <h1 data-i18n="emp.title">Employés</h1>
                             <button class="btn btn--primary" id="btn-new-employee">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M12 5v14m-7-7h14"/></svg>
-                                <span data-i18n="emp.new">Nouvel employ\u00e9</span>
+                                <span data-i18n="emp.new">Nouvel employé</span>
                             </button>
                         </div>
                         <div id="employees-list"></div>
@@ -422,7 +422,7 @@
                             <h1 data-i18n="veh.title">Voitures</h1>
                             <button class="btn btn--primary" id="btn-new-vehicle">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M12 5v14m-7-7h14"/></svg>
-                                <span data-i18n="veh.new">Nouveau v\u00e9hicule</span>
+                                <span data-i18n="veh.new">Nouveau véhicule</span>
                             </button>
                         </div>
                         <div id="vehicles-list"></div>
@@ -446,7 +446,7 @@
                         </div>
                         <!-- Recent activity -->
                         <div class="monitoring-section">
-                            <h2 data-i18n="mon.recent_activity">Activit\u00e9 r\u00e9cente</h2>
+                            <h2 data-i18n="mon.recent_activity">Activité récente</h2>
                             <div id="monitoring-recent"></div>
                         </div>
                     </div>
@@ -505,7 +505,7 @@
                         <div class="control-scanner-intro">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="width:80px;height:80px;color:var(--accent);margin-bottom:24px;"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M7 7h3v3H7zM14 7h3v3h-3zM7 14h3v3H7z"/><path d="M14 14h3v3h-3z"/></svg>
                             <h2 data-i18n="scanner.title">Scanner NFC</h2>
-                            <p style="color:var(--text-muted);margin:12px 0 24px;" data-i18n="scanner.desc">Ouvrez le scanner plein \u00e9cran pour commencer \u00e0 puncher les bons de travail.</p>
+                            <p style="color:var(--text-muted);margin:12px 0 24px;" data-i18n="scanner.desc">Ouvrez le scanner plein écran pour commencer à puncher les bons de travail.</p>
                             <button class="btn btn--primary" id="btn-open-scanner" style="font-size:1.1rem;padding:14px 32px;">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M23 7V1h-6M1 17v6h6M23 17v6h-6M1 7V1h6"/></svg>
                                 <span data-i18n="scanner.open">Ouvrir le scanner</span>
@@ -523,7 +523,7 @@
                                             <div id="nfc-status-pulse" style="position:absolute;inset:-4px;border-radius:50%;border:2px solid;opacity:0;animation:none;"></div>
                                         </div>
                                         <div style="flex:1;">
-                                            <strong id="nfc-status-label" style="font-size:1rem;display:block;margin-bottom:2px;" data-i18n="nfc.disconnected">Serveur NFC d\u00e9connect\u00e9</strong>
+                                            <strong id="nfc-status-label" style="font-size:1rem;display:block;margin-bottom:2px;" data-i18n="nfc.disconnected">Serveur NFC déconnecté</strong>
                                             <span id="nfc-status-detail" style="color:var(--text-muted);font-size:.85rem;" data-i18n="nfc.disconnected_detail">Lancez NFC-Reader.exe pour connecter le lecteur.</span>
                                         </div>
                                     </div>
@@ -568,13 +568,13 @@
                                         <span class="nfc-step-num">1</span>
                                         <div class="nfc-step-text">
                                             <strong data-i18n="nfc_setup.step1_title">Installer le driver ACR122U</strong>
-                                            <p data-i18n="nfc_setup.step1_desc">T\u00e9l\u00e9chargez le MSI Installer depuis le site ACS. Une seule fois par ordinateur.</p>
+                                            <p data-i18n="nfc_setup.step1_desc">Téléchargez le MSI Installer depuis le site ACS. Une seule fois par ordinateur.</p>
                                         </div>
                                     </div>
                                     <div class="nfc-step">
                                         <span class="nfc-step-num">2</span>
                                         <div class="nfc-step-text">
-                                            <strong data-i18n="nfc_setup.step2_title">T\u00e9l\u00e9charger NFC Reader</strong>
+                                            <strong data-i18n="nfc_setup.step2_title">Télécharger NFC Reader</strong>
                                             <p data-i18n="nfc_setup.step2_desc">Le pont entre le lecteur USB et le navigateur. Placez-le dans un dossier permanent.</p>
                                         </div>
                                     </div>
@@ -582,7 +582,7 @@
                                         <span class="nfc-step-num">3</span>
                                         <div class="nfc-step-text">
                                             <strong data-i18n="nfc_setup.step3_title">Brancher le lecteur USB</strong>
-                                            <p data-i18n="nfc_setup.step3_desc">Connectez le ACR122U. Windows le d\u00e9tectera automatiquement.</p>
+                                            <p data-i18n="nfc_setup.step3_desc">Connectez le ACR122U. Windows le détectera automatiquement.</p>
                                         </div>
                                     </div>
                                     <div class="nfc-step">
@@ -609,14 +609,14 @@
                                 <details class="nfc-autostart">
                                     <summary>
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
-                                        <span data-i18n="nfc_setup.autostart">D\u00e9marrage automatique avec Windows</span>
+                                        <span data-i18n="nfc_setup.autostart">Démarrage automatique avec Windows</span>
                                     </summary>
                                     <div class="nfc-autostart-body">
                                         <ol>
                                             <li><span data-i18n="nfc_setup.autostart_step1">Appuyez sur </span><kbd>Win + R</kbd></li>
-                                            <li><span data-i18n="nfc_setup.autostart_step2">Tapez </span><code>shell:startup</code><span data-i18n="nfc_setup.autostart_step2b"> puis Entr\u00e9e</span></li>
+                                            <li><span data-i18n="nfc_setup.autostart_step2">Tapez </span><code>shell:startup</code><span data-i18n="nfc_setup.autostart_step2b"> puis Entrée</span></li>
                                             <li><span data-i18n="nfc_setup.autostart_step3">Copiez </span><strong style="color:var(--text);">NFC-Reader.exe</strong><span data-i18n="nfc_setup.autostart_step3b"> dans ce dossier</span></li>
-                                            <li data-i18n="nfc_setup.autostart_step4">Le serveur se lancera automatiquement au prochain d\u00e9marrage</li>
+                                            <li data-i18n="nfc_setup.autostart_step4">Le serveur se lancera automatiquement au prochain démarrage</li>
                                         </ol>
                                     </div>
                                 </details>
@@ -634,13 +634,13 @@
     <div class="modal-overlay" id="employee-modal">
         <div class="modal">
             <div class="modal__header">
-                <h2 id="employee-modal-title" data-i18n="emp.modal_new">Nouvel employ\u00e9</h2>
+                <h2 id="employee-modal-title" data-i18n="emp.modal_new">Nouvel employé</h2>
                 <button class="modal__close" id="employee-modal-close">&times;</button>
             </div>
             <div class="modal__body">
                 <input type="hidden" id="emp-edit-id">
                 <div class="form-group">
-                    <label data-i18n="emp.label_first_name">Pr\u00e9nom</label>
+                    <label data-i18n="emp.label_first_name">Prénom</label>
                     <input type="text" id="emp-first-name" placeholder=" ">
                 </div>
                 <div class="form-group">
@@ -660,7 +660,7 @@
                 <div class="form-group">
                     <label data-i18n="emp.label_nfc">Badge NFC</label>
                     <div class="nfc-assign-row">
-                        <input type="text" id="emp-nfc-tag" data-i18n-placeholder="emp.nfc_placeholder" placeholder="Aucun badge assign\u00e9" readonly>
+                        <input type="text" id="emp-nfc-tag" data-i18n-placeholder="emp.nfc_placeholder" placeholder="Aucun badge assigné" readonly>
                         <button type="button" class="btn btn--ghost btn--sm" id="emp-assign-nfc">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M23 7V1h-6M1 17v6h6M23 17v6h-6M1 7V1h6"/></svg>
                             <span data-i18n="emp.nfc_scan">Scanner</span>
@@ -714,7 +714,7 @@
                         <div class="stat-card__label">Temps moyen / véhicule</div>
                     </div>
                 </div>
-                <h3 style="margin:28px 0 14px;font-size:0.95rem;" data-i18n="emp_stats.recent_history">Historique r\u00e9cent</h3>
+                <h3 style="margin:28px 0 14px;font-size:0.95rem;" data-i18n="emp_stats.recent_history">Historique récent</h3>
                 <div id="emp-stats-history"></div>
             </div>
         </div>
@@ -757,18 +757,18 @@
     <div class="modal-overlay" id="vehicle-modal">
         <div class="modal modal--wide">
             <div class="modal__header">
-                <h2 id="vehicle-modal-title" data-i18n="veh.modal_new">Nouveau v\u00e9hicule</h2>
+                <h2 id="vehicle-modal-title" data-i18n="veh.modal_new">Nouveau véhicule</h2>
                 <button class="modal__close" id="vehicle-modal-close">&times;</button>
             </div>
             <div class="modal__body">
                 <input type="hidden" id="veh-edit-id">
                 <div class="form-row">
                     <div class="form-group form-group--half">
-                        <label data-i18n="veh.label_owner">Propri\u00e9taire *</label>
+                        <label data-i18n="veh.label_owner">Propriétaire *</label>
                         <input type="text" id="veh-owner" placeholder=" ">
                     </div>
                     <div class="form-group form-group--half">
-                        <label data-i18n="veh.label_phone">T\u00e9l\u00e9phone</label>
+                        <label data-i18n="veh.label_phone">Téléphone</label>
                         <input type="tel" id="veh-phone" placeholder=" ">
                     </div>
                 </div>
@@ -778,7 +778,7 @@
                         <input type="email" id="veh-email" placeholder=" ">
                     </div>
                     <div class="form-group form-group--half">
-                        <label data-i18n="veh.label_reference">R\u00e9f\u00e9rence</label>
+                        <label data-i18n="veh.label_reference">Référence</label>
                         <input type="text" id="veh-reference" placeholder=" ">
                     </div>
                 </div>
@@ -788,13 +788,13 @@
                         <input type="text" id="veh-make" placeholder=" ">
                     </div>
                     <div class="form-group form-group--half">
-                        <label data-i18n="veh.label_model">Mod\u00e8le</label>
+                        <label data-i18n="veh.label_model">Modèle</label>
                         <input type="text" id="veh-model" placeholder=" ">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group form-group--half">
-                        <label data-i18n="veh.label_year">Ann\u00e9e</label>
+                        <label data-i18n="veh.label_year">Année</label>
                         <input type="text" id="veh-year" placeholder=" " maxlength="4">
                     </div>
                     <div class="form-group form-group--half">
@@ -813,7 +813,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label data-i18n="veh.label_photo">Photo du v\u00e9hicule</label>
+                    <label data-i18n="veh.label_photo">Photo du véhicule</label>
                     <div class="image-upload" id="veh-photo-upload" style="position:relative;">
                         <input type="file" id="veh-photo-file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;">
                         <div id="veh-photo-preview">
@@ -825,7 +825,7 @@
                 <div class="form-group">
                     <label data-i18n="veh.label_nfc">Badge NFC</label>
                     <div class="nfc-assign-row">
-                        <input type="text" id="veh-nfc-tag" data-i18n-placeholder="veh.nfc_placeholder" placeholder="Aucun badge assign\u00e9" readonly>
+                        <input type="text" id="veh-nfc-tag" data-i18n-placeholder="veh.nfc_placeholder" placeholder="Aucun badge assigné" readonly>
                         <button type="button" class="btn btn--ghost btn--sm" id="veh-assign-nfc">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M23 7V1h-6M1 17v6h6M23 17v6h-6M1 7V1h6"/></svg>
                             <span data-i18n="veh.nfc_scan">Scanner</span>
@@ -845,7 +845,7 @@
     <div class="modal-overlay" id="vehicle-detail-modal">
         <div class="modal modal--wide">
             <div class="modal__header">
-                <h2 id="veh-detail-title" data-i18n="veh_detail.title">D\u00e9tail du v\u00e9hicule</h2>
+                <h2 id="veh-detail-title" data-i18n="veh_detail.title">Détail du véhicule</h2>
                 <button class="modal__close" id="veh-detail-close">&times;</button>
             </div>
             <div class="modal__body" id="veh-detail-body">
@@ -862,7 +862,7 @@
                 <button class="modal__close" id="control-confirm-close">&times;</button>
             </div>
             <div class="modal__body">
-                <p id="control-confirm-msg" data-i18n="confirm.delete_msg">Cette action est irr\u00e9versible.</p>
+                <p id="control-confirm-msg" data-i18n="confirm.delete_msg">Cette action est irréversible.</p>
             </div>
             <div class="modal__footer">
                 <button class="btn btn--ghost" id="control-cancel-delete" data-i18n="confirm.cancel">Annuler</button>
@@ -1020,11 +1020,11 @@
                 <div class="lang-panel active" id="panel-fr">
                     <div class="form-group">
                         <label for="edit-title-fr" data-i18n="blog.label_title_fr">Titre</label>
-                        <input type="text" id="edit-title-fr" data-i18n-placeholder="blog.placeholder_title_fr" placeholder="Titre de l'article en fran\u00e7ais">
+                        <input type="text" id="edit-title-fr" data-i18n-placeholder="blog.placeholder_title_fr" placeholder="Titre de l'article en français">
                     </div>
                     <div class="form-group">
-                        <label for="edit-excerpt-fr" data-i18n="blog.label_excerpt_fr">Extrait (r\u00e9sum\u00e9 court)</label>
-                        <input type="text" id="edit-excerpt-fr" data-i18n-placeholder="blog.placeholder_excerpt_fr" placeholder="Bref r\u00e9sum\u00e9 en fran\u00e7ais...">
+                        <label for="edit-excerpt-fr" data-i18n="blog.label_excerpt_fr">Extrait (résumé court)</label>
+                        <input type="text" id="edit-excerpt-fr" data-i18n-placeholder="blog.placeholder_excerpt_fr" placeholder="Bref résumé en français...">
                     </div>
                     <div class="form-group">
                         <label>Contenu</label>
@@ -1091,7 +1091,7 @@
                         <label for="edit-status" data-i18n="blog.label_status">Statut</label>
                         <select id="edit-status">
                             <option value="draft" data-i18n="blog.status_draft">Brouillon</option>
-                            <option value="published" data-i18n="blog.status_published">Publi\u00e9</option>
+                            <option value="published" data-i18n="blog.status_published">Publié</option>
                         </select>
                     </div>
                 </div>
@@ -1111,7 +1111,7 @@
                 <button class="modal__close" id="confirm-close">&times;</button>
             </div>
             <div class="modal__body">
-                <p data-i18n="blog.delete_msg">Cette action est irr\u00e9versible.</p>
+                <p data-i18n="blog.delete_msg">Cette action est irréversible.</p>
             </div>
             <div class="modal__footer">
                 <button class="btn btn--ghost" id="btn-cancel-delete" data-i18n="blog.delete_cancel">Annuler</button>
