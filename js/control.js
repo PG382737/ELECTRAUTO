@@ -94,8 +94,10 @@
     function formatDateTime(iso) {
         if (!iso) return '-';
         var d = new Date(iso);
-        return d.toLocaleDateString('fr-CA', { year: 'numeric', month: 'short', day: 'numeric' }) + ' à ' +
-               d.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' });
+        var locale = currentLang === 'en' ? 'en-CA' : 'fr-CA';
+        var sep = currentLang === 'en' ? ' at ' : ' \u00e0 ';
+        return d.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' }) + sep +
+               d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
     }
 
     // ===== PAUSE SCHEDULE (America/Toronto) =====
@@ -182,8 +184,8 @@
     // ---- Custom Date Picker ----
 
     var datepickerState = { year: 2026, month: 2, selectedDate: null };
-    var MONTHS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-    var WEEKDAYS_FR = ['Lu','Ma','Me','Je','Ve','Sa','Di'];
+    function getMonths() { return t('datepicker.months'); }
+    function getWeekdays() { return t('datepicker.weekdays'); }
 
     function initDatepicker() {
         var input = document.getElementById('emp-hire-date');
@@ -239,12 +241,12 @@
 
         var html = '<div class="datepicker-header">';
         html += '<button type="button" onclick="window._dpPrev(event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>';
-        html += '<span class="datepicker-month-year">' + MONTHS_FR[month] + ' ' + year + '</span>';
+        html += '<span class="datepicker-month-year">' + getMonths()[month] + ' ' + year + '</span>';
         html += '<button type="button" onclick="window._dpNext(event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>';
         html += '</div>';
 
         html += '<div class="datepicker-weekdays">';
-        WEEKDAYS_FR.forEach(function(d) { html += '<span>' + d + '</span>'; });
+        getWeekdays().forEach(function(d) { html += '<span>' + d + '</span>'; });
         html += '</div>';
 
         html += '<div class="datepicker-days">';
@@ -273,7 +275,7 @@
         }
 
         html += '</div>';
-        html += '<button type="button" class="datepicker-today-btn" onclick="window._dpToday(event)">Aujourd\'hui</button>';
+        html += '<button type="button" class="datepicker-today-btn" onclick="window._dpToday(event)">' + t('datepicker.today') + '</button>';
 
         picker.innerHTML = html;
 
@@ -349,9 +351,9 @@
 
     function renderPagination(currentPage, totalPages, fnName) {
         var html = '<div class="control-pagination">';
-        html += '<button class="btn btn--ghost btn--sm" ' + (currentPage === 0 ? 'disabled' : 'onclick="' + fnName + '(' + (currentPage - 1) + ')"') + '>&laquo; Précédent</button>';
-        html += '<span class="control-pagination__info">Page ' + (currentPage + 1) + ' / ' + totalPages + '</span>';
-        html += '<button class="btn btn--ghost btn--sm" ' + (currentPage >= totalPages - 1 ? 'disabled' : 'onclick="' + fnName + '(' + (currentPage + 1) + ')"') + '>Suivant &raquo;</button>';
+        html += '<button class="btn btn--ghost btn--sm" ' + (currentPage === 0 ? 'disabled' : 'onclick="' + fnName + '(' + (currentPage - 1) + ')"') + '>' + t('pagination.prev') + '</button>';
+        html += '<span class="control-pagination__info">' + t('pagination.page').replace('{current}', currentPage + 1).replace('{total}', totalPages) + '</span>';
+        html += '<button class="btn btn--ghost btn--sm" ' + (currentPage >= totalPages - 1 ? 'disabled' : 'onclick="' + fnName + '(' + (currentPage + 1) + ')"') + '>' + t('pagination.next') + '</button>';
         html += '</div>';
         return html;
     }
@@ -440,7 +442,7 @@
             empPage = 0;
             renderEmployees();
         } catch(e) {
-            container.innerHTML = '<div class="control-empty"><p>Erreur: ' + escHtml(e.message) + '</p></div>';
+            container.innerHTML = '<div class="control-empty"><p>' + t('general.error_prefix') + escHtml(e.message) + '</p></div>';
         }
     }
 
@@ -448,7 +450,7 @@
         var container = document.getElementById('employees-list');
         var data = allEmployees;
         if (!data || data.length === 0) {
-            container.innerHTML = '<div class="control-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>Aucun employé. Ajoutez votre premier employé.</p></div>';
+            container.innerHTML = '<div class="control-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>' + t('emp.empty') + '</p></div>';
             return;
         }
         var totalPages = Math.ceil(data.length / PAGE_SIZE);
@@ -456,11 +458,11 @@
         var start = page * PAGE_SIZE;
         var pageData = data.slice(start, start + PAGE_SIZE);
 
-        var html = '<table class="control-table"><thead><tr><th>Nom</th><th>Date d\'embauche</th><th>Badge NFC</th><th style="text-align:right;">Actions</th></tr></thead><tbody>';
+        var html = '<table class="control-table"><thead><tr><th>' + t('emp.col_name') + '</th><th>' + t('emp.col_hire_date') + '</th><th>' + t('emp.col_nfc') + '</th><th style="text-align:right;">' + t('emp.col_actions') + '</th></tr></thead><tbody>';
         pageData.forEach(function(emp) {
             var nfcBadge = emp.nfc_tag_id
-                ? '<span class="nfc-badge nfc-badge--assigned">Assigné</span>'
-                : '<span class="nfc-badge nfc-badge--unassigned">Non assigné</span>';
+                ? '<span class="nfc-badge nfc-badge--assigned">' + t('emp.nfc_assigned') + '</span>'
+                : '<span class="nfc-badge nfc-badge--unassigned">' + t('emp.nfc_unassigned') + '</span>';
             html += '<tr>';
             html += '<td class="col-name clickable-row" onclick="Control.openEmployeeStats(\'' + emp.id + '\')">' + escHtml(emp.first_name + ' ' + emp.last_name) + '</td>';
             html += '<td>' + formatDate(emp.hire_date) + '</td>';
@@ -491,7 +493,7 @@
     }
 
     function openEmployeeModal(emp) {
-        document.getElementById('employee-modal-title').textContent = emp ? 'Modifier l\'employé' : 'Nouvel employé';
+        document.getElementById('employee-modal-title').textContent = emp ? t('emp.modal_edit') : t('emp.modal_new');
         document.getElementById('emp-edit-id').value = emp ? emp.id : '';
         document.getElementById('emp-first-name').value = emp ? emp.first_name : '';
         document.getElementById('emp-last-name').value = emp ? emp.last_name : '';
@@ -528,7 +530,7 @@
             document.getElementById('employee-modal').classList.remove('active');
             loadEmployees();
         } catch(e) {
-            showToast('error', 'Erreur', e.message);
+            showToast('error', t('general.error'), e.message);
         }
     }
 
@@ -537,16 +539,16 @@
             var emp = await api('GET', '/api/control-employees?id=' + id);
             openEmployeeModal(emp);
         } catch(e) {
-            showToast('error', 'Erreur', e.message);
+            showToast('error', t('general.error'), e.message);
         }
     }
 
     function deleteEmployee(id) {
-        showConfirmDelete('Supprimer cet employé ?', 'L\'employé et tout son historique seront supprimés.', async function() {
+        showConfirmDelete(t('emp.delete_title'), t('emp.delete_msg'), async function() {
             try {
                 await api('DELETE', '/api/control-employees?id=' + id);
                 loadEmployees();
-            } catch(e) { showToast('error', 'Erreur', e.message); }
+            } catch(e) { showToast('error', t('general.error'), e.message); }
         });
     }
 
@@ -565,7 +567,7 @@
             document.getElementById('emp-stats-month').value = '';
             loadEmployeeStats('month');
         } catch(e) {
-            showToast('error', 'Erreur', e.message);
+            showToast('error', t('general.error'), e.message);
         }
     }
 
@@ -603,7 +605,7 @@
             empStatsOrders = data.orders || [];
             renderEmpStatsHistory();
         } catch(e) {
-            document.getElementById('emp-stats-history').innerHTML = '<p style="color:var(--danger);">Erreur: ' + escHtml(e.message) + '</p>';
+            document.getElementById('emp-stats-history').innerHTML = '<p style="color:var(--danger);">' + t('general.error_prefix') + escHtml(e.message) + '</p>';
         }
     }
 
@@ -636,7 +638,7 @@
     function renderEmpStatsHistory() {
         var historyEl = document.getElementById('emp-stats-history');
         if (empStatsOrders.length === 0) {
-            historyEl.innerHTML = '<p style="color:var(--text-muted);font-size:0.88rem;">Aucun bon de travail pour cette période.</p>';
+            historyEl.innerHTML = '<p style="color:var(--text-muted);font-size:0.88rem;">' + t('emp_stats.no_orders') + '</p>';
             return;
         }
         var totalPages = Math.ceil(empStatsOrders.length / HISTORY_PAGE_SIZE);
@@ -644,7 +646,7 @@
         var start = page * HISTORY_PAGE_SIZE;
         var pageData = empStatsOrders.slice(start, start + HISTORY_PAGE_SIZE);
 
-        var html = '<table class="control-table"><thead><tr><th>Date</th><th>Véhicule</th><th>Durée</th></tr></thead><tbody>';
+        var html = '<table class="control-table"><thead><tr><th>' + t('emp_stats.col_date') + '</th><th>' + t('emp_stats.col_vehicle') + '</th><th>' + t('emp_stats.col_duration') + '</th></tr></thead><tbody>';
         pageData.forEach(function(o) {
             var vehName = o.vehicle ? (o.vehicle.make + (o.vehicle.plate ? ' - ' + o.vehicle.plate : '')) : 'Inconnu';
             html += '<tr><td>' + formatDateTime(o.started_at) + '</td><td>' + escHtml(vehName) + '</td><td>' + formatDuration(o.duration_seconds) + '</td></tr>';
@@ -814,7 +816,7 @@
         var el = document.getElementById('veh-detail-history');
         if (!el) return;
         if (vehDetailOrders.length === 0) {
-            el.innerHTML = '<p style="color:var(--text-muted);font-size:0.88rem;">Aucun historique.</p>';
+            el.innerHTML = '<p style="color:var(--text-muted);font-size:0.88rem;">' + t('veh_detail.no_history') + '</p>';
             return;
         }
         var totalPages = Math.ceil(vehDetailOrders.length / HISTORY_PAGE_SIZE);
@@ -822,9 +824,9 @@
         var start = page * HISTORY_PAGE_SIZE;
         var pageData = vehDetailOrders.slice(start, start + HISTORY_PAGE_SIZE);
 
-        var html = '<table class="control-table"><thead><tr><th>Date</th><th>Employé</th><th>Durée</th></tr></thead><tbody>';
+        var html = '<table class="control-table"><thead><tr><th>' + t('veh_detail.col_date') + '</th><th>' + t('veh_detail.col_employee') + '</th><th>' + t('veh_detail.col_duration') + '</th></tr></thead><tbody>';
         pageData.forEach(function(o) {
-            var empName = o.employee ? (o.employee.first_name + ' ' + o.employee.last_name) : 'Inconnu';
+            var empName = o.employee ? (o.employee.first_name + ' ' + o.employee.last_name) : t('veh_detail.unknown');
             html += '<tr><td>' + formatDateTime(o.started_at) + '</td><td>' + escHtml(empName) + '</td><td>' + formatDuration(o.duration_seconds) + '</td></tr>';
         });
         html += '</tbody></table>';
@@ -847,7 +849,7 @@
             vehPage = 0;
             renderVehicles();
         } catch(e) {
-            container.innerHTML = '<div class="control-empty"><p>Erreur: ' + escHtml(e.message) + '</p></div>';
+            container.innerHTML = '<div class="control-empty"><p>' + t('general.error_prefix') + escHtml(e.message) + '</p></div>';
         }
     }
 
@@ -882,13 +884,13 @@
         var filtered = filterVehicles();
 
         // Search bar
-        var html = '<div class="control-search"><input type="text" id="veh-search-input" placeholder="Rechercher par véhicule, propriétaire, téléphone, courriel, plaque, NIV, référence..." value="' + escHtml(vehSearchQuery) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>';
+        var html = '<div class="control-search"><input type="text" id="veh-search-input" placeholder="' + escHtml(t('veh.search_placeholder')) + '" value="' + escHtml(vehSearchQuery) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>';
 
         if (!filtered || filtered.length === 0) {
             if (vehSearchQuery) {
-                html += '<div class="control-empty"><p>Aucun résultat pour « ' + escHtml(vehSearchQuery) + ' »</p></div>';
+                html += '<div class="control-empty"><p>' + t('veh.no_results') + escHtml(vehSearchQuery) + t('veh.no_results_end') + '</p></div>';
             } else {
-                html += '<div class="control-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/></svg><p>Aucun véhicule. Ajoutez votre premier véhicule.</p></div>';
+                html += '<div class="control-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/></svg><p>' + t('veh.empty') + '</p></div>';
             }
             container.innerHTML = html;
             bindVehicleSearch();
@@ -903,8 +905,8 @@
         html += '<table class="control-table"><thead><tr><th>Véhicule</th><th>Badge NFC</th><th>Statut</th><th style="text-align:center;">Médias</th><th style="text-align:right;">Actions</th></tr></thead><tbody>';
         pageData.forEach(function(v) {
             var nfcBadge = v.nfc_tag_id
-                ? '<span class="nfc-badge nfc-badge--assigned">Assigné</span>'
-                : '<span class="nfc-badge nfc-badge--unassigned">Non assigné</span>';
+                ? '<span class="nfc-badge nfc-badge--assigned">' + t('veh.nfc_assigned') + '</span>'
+                : '<span class="nfc-badge nfc-badge--unassigned">' + t('veh.nfc_unassigned') + '</span>';
 
             var aos = v.active_orders || [];
             var statusHtml = '';
@@ -994,7 +996,7 @@
     }
 
     function openVehicleModal(veh) {
-        document.getElementById('vehicle-modal-title').textContent = veh ? 'Modifier le véhicule' : 'Nouveau véhicule';
+        document.getElementById('vehicle-modal-title').textContent = veh ? t('veh.modal_edit') : t('veh.modal_new');
         document.getElementById('veh-edit-id').value = veh ? veh.id : '';
         document.getElementById('veh-owner').value = veh ? veh.owner_name : '';
         document.getElementById('veh-phone').value = veh ? (veh.phone || '') : '';
@@ -1014,7 +1016,7 @@
         if (veh && veh.photo_url) {
             preview.innerHTML = '<img src="' + escHtml(veh.photo_url) + '" style="width:100%;max-height:180px;object-fit:cover;border-radius:var(--radius-sm);">';
         } else {
-            preview.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="width:40px;height:40px;color:var(--text-muted);"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><p style="color:var(--text-muted);font-size:0.85rem;margin-top:8px;">Cliquez pour ajouter une photo</p>';
+            preview.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="width:40px;height:40px;color:var(--text-muted);"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><p style="color:var(--text-muted);font-size:0.85rem;margin-top:8px;">' + t('veh.photo_add') + '</p>';
         }
         document.getElementById('veh-photo-file').value = '';
 
@@ -1065,7 +1067,7 @@
                 });
                 body.photo_url = uploadRes.url;
             } catch(e) {
-                showToast('error', 'Erreur upload', e.message);
+                showToast('error', t('general.error_upload'), e.message);
                 return;
             }
         }
@@ -1080,7 +1082,7 @@
             document.getElementById('vehicle-modal').classList.remove('active');
             loadVehicles();
         } catch(e) {
-            showToast('error', 'Erreur', e.message);
+            showToast('error', t('general.error'), e.message);
         }
     }
 
@@ -1089,16 +1091,16 @@
             var res = await api('GET', '/api/control-vehicles?id=' + id);
             openVehicleModal(res.vehicle);
         } catch(e) {
-            showToast('error', 'Erreur', e.message);
+            showToast('error', t('general.error'), e.message);
         }
     }
 
     function deleteVehicle(id) {
-        showConfirmDelete('Supprimer ce véhicule ?', 'Le véhicule et tout son historique seront supprimés.', async function() {
+        showConfirmDelete(t('veh.delete_title'), t('veh.delete_msg'), async function() {
             try {
                 await api('DELETE', '/api/control-vehicles?id=' + id);
                 loadVehicles();
-            } catch(e) { showToast('error', 'Erreur', e.message); }
+            } catch(e) { showToast('error', t('general.error'), e.message); }
         });
     }
 
@@ -1123,13 +1125,13 @@
             }
             html += '<div class="veh-detail-info">';
             html += '<h3>' + escHtml(v.make) + (v.model ? ' ' + escHtml(v.model) : '') + (v.year ? ' ' + v.year : '') + '</h3>';
-            html += '<p><strong>Propriétaire:</strong> ' + escHtml(v.owner_name) + '</p>';
-            if (v.phone) html += '<p><strong>Tél:</strong> ' + escHtml(v.phone) + '</p>';
-            if (v.email) html += '<p><strong>Courriel:</strong> ' + escHtml(v.email) + '</p>';
-            if (v.plate) html += '<p><strong>Plaque:</strong> ' + escHtml(v.plate) + '</p>';
-            if (v.color) html += '<p><strong>Couleur:</strong> ' + escHtml(v.color) + '</p>';
-            if (v.vin) html += '<p><strong>VIN:</strong> ' + escHtml(v.vin) + '</p>';
-            if (v.reference) html += '<p><strong>Référence:</strong> ' + escHtml(v.reference) + '</p>';
+            html += '<p><strong>' + t('veh_detail.owner') + '</strong> ' + escHtml(v.owner_name) + '</p>';
+            if (v.phone) html += '<p><strong>' + t('veh_detail.phone') + '</strong> ' + escHtml(v.phone) + '</p>';
+            if (v.email) html += '<p><strong>' + t('veh_detail.email') + '</strong> ' + escHtml(v.email) + '</p>';
+            if (v.plate) html += '<p><strong>' + t('veh_detail.plate') + '</strong> ' + escHtml(v.plate) + '</p>';
+            if (v.color) html += '<p><strong>' + t('veh_detail.color') + '</strong> ' + escHtml(v.color) + '</p>';
+            if (v.vin) html += '<p><strong>' + t('veh_detail.vin') + '</strong> ' + escHtml(v.vin) + '</p>';
+            if (v.reference) html += '<p><strong>' + t('veh_detail.reference') + '</strong> ' + escHtml(v.reference) + '</p>';
             html += '</div></div>';
 
             // Active work orders
@@ -1151,13 +1153,13 @@
 
             // Stats
             html += '<div class="stats-grid" style="margin-bottom:24px;">';
-            html += '<div class="stat-card"><div class="stat-card__value">' + data.stats.total_repairs + '</div><div class="stat-card__label">Réparations</div></div>';
-            html += '<div class="stat-card"><div class="stat-card__value">' + formatDuration(data.stats.total_seconds) + '</div><div class="stat-card__label">Temps total</div></div>';
-            html += '<div class="stat-card"><div class="stat-card__value">' + data.stats.employee_count + '</div><div class="stat-card__label">Employés</div></div>';
+            html += '<div class="stat-card"><div class="stat-card__value">' + data.stats.total_repairs + '</div><div class="stat-card__label">' + t('veh_detail.repairs') + '</div></div>';
+            html += '<div class="stat-card"><div class="stat-card__value">' + formatDuration(data.stats.total_seconds) + '</div><div class="stat-card__label">' + t('veh_detail.total_time') + '</div></div>';
+            html += '<div class="stat-card"><div class="stat-card__value">' + data.stats.employee_count + '</div><div class="stat-card__label">' + t('veh_detail.employees') + '</div></div>';
             html += '</div>';
 
             // Work history
-            html += '<h3 style="font-size:0.95rem;margin-bottom:12px;">Historique des travaux</h3>';
+            html += '<h3 style="font-size:0.95rem;margin-bottom:12px;">' + t('veh_detail.work_history') + '</h3>';
             vehDetailOrders = data.orders.filter(function(o) { return o.ended_at; });
             vehDetailPage = 0;
             html += '<div id="veh-detail-history"></div>';
@@ -1168,9 +1170,9 @@
 
             // Notes
             html += '<div class="veh-notes">';
-            html += '<h3 style="font-size:0.95rem;margin-bottom:12px;">Notes</h3>';
+            html += '<h3 style="font-size:0.95rem;margin-bottom:12px;">' + t('veh_detail.notes_title') + '</h3>';
             html += '<div class="veh-notes__input">';
-            html += '<textarea id="veh-note-text" rows="2" placeholder="Ajouter une note..."></textarea>';
+            html += '<textarea id="veh-note-text" rows="2" placeholder="' + escHtml(t('veh_detail.note_placeholder')) + '"></textarea>';
             html += '<button class="btn btn--primary" onclick="Control.addVehicleNote()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>';
             html += '</div>';
             html += '<div id="veh-notes-list">';
@@ -1179,7 +1181,7 @@
                     html += renderVehicleNote(n);
                 });
             } else {
-                html += '<p style="color:var(--text-muted);font-size:0.85rem;">Aucune note.</p>';
+                html += '<p style="color:var(--text-muted);font-size:0.85rem;">' + t('veh_detail.no_notes') + '</p>';
             }
             html += '</div></div>';
 
@@ -1199,7 +1201,7 @@
                 });
             }
         } catch(e) {
-            showToast('error', 'Erreur', e.message);
+            showToast('error', t('general.error'), e.message);
         }
     }
 
@@ -1213,14 +1215,14 @@
         try {
             await api('POST', '/api/control-vehicle-notes', { vehicle_id: currentVehDetailId, text: text });
             openVehicleDetail(currentVehDetailId); // Refresh
-        } catch(e) { showToast('error', 'Erreur', e.message); }
+        } catch(e) { showToast('error', t('general.error'), e.message); }
     }
 
     async function deleteVehicleNote(noteId) {
         try {
             await api('DELETE', '/api/control-vehicle-notes?id=' + noteId);
             openVehicleDetail(currentVehDetailId);
-        } catch(e) { showToast('error', 'Erreur', e.message); }
+        } catch(e) { showToast('error', t('general.error'), e.message); }
     }
 
     // ---- CONFIRM DELETE ----
@@ -1258,9 +1260,9 @@
             pulse.style.borderColor = c;
             pulse.style.animation = 'nfc-pulse 2s ease-out infinite';
             bg.style.background = 'radial-gradient(circle at 30% 50%,' + c + ',' + c + '00)';
-            label.textContent = 'Lecteur NFC connecté';
+            label.textContent = t('nfc.connected');
             label.style.color = c;
-            detail.textContent = 'Le lecteur est prêt à scanner.';
+            detail.textContent = t('nfc.connected_detail');
         } else if (nfcWsConnected && !nfcReaderReady) {
             var c = '#f59e0b';
             panel.style.borderColor = c + '40';
@@ -1271,9 +1273,9 @@
             pulse.style.borderColor = c;
             pulse.style.animation = 'nfc-pulse 1.5s ease-out infinite';
             bg.style.background = 'radial-gradient(circle at 30% 50%,' + c + ',' + c + '00)';
-            label.textContent = 'Lecteur USB non détecté';
+            label.textContent = t('nfc.no_reader');
             label.style.color = c;
-            detail.textContent = 'Le serveur fonctionne mais aucun lecteur n\'est branché.';
+            detail.textContent = t('nfc.no_reader_detail');
         } else {
             var c = '#ef4444';
             panel.style.borderColor = c + '30';
@@ -1285,7 +1287,7 @@
             pulse.style.animation = 'none';
             pulse.style.opacity = '0';
             bg.style.background = 'radial-gradient(circle at 30% 50%,' + c + ',' + c + '00)';
-            label.textContent = 'Serveur NFC déconnecté';
+            label.textContent = t('nfc.disconnected');
             label.style.color = c;
             detail.textContent = 'Lancez NFC-Reader.exe pour connecter le lecteur.';
         }
@@ -1344,7 +1346,7 @@
             modal = document.createElement('div');
             modal.id = 'nfc-scan-modal';
             modal.className = 'modal-overlay active';
-            modal.innerHTML = '<div class="modal" style="text-align:center;padding:40px;max-width:400px;"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" style="width:64px;height:64px;margin-bottom:16px;animation:pulse 1.5s infinite;"><rect x="2" y="2" width="20" height="20" rx="4"/><path d="M8 7v10M12 5v14M16 7v10"/></svg><h3 style="margin-bottom:8px;">Scannez le badge NFC</h3><p style="color:var(--muted);margin-bottom:24px;">Approchez la carte du lecteur...</p><button class="btn" onclick="document.getElementById(\'nfc-scan-modal\').remove();window._controlModule.cancelNfcAssign();">Annuler</button></div>';
+            modal.innerHTML = '<div class="modal" style="text-align:center;padding:40px;max-width:400px;"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" style="width:64px;height:64px;margin-bottom:16px;animation:pulse 1.5s infinite;"><rect x="2" y="2" width="20" height="20" rx="4"/><path d="M8 7v10M12 5v14M16 7v10"/></svg><h3 style="margin-bottom:8px;">' + t('nfc.scan_badge') + '</h3><p style="color:var(--muted);margin-bottom:24px;">' + t('nfc.approach_card') + '</p><button class="btn" onclick="document.getElementById(\'nfc-scan-modal\').remove();window._controlModule.cancelNfcAssign();">' + t('nfc.cancel') + '</button></div>';
             document.body.appendChild(modal);
         } else {
             modal.classList.add('active');
@@ -1364,13 +1366,13 @@
             var emps = allEmployees.filter(function(e) { return e.nfc_tag_id === tagId; });
             for (var i = 0; i < emps.length; i++) {
                 if (type === 'employee' && currentId && emps[i].id === currentId) continue;
-                return 'Ce badge est déjà assigné à l\'employé ' + emps[i].first_name + ' ' + emps[i].last_name + '.';
+                return t('nfc.conflict_employee') + emps[i].first_name + ' ' + emps[i].last_name + '.';
             }
             // Check vehicles
             var vehs = allVehicles.filter(function(v) { return v.nfc_tag_id === tagId; });
             for (var j = 0; j < vehs.length; j++) {
                 if (type === 'vehicle' && currentId && vehs[j].id === currentId) continue;
-                return 'Ce badge est déjà assigné au véhicule ' + vehs[j].make + (vehs[j].year ? ' ' + vehs[j].year : '') + (vehs[j].plate ? ' (' + vehs[j].plate + ')' : '') + '.';
+                return t('nfc.conflict_vehicle') + vehs[j].make + (vehs[j].year ? ' ' + vehs[j].year : '') + (vehs[j].plate ? ' (' + vehs[j].plate + ')' : '') + '.';
             }
             return null;
         } catch(e) {
@@ -1383,9 +1385,9 @@
             nfcAssignCallback = callback;
             showNfcScanModal();
         } else if (nfcWsConnected && !nfcReaderReady) {
-            showToast('warning', 'Lecteur NFC non détecté', 'Vérifiez la connexion USB.');
+            showToast('warning', t('nfc.no_reader_warn'), t('nfc.check_usb'));
         } else {
-            var tagId = prompt('Serveur NFC non connecté.\nEntrez manuellement l\'identifiant du badge:');
+            var tagId = prompt(t('nfc.manual_prompt'));
             if (tagId) callback(tagId.toUpperCase());
         }
     }
@@ -1427,32 +1429,32 @@
         if (state === 'WAITING_VEHICLE') {
             scannerVehicle = null;
             stopDashboardOrderTimers();
-            content.innerHTML = '<div class="nfc-scanner__title">VÉHICULE</div>' + SCANNER_NFC_ICON + '<div class="nfc-scanner__subtitle">Scannez la carte NFC du véhicule</div>' + getScannerSimHtml() + '<div class="nfc-scanner__orders" id="dashboard-orders"><div class="nfc-scanner__orders-title">Bons de travail en cours</div><div id="dashboard-orders-list" class="nfc-scanner__orders-grid"><div class="nfc-scanner__orders-empty">Chargement...</div></div></div>';
+            content.innerHTML = '<div class="nfc-scanner__title">' + t('scanner.vehicle_title') + '</div>' + SCANNER_NFC_ICON + '<div class="nfc-scanner__subtitle">' + t('scanner.vehicle_scan') + '</div>' + getScannerSimHtml() + '<div class="nfc-scanner__orders" id="dashboard-orders"><div class="nfc-scanner__orders-title">' + t('scanner.active_orders_title') + '</div><div id="dashboard-orders-list" class="nfc-scanner__orders-grid"><div class="nfc-scanner__orders-empty">' + t('scanner.loading') + '</div></div></div>';
             loadDashboardOrders();
 
         } else if (state === 'WAITING_EMPLOYEE') {
             var v = scannerVehicle;
-            content.innerHTML = '<div class="nfc-scanner__info"><p><strong>' + escHtml(v.make) + (v.year ? ' ' + v.year : '') + '</strong></p>' + (v.plate ? '<p>Plaque: ' + escHtml(v.plate) + '</p>' : '') + '<p>Propriétaire: ' + escHtml(v.owner_name) + '</p></div><div class="nfc-scanner__title" style="margin-top:32px;">EMPLOYÉ</div>' + SCANNER_NFC_ICON + '<div class="nfc-scanner__subtitle">Scannez le badge de l\'employé</div>' + getScannerSimHtml();
+            content.innerHTML = '<div class="nfc-scanner__info"><p><strong>' + escHtml(v.make) + (v.year ? ' ' + v.year : '') + '</strong></p>' + (v.plate ? '<p>' + t('scanner.plate_label') + escHtml(v.plate) + '</p>' : '') + '<p>' + t('scanner.owner_label') + escHtml(v.owner_name) + '</p></div><div class="nfc-scanner__title" style="margin-top:32px;">' + t('scanner.employee_title') + '</div>' + SCANNER_NFC_ICON + '<div class="nfc-scanner__subtitle">' + t('scanner.employee_scan') + '</div>' + getScannerSimHtml();
 
         } else if (state === 'SUCCESS_OPEN') {
             stopDashboardOrderTimers();
-            content.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:80px;height:80px;color:var(--success);margin-bottom:20px;"><path d="M20 6L9 17l-5-5"/></svg><div class="nfc-scanner__success">Bon de travail commencé</div><div class="nfc-scanner__countdown" id="scanner-countdown">Retour dans 5 secondes...</div>';
+            content.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:80px;height:80px;color:var(--success);margin-bottom:20px;"><path d="M20 6L9 17l-5-5"/></svg><div class="nfc-scanner__success">' + t('scanner.success_open') + '</div><div class="nfc-scanner__countdown" id="scanner-countdown">' + t('scanner.countdown').replace('{n}', 5) + '</div>';
             var countdown = 5;
             scannerInterval = setInterval(function() {
                 countdown--;
                 var el = document.getElementById('scanner-countdown');
-                if (el) el.textContent = 'Retour dans ' + countdown + ' secondes...';
+                if (el) el.textContent = t('scanner.countdown').replace('{n}', countdown);
                 if (countdown <= 0) setScannerState('WAITING_VEHICLE');
             }, 1000);
 
         } else if (state === 'SUCCESS_CLOSE') {
             stopDashboardOrderTimers();
-            content.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:80px;height:80px;color:var(--success);margin-bottom:20px;"><path d="M20 6L9 17l-5-5"/></svg><div class="nfc-scanner__success">Bon de travail terminé</div><div class="nfc-scanner__countdown" id="scanner-countdown">Retour dans 5 secondes...</div>';
+            content.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:80px;height:80px;color:var(--success);margin-bottom:20px;"><path d="M20 6L9 17l-5-5"/></svg><div class="nfc-scanner__success">' + t('scanner.success_close') + '</div><div class="nfc-scanner__countdown" id="scanner-countdown">' + t('scanner.countdown').replace('{n}', 5) + '</div>';
             var countdown2 = 5;
             scannerInterval = setInterval(function() {
                 countdown2--;
                 var el = document.getElementById('scanner-countdown');
-                if (el) el.textContent = 'Retour dans ' + countdown2 + ' secondes...';
+                if (el) el.textContent = t('scanner.countdown').replace('{n}', countdown2);
                 if (countdown2 <= 0) setScannerState('WAITING_VEHICLE');
             }, 1000);
 
@@ -1477,7 +1479,7 @@
             }
         } catch(e) {
             var list = document.getElementById('dashboard-orders-list');
-            if (list) list.innerHTML = '<div class="nfc-scanner__orders-empty">Impossible de charger les bons de travail</div>';
+            if (list) list.innerHTML = '<div class="nfc-scanner__orders-empty">' + t('scanner.load_error') + '</div>';
         }
     }
 
@@ -1490,7 +1492,7 @@
         dashboardOrderTimers = [];
 
         if (!orders || orders.length === 0) {
-            list.innerHTML = '<div class="nfc-scanner__orders-empty">Aucun bon de travail en cours</div>';
+            list.innerHTML = '<div class="nfc-scanner__orders-empty">' + t('scanner.no_active_orders') + '</div>';
             return;
         }
 
@@ -1572,7 +1574,7 @@
                 scannerVehicle = vehicle;
                 setScannerState('WAITING_EMPLOYEE');
             } catch(e) {
-                showScannerError('Véhicule introuvable');
+                showScannerError(t('scanner.error_vehicle'));
             }
 
         } else if (scannerState === 'WAITING_EMPLOYEE') {
@@ -1598,7 +1600,7 @@
                     setScannerState('SUCCESS_OPEN');
                 }
             } catch(e) {
-                showScannerError('Employé introuvable');
+                showScannerError(t('scanner.error_employee'));
             }
         }
     }
@@ -1718,7 +1720,7 @@
         var list = document.getElementById('notif-list');
         if (!list) return;
         if (notifications.length === 0) {
-            list.innerHTML = '<div class="control-notif-empty">Aucune notification</div>';
+            list.innerHTML = '<div class="control-notif-empty">' + t('notif.empty') + '</div>';
             return;
         }
         var html = '';
@@ -1744,12 +1746,12 @@
 
     function formatTimeAgo(date) {
         var seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-        if (seconds < 60) return 'À l\'instant';
+        if (seconds < 60) return t('notif.just_now');
         var minutes = Math.floor(seconds / 60);
-        if (minutes < 60) return minutes + ' min';
+        if (minutes < 60) return minutes + t('notif.time_min');
         var hours = Math.floor(minutes / 60);
-        if (hours < 24) return hours + 'h';
-        return Math.floor(hours / 24) + 'j';
+        if (hours < 24) return hours + t('notif.time_h');
+        return Math.floor(hours / 24) + t('notif.time_d');
     }
 
     function toggleNotifPanel() {
@@ -2249,10 +2251,13 @@
         var changed = false;
         activeOrders.forEach(function(o) {
             if (shouldRun && o.paused) {
+                // Only auto-resume orders that the system itself paused.
+                // A manual pause is the user's intent — never undo it.
+                if (o.pause_source !== 'scheduled') return;
                 monitoringLoadingOrders[o.id] = true;
                 var strip = document.getElementById('monitoring-action-' + o.id);
                 if (strip) strip.innerHTML = '<span class="timer-loader"></span>';
-                api('PATCH', '/api/control-work-orders', { action: 'resume', id: o.id });
+                api('PATCH', '/api/control-work-orders', { action: 'resume', id: o.id, source: 'scheduled' });
                 addNotification('resume', 'Bon repris (sys)', orderLabel(o));
                 if (knownOrderIds[o.id]) knownOrderIds[o.id].paused = false;
                 changed = true;
@@ -2261,9 +2266,12 @@
                 monitoringPauseAtOverrides[o.id] = Date.now();
                 var strip = document.getElementById('monitoring-action-' + o.id);
                 if (strip) strip.innerHTML = '<span class="timer-loader"></span>';
-                api('PATCH', '/api/control-work-orders', { action: 'pause', id: o.id });
+                api('PATCH', '/api/control-work-orders', { action: 'pause', id: o.id, source: 'scheduled' });
                 addNotification('pause', 'Bon mis en pause (sys)', orderLabel(o));
-                if (knownOrderIds[o.id]) knownOrderIds[o.id].paused = true;
+                if (knownOrderIds[o.id]) {
+                    knownOrderIds[o.id].paused = true;
+                    knownOrderIds[o.id].pause_source = 'scheduled';
+                }
                 changed = true;
             }
         });
@@ -2303,38 +2311,94 @@
     function toggleOrderPause(orderId, index) {
         var el = document.getElementById('monitoring-timer-' + index);
         var card = el ? el.closest('.monitoring-order') : null;
+        var dot = card ? card.querySelector('.monitoring-order__dot') : null;
         var strip = document.getElementById('monitoring-action-' + orderId);
         var currentlyPaused = card && card.classList.contains('monitoring-order--paused');
-        var newState = !currentlyPaused;
-        // Show loader in the action button
-        if (strip) strip.innerHTML = '<span class="timer-loader"></span>';
-        if (newState) {
-            // Pausing — immediately freeze timer at current time
+        var newPaused = !currentlyPaused;
+
+        // Optimistic UI: flip pause/play state immediately so the user sees feedback now.
+        if (newPaused) {
             monitoringPauseOverrides[orderId] = true;
             monitoringPauseAtOverrides[orderId] = Date.now();
+            if (card) card.classList.add('monitoring-order--paused');
+            if (el) el.classList.add('monitoring-order__timer--paused');
+            if (dot) dot.classList.add('monitoring-order__dot--paused');
         } else {
-            // Resuming — keep timer frozen and paused styling until server data arrives
-            // (paused card styling keeps the strip green = play color)
+            monitoringPauseOverrides[orderId] = false;
+            delete monitoringPauseAtOverrides[orderId];
             monitoringLoadingOrders[orderId] = true;
+            if (card) card.classList.remove('monitoring-order--paused');
+            if (el) el.classList.remove('monitoring-order__timer--paused');
+            if (dot) dot.classList.remove('monitoring-order__dot--paused');
         }
-        var action = newState ? 'pause' : 'resume';
-        api('PATCH', '/api/control-work-orders', { action: action, id: orderId }).then(function() {
-            loadMonitoring();
-        });
+        if (strip) strip.innerHTML = '<span class="timer-loader"></span>';
+
+        var action = newPaused ? 'pause' : 'resume';
+        api('PATCH', '/api/control-work-orders', { action: action, id: orderId, source: 'manual' })
+            .then(function() { loadMonitoring(); })
+            .catch(function(err) {
+                // Rollback the optimistic change.
+                monitoringPauseOverrides[orderId] = currentlyPaused;
+                if (currentlyPaused) {
+                    if (card) card.classList.add('monitoring-order--paused');
+                    if (el) el.classList.add('monitoring-order__timer--paused');
+                    if (dot) dot.classList.add('monitoring-order__dot--paused');
+                } else {
+                    if (card) card.classList.remove('monitoring-order--paused');
+                    if (el) el.classList.remove('monitoring-order__timer--paused');
+                    if (dot) dot.classList.remove('monitoring-order__dot--paused');
+                }
+                showToast('error', 'Erreur', 'Impossible de mettre à jour la pause: ' + (err && err.message ? err.message : 'erreur réseau'));
+                loadMonitoring();
+            });
     }
 
-    async function toggleVehiclePause(orderId, vehicleId) {
+    function toggleVehiclePause(orderId, vehicleId) {
         var veh = allVehicles.find(function(v) { return v.id === vehicleId; });
         var aos = veh ? (veh.active_orders || []) : [];
         var ao = aos.find(function(o) { return o.id === orderId; });
-        var currentlyPaused = ao && !!ao.paused;
-        // Show loader in the action button
-        var actionBtn = document.getElementById('veh-action-' + orderId);
-        if (actionBtn) actionBtn.innerHTML = '<span class="timer-loader"></span>';
-        var action = currentlyPaused ? 'resume' : 'pause';
-        await api('PATCH', '/api/control-work-orders', { action: action, id: orderId });
-        loadVehicles();
-        loadMonitoring();
+        if (!ao) return;
+        var currentlyPaused = !!ao.paused;
+        var newPaused = !currentlyPaused;
+
+        // Optimistic local-state update so the next render reflects the new state instantly.
+        var prevState = {
+            paused: ao.paused,
+            paused_at: ao.paused_at,
+            pause_source: ao.pause_source,
+            total_paused_seconds: ao.total_paused_seconds
+        };
+        if (newPaused) {
+            ao.paused = true;
+            ao.paused_at = new Date().toISOString();
+            ao.pause_source = 'manual';
+        } else {
+            // Compute resumed total_paused_seconds locally so the timer doesn't jump.
+            var pausedDelta = ao.paused_at
+                ? Math.max(0, Math.round((Date.now() - new Date(ao.paused_at).getTime()) / 1000))
+                : 0;
+            ao.paused = false;
+            ao.paused_at = null;
+            ao.pause_source = null;
+            ao.total_paused_seconds = (ao.total_paused_seconds || 0) + pausedDelta;
+        }
+        renderVehicles();
+
+        var action = newPaused ? 'pause' : 'resume';
+        api('PATCH', '/api/control-work-orders', { action: action, id: orderId, source: 'manual' })
+            .then(function() {
+                loadVehicles();
+                var monPanel = document.getElementById('panel-monitoring');
+                if (monPanel && monPanel.classList.contains('active')) loadMonitoring();
+            })
+            .catch(function(err) {
+                ao.paused = prevState.paused;
+                ao.paused_at = prevState.paused_at;
+                ao.pause_source = prevState.pause_source;
+                ao.total_paused_seconds = prevState.total_paused_seconds;
+                renderVehicles();
+                showToast('error', 'Erreur', 'Impossible de mettre à jour la pause: ' + (err && err.message ? err.message : 'erreur réseau'));
+            });
     }
 
     function stopWorkOrder(vehicleId, vehName) {
@@ -2393,19 +2457,19 @@
             statsEl.innerHTML =
                 '<div class="monitoring-card">' +
                     '<div class="monitoring-card__icon monitoring-card__icon--employees"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>' +
-                    '<div><div class="monitoring-card__value">' + employees.length + '</div><div class="monitoring-card__label">Employés</div></div>' +
+                    '<div><div class="monitoring-card__value">' + employees.length + '</div><div class="monitoring-card__label">' + t('mon.employees_card') + '</div></div>' +
                 '</div>' +
                 '<div class="monitoring-card">' +
                     '<div class="monitoring-card__icon monitoring-card__icon--vehicles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/></svg></div>' +
-                    '<div><div class="monitoring-card__value">' + vehicles.length + '</div><div class="monitoring-card__label">Véhicules</div></div>' +
+                    '<div><div class="monitoring-card__value">' + vehicles.length + '</div><div class="monitoring-card__label">' + t('mon.vehicles_card') + '</div></div>' +
                 '</div>' +
                 '<div class="monitoring-card">' +
                     '<div class="monitoring-card__icon monitoring-card__icon--active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>' +
-                    '<div><div class="monitoring-card__value">' + activeOrders.length + '</div><div class="monitoring-card__label">Bons en cours</div></div>' +
+                    '<div><div class="monitoring-card__value">' + activeOrders.length + '</div><div class="monitoring-card__label">' + t('mon.active_orders_card') + '</div></div>' +
                 '</div>' +
                 '<div class="monitoring-card">' +
                     '<div class="monitoring-card__icon monitoring-card__icon--total"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>' +
-                    '<div><div class="monitoring-card__value">' + completedToday + '</div><div class="monitoring-card__label">Complétés aujourd\'hui</div></div>' +
+                    '<div><div class="monitoring-card__value">' + completedToday + '</div><div class="monitoring-card__label">' + t('mon.completed_today') + '</div></div>' +
                 '</div>' +
                 '<div class="monitoring-card">' +
                     '<div class="monitoring-card__icon monitoring-card__icon--total"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>' +
@@ -2419,13 +2483,13 @@
             // Active work orders
             stopMonitoringTimers();
             if (activeOrders.length === 0) {
-                activeEl.innerHTML = '<div class="monitoring-empty">Aucun bon de travail en cours</div>';
+                activeEl.innerHTML = '<div class="monitoring-empty">' + t('mon.no_active') + '</div>';
             } else {
                 var html = '';
                 activeOrders.forEach(function(o, i) {
                     var vehName = o.vehicle ? (escHtml(o.vehicle.make) + (o.vehicle.model ? ' ' + escHtml(o.vehicle.model) : '') + (o.vehicle.year ? ' - ' + o.vehicle.year : '')) : 'Véhicule';
                     var plate = o.vehicle && o.vehicle.plate ? escHtml(o.vehicle.plate) : '';
-                    var empName = o.employee ? escHtml(o.employee.first_name + ' ' + o.employee.last_name) : 'Inconnu';
+                    var empName = o.employee ? escHtml(o.employee.first_name + ' ' + o.employee.last_name) : t('mon.unknown');
                     var owner = o.vehicle ? escHtml(o.vehicle.owner_name) : '';
 
                     html += '<div class="monitoring-order">' +
@@ -2488,12 +2552,12 @@
             // Recent completed orders
             var completed = recentOrders.filter(function(o) { return o.ended_at; });
             if (completed.length === 0) {
-                recentEl.innerHTML = '<div class="monitoring-empty">Aucune activité récente</div>';
+                recentEl.innerHTML = '<div class="monitoring-empty">' + t('mon.no_recent') + '</div>';
             } else {
                 var rHtml = '';
                 completed.slice(0, 20).forEach(function(o) {
-                    var vehName = o.vehicle ? (escHtml(o.vehicle.make) + (o.vehicle.year ? ' ' + o.vehicle.year : '')) : 'Véhicule';
-                    var empName = o.employee ? escHtml(o.employee.first_name + ' ' + o.employee.last_name) : 'Inconnu';
+                    var vehName = o.vehicle ? (escHtml(o.vehicle.make) + (o.vehicle.year ? ' ' + o.vehicle.year : '')) : t('mon.vehicle_default');
+                    var empName = o.employee ? escHtml(o.employee.first_name + ' ' + o.employee.last_name) : t('mon.unknown');
                     var duration = o.duration_seconds ? formatDuration(o.duration_seconds) : '';
 
                     rHtml += '<div class="monitoring-recent-item">' +
@@ -2518,7 +2582,7 @@
             }, 5000);
 
         } catch(e) {
-            statsEl.innerHTML = '<div class="monitoring-empty">Erreur: ' + escHtml(e.message) + '</div>';
+            statsEl.innerHTML = '<div class="monitoring-empty">' + t('general.error_prefix') + escHtml(e.message) + '</div>';
         }
     }
 
@@ -2568,7 +2632,7 @@
             assignNfc(async function(tagId) {
                 var conflict = await checkNfcConflict(tagId, 'employee', document.getElementById('emp-edit-id').value);
                 if (conflict) {
-                    showToast('warning', 'Badge déjà assigné', conflict);
+                    showToast('warning', t('nfc.badge_assigned_title'), conflict);
                     return;
                 }
                 document.getElementById('emp-nfc-tag').value = tagId;
@@ -2582,7 +2646,7 @@
                     var active = await api('GET', '/api/control-work-orders?active=true');
                     var hasOpen = active && active.some(function(o) { return o.employee_id === empId; });
                     if (hasOpen) {
-                        showToast('warning', 'Action impossible', 'Cet employé a un bon de travail ouvert.');
+                        showToast('warning', t('nfc.action_impossible'), t('nfc.emp_has_open_order'));
                         return;
                     }
                 } catch(e) {}
@@ -2629,7 +2693,7 @@
             assignNfc(async function(tagId) {
                 var conflict = await checkNfcConflict(tagId, 'vehicle', document.getElementById('veh-edit-id').value);
                 if (conflict) {
-                    showToast('warning', 'Badge déjà assigné', conflict);
+                    showToast('warning', t('nfc.badge_assigned_title'), conflict);
                     return;
                 }
                 document.getElementById('veh-nfc-tag').value = tagId;

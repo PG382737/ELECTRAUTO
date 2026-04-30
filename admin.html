@@ -18,12 +18,12 @@
     <div class="login" id="login-screen">
         <div class="login__box">
             <h1 class="login__brand">ELECTR<span>'</span>AUTO</h1>
-            <p class="login__sub">Administration</p>
+            <p class="login__sub" data-i18n="login.title">Administration</p>
 
             <!-- Step 1: Password -->
             <form id="login-form">
-                <input type="password" id="login-pwd" placeholder="Mot de passe" autocomplete="off">
-                <button type="submit" class="btn btn--primary btn--full" id="login-btn">Accéder</button>
+                <input type="password" id="login-pwd" data-i18n-placeholder="login.password_placeholder" placeholder="Mot de passe" autocomplete="off">
+                <button type="submit" class="btn btn--primary btn--full" id="login-btn" data-i18n="login.submit">Acc\u00e9der</button>
                 <div class="login__attempts" id="login-attempts"></div>
                 <div class="login__error" id="login-error"></div>
             </form>
@@ -32,24 +32,24 @@
             <form id="tfa-form" style="display:none;">
                 <div class="tfa-info">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    <p>Vérifiez vos courriels</p>
+                    <p data-i18n="login.2fa_check_email">V\u00e9rifiez vos courriels</p>
                 </div>
-                <input type="text" id="tfa-code" placeholder="Code à 6 chiffres" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
+                <input type="text" id="tfa-code" data-i18n-placeholder="login.2fa_code_placeholder" placeholder="Code \u00e0 6 chiffres" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
                 <label class="tfa-remember">
                     <input type="checkbox" id="tfa-remember-check">
                     <span class="tfa-toggle"></span>
-                    <span>Ne plus demander pendant 30 jours</span>
+                    <span data-i18n="login.2fa_remember">Ne plus demander pendant 30 jours</span>
                 </label>
-                <button type="submit" class="btn btn--primary btn--full" id="tfa-btn">Vérifier</button>
+                <button type="submit" class="btn btn--primary btn--full" id="tfa-btn" data-i18n="login.2fa_verify">V\u00e9rifier</button>
                 <div class="login__error" id="tfa-error"></div>
-                <button type="button" class="tfa-back" id="tfa-back">Retour</button>
+                <button type="button" class="tfa-back" id="tfa-back" data-i18n="login.2fa_back">Retour</button>
             </form>
 
             <!-- Lockout -->
             <div class="lockout" id="lockout-screen" style="display:none;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1"/></svg>
-                <h3>Accès bloqué</h3>
-                <p>Trop de tentatives échouées.</p>
+                <h3 data-i18n="login.lockout_title">Acc\u00e8s bloqu\u00e9</h3>
+                <p data-i18n="login.lockout_msg">Trop de tentatives \u00e9chou\u00e9es.</p>
                 <div class="lockout__timer" id="lockout-timer"></div>
             </div>
         </div>
@@ -79,15 +79,15 @@
             <nav class="sidebar__nav">
                 <button class="sidebar__link active" data-tab="control">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                    Gestion
+                    <span data-i18n="sidebar.gestion">Gestion</span>
                 </button>
                 <button class="sidebar__link" data-tab="delays">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    Délais
+                    <span data-i18n="sidebar.delays">D\u00e9lais</span>
                 </button>
                 <button class="sidebar__link" data-tab="notes">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                    Notes
+                    <span data-i18n="sidebar.notes">Notes</span>
                 </button>
                 <button class="sidebar__link" data-tab="todos">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
@@ -96,7 +96,7 @@
                 </button>
                 <button class="sidebar__link" data-tab="blog">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                    Blog
+                    <span data-i18n="sidebar.blog">Blog</span>
                 </button>
                 <button class="sidebar__link" data-tab="security">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -106,7 +106,7 @@
             <div class="sidebar__bottom">
                 <button class="sidebar__link sidebar__link--muted" id="btn-logout">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                    Déconnexion
+                    <span data-i18n="sidebar.logout">D\u00e9connexion</span>
                 </button>
             </div>
         </aside>
@@ -117,16 +117,16 @@
             <!-- ===== BLOG TAB ===== -->
             <div class="tab" id="tab-blog">
                 <div class="main__header">
-                    <h1>Articles du blog</h1>
+                    <h1 data-i18n="blog.title">Articles du blog</h1>
                     <button class="btn btn--primary" id="btn-new-article">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg>
-                        Nouvel article
+                        <span data-i18n="blog.new">Nouvel article</span>
                     </button>
                 </div>
                 <div id="articles-container">
                     <div class="empty-state">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                        <p>Chargement...</p>
+                        <p data-i18n="blog.loading">Chargement...</p>
                     </div>
                 </div>
             </div>
@@ -142,8 +142,21 @@
                     <div style="background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;">
                         <div style="display:flex;align-items:center;justify-content:space-between;">
                             <div>
-                                <strong style="font-size:1rem;">Vérification 2FA</strong>
-                                <p style="color:var(--text-muted);font-size:0.85rem;margin-top:4px;">Exiger un code d'authentification à deux facteurs lors de la connexion.</p>
+                                <strong style="font-size:1rem;" data-i18n="config.lang_title">Langue de l'interface</strong>
+                                <p style="color:var(--text-muted);font-size:0.85rem;margin-top:4px;" data-i18n="config.lang_desc">Choisissez la langue d'affichage du panneau d'administration.</p>
+                            </div>
+                            <div class="lang-switch" style="display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+                                <button type="button" class="lang-switch-btn active" data-lang-switch="fr" onclick="setAdminLang('fr');refreshAdminUI();" style="padding:8px 16px;font-size:0.85rem;font-weight:600;border:none;cursor:pointer;background:var(--accent);color:#000;transition:all .2s;">FR</button>
+                                <button type="button" class="lang-switch-btn" data-lang-switch="en" onclick="setAdminLang('en');refreshAdminUI();" style="padding:8px 16px;font-size:0.85rem;font-weight:600;border:none;cursor:pointer;background:transparent;color:var(--text-muted);transition:all .2s;">EN</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 2FA toggle -->
+                    <div style="background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;">
+                            <div>
+                                <strong style="font-size:1rem;" data-i18n="config.2fa_title">V\u00e9rification 2FA</strong>
+                                <p style="color:var(--text-muted);font-size:0.85rem;margin-top:4px;" data-i18n="config.2fa_desc">Exiger un code d'authentification \u00e0 deux facteurs lors de la connexion.</p>
                             </div>
                             <label class="toggle-switch">
                                 <input type="checkbox" id="security-2fa" checked>
@@ -230,24 +243,24 @@
             <!-- ===== DELAYS TAB ===== -->
             <div class="tab" id="tab-delays">
                 <div class="main__header">
-                    <h1>Délais de rendez-vous</h1>
+                    <h1 data-i18n="delays.title">D\u00e9lais de rendez-vous</h1>
                 </div>
-                <p class="tab__desc">Sélectionnez le délai actuel pour chaque type de service. Ces informations seront affichées aux clients sur la page de prise de rendez-vous.</p>
+                <p class="tab__desc" data-i18n="delays.desc">S\u00e9lectionnez le d\u00e9lai actuel pour chaque type de service. Ces informations seront affich\u00e9es aux clients sur la page de prise de rendez-vous.</p>
 
                 <div class="delays-grid">
                     <!-- Service -->
                     <div class="delay-card">
                         <div class="delay-card__head">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-                            <h2>Service</h2>
+                            <h2 data-i18n="delays.service">Service</h2>
                         </div>
                         <div class="delay-options" id="delay-service">
-                            <button class="delay-opt" data-value="less-24h">Moins de 24h</button>
-                            <button class="delay-opt" data-value="1-2-days">1 à 2 jours</button>
-                            <button class="delay-opt" data-value="2-4-days">2 à 4 jours</button>
-                            <button class="delay-opt" data-value="less-1-week">Moins d'une semaine</button>
-                            <button class="delay-opt" data-value="1-2-weeks">1 à 2 semaines</button>
-                            <button class="delay-opt" data-value="less-1-month">Moins de 1 mois</button>
+                            <button class="delay-opt" data-value="less-24h" data-i18n="delays.less_24h">Moins de 24h</button>
+                            <button class="delay-opt" data-value="1-2-days" data-i18n="delays.1_2_days">1 \u00e0 2 jours</button>
+                            <button class="delay-opt" data-value="2-4-days" data-i18n="delays.2_4_days">2 \u00e0 4 jours</button>
+                            <button class="delay-opt" data-value="less-1-week" data-i18n="delays.less_1_week">Moins d'une semaine</button>
+                            <button class="delay-opt" data-value="1-2-weeks" data-i18n="delays.1_2_weeks">1 \u00e0 2 semaines</button>
+                            <button class="delay-opt" data-value="less-1-month" data-i18n="delays.less_1_month">Moins de 1 mois</button>
                         </div>
                     </div>
 
@@ -255,15 +268,15 @@
                     <div class="delay-card">
                         <div class="delay-card__head">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                            <h2>Réparation</h2>
+                            <h2 data-i18n="delays.repair">R\u00e9paration</h2>
                         </div>
                         <div class="delay-options" id="delay-repair">
-                            <button class="delay-opt" data-value="less-24h">Moins de 24h</button>
-                            <button class="delay-opt" data-value="1-2-days">1 à 2 jours</button>
-                            <button class="delay-opt" data-value="2-4-days">2 à 4 jours</button>
-                            <button class="delay-opt" data-value="less-1-week">Moins d'une semaine</button>
-                            <button class="delay-opt" data-value="1-2-weeks">1 à 2 semaines</button>
-                            <button class="delay-opt" data-value="less-1-month">Moins de 1 mois</button>
+                            <button class="delay-opt" data-value="less-24h" data-i18n="delays.less_24h">Moins de 24h</button>
+                            <button class="delay-opt" data-value="1-2-days" data-i18n="delays.1_2_days">1 \u00e0 2 jours</button>
+                            <button class="delay-opt" data-value="2-4-days" data-i18n="delays.2_4_days">2 \u00e0 4 jours</button>
+                            <button class="delay-opt" data-value="less-1-week" data-i18n="delays.less_1_week">Moins d'une semaine</button>
+                            <button class="delay-opt" data-value="1-2-weeks" data-i18n="delays.1_2_weeks">1 \u00e0 2 semaines</button>
+                            <button class="delay-opt" data-value="less-1-month" data-i18n="delays.less_1_month">Moins de 1 mois</button>
                         </div>
                     </div>
                 </div>
@@ -274,17 +287,17 @@
             <!-- ===== NOTES TAB ===== -->
             <div class="tab" id="tab-notes">
                 <div class="main__header">
-                    <h1>Notes</h1>
+                    <h1 data-i18n="notes.title">Notes</h1>
                 </div>
                 <div class="notes-container">
                     <div class="notes-feed" id="notes-feed">
                         <div class="empty-state">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                            <p>Aucune note. Écrivez votre première note ci-dessous.</p>
+                            <p data-i18n="notes.empty">Aucune note. \u00c9crivez votre premi\u00e8re note ci-dessous.</p>
                         </div>
                     </div>
                     <div class="notes-input">
-                        <textarea id="note-text" placeholder="Écrire une note..." rows="2"></textarea>
+                        <textarea id="note-text" data-i18n-placeholder="notes.placeholder" placeholder="\u00c9crire une note..." rows="2"></textarea>
                         <button class="btn btn--primary" id="btn-send-note">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                         </button>
@@ -358,15 +371,15 @@
                         <div class="control-subtabs">
                             <button class="control-subtab active" data-subtab="employees">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                                Employés
+                                <span data-i18n="control.employees">Employ\u00e9s</span>
                             </button>
                             <button class="control-subtab" data-subtab="vehicles">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/></svg>
-                                Voitures
+                                <span data-i18n="control.vehicles">Voitures</span>
                             </button>
                             <button class="control-subtab" data-subtab="monitoring">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                                Monitoring
+                                <span data-i18n="control.monitoring">Monitoring</span>
                             </button>
                             <button class="control-subtab" data-subtab="medias">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
@@ -374,7 +387,7 @@
                             </button>
                             <button class="control-subtab" data-subtab="scanner">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M12 6v12M6 12h12"/></svg>
-                                Dashboard
+                                <span data-i18n="control.dashboard">Dashboard</span>
                             </button>
                         </div>
                         <div class="control-notif-toggle" id="notif-toggle">
@@ -385,8 +398,8 @@
                     <!-- Notifications panel -->
                     <div class="control-notif-panel" id="notif-panel" style="display:none;">
                         <div class="control-notif-panel__header">
-                            <h3>Notifications</h3>
-                            <button class="btn btn--ghost btn--sm" id="notif-clear">Tout effacer</button>
+                            <h3 data-i18n="notif.title">Notifications</h3>
+                            <button class="btn btn--ghost btn--sm" id="notif-clear" data-i18n="notif.clear">Tout effacer</button>
                         </div>
                         <div class="control-notif-list" id="notif-list"></div>
                     </div>
@@ -394,10 +407,10 @@
                     <!-- Employees panel -->
                     <div class="control-panel active" id="panel-employees">
                         <div class="main__header">
-                            <h1>Employés</h1>
+                            <h1 data-i18n="emp.title">Employ\u00e9s</h1>
                             <button class="btn btn--primary" id="btn-new-employee">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M12 5v14m-7-7h14"/></svg>
-                                Nouvel employé
+                                <span data-i18n="emp.new">Nouvel employ\u00e9</span>
                             </button>
                         </div>
                         <div id="employees-list"></div>
@@ -406,10 +419,10 @@
                     <!-- Vehicles panel -->
                     <div class="control-panel" id="panel-vehicles">
                         <div class="main__header">
-                            <h1>Voitures</h1>
+                            <h1 data-i18n="veh.title">Voitures</h1>
                             <button class="btn btn--primary" id="btn-new-vehicle">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M12 5v14m-7-7h14"/></svg>
-                                Nouveau véhicule
+                                <span data-i18n="veh.new">Nouveau v\u00e9hicule</span>
                             </button>
                         </div>
                         <div id="vehicles-list"></div>
@@ -418,22 +431,22 @@
                     <!-- Monitoring panel -->
                     <div class="control-panel" id="panel-monitoring">
                         <div class="main__header">
-                            <h1>Monitoring</h1>
+                            <h1 data-i18n="mon.title">Monitoring</h1>
                             <div style="display:flex;gap:8px;align-items:center;">
                                 <span class="monitoring-live-dot"></span>
-                                <span style="font-size:0.8rem;color:var(--text-muted);">En direct</span>
+                                <span style="font-size:0.8rem;color:var(--text-muted);" data-i18n="mon.live">En direct</span>
                             </div>
                         </div>
                         <!-- Stats cards -->
                         <div class="monitoring-stats" id="monitoring-stats"></div>
                         <!-- Active work orders -->
                         <div class="monitoring-section">
-                            <h2>Bons de travail en cours</h2>
+                            <h2 data-i18n="mon.active_orders_title">Bons de travail en cours</h2>
                             <div id="monitoring-active-orders"></div>
                         </div>
                         <!-- Recent activity -->
                         <div class="monitoring-section">
-                            <h2>Activité récente</h2>
+                            <h2 data-i18n="mon.recent_activity">Activit\u00e9 r\u00e9cente</h2>
                             <div id="monitoring-recent"></div>
                         </div>
                     </div>
@@ -491,11 +504,11 @@
                     <div class="control-panel" id="panel-scanner">
                         <div class="control-scanner-intro">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="width:80px;height:80px;color:var(--accent);margin-bottom:24px;"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M7 7h3v3H7zM14 7h3v3h-3zM7 14h3v3H7z"/><path d="M14 14h3v3h-3z"/></svg>
-                            <h2>Scanner NFC</h2>
-                            <p style="color:var(--text-muted);margin:12px 0 24px;">Ouvrez le scanner plein écran pour commencer à puncher les bons de travail.</p>
+                            <h2 data-i18n="scanner.title">Scanner NFC</h2>
+                            <p style="color:var(--text-muted);margin:12px 0 24px;" data-i18n="scanner.desc">Ouvrez le scanner plein \u00e9cran pour commencer \u00e0 puncher les bons de travail.</p>
                             <button class="btn btn--primary" id="btn-open-scanner" style="font-size:1.1rem;padding:14px 32px;">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M23 7V1h-6M1 17v6h6M23 17v6h-6M1 7V1h6"/></svg>
-                                Ouvrir le scanner
+                                <span data-i18n="scanner.open">Ouvrir le scanner</span>
                             </button>
                             <div class="nfc-setup" style="margin-top:48px;padding-top:32px;border-top:1px solid var(--border);text-align:left;max-width:700px;margin-left:auto;margin-right:auto;">
 
@@ -510,8 +523,8 @@
                                             <div id="nfc-status-pulse" style="position:absolute;inset:-4px;border-radius:50%;border:2px solid;opacity:0;animation:none;"></div>
                                         </div>
                                         <div style="flex:1;">
-                                            <strong id="nfc-status-label" style="font-size:1rem;display:block;margin-bottom:2px;">Serveur NFC déconnecté</strong>
-                                            <span id="nfc-status-detail" style="color:var(--text-muted);font-size:.85rem;">Lancez NFC-Reader.exe pour connecter le lecteur.</span>
+                                            <strong id="nfc-status-label" style="font-size:1rem;display:block;margin-bottom:2px;" data-i18n="nfc.disconnected">Serveur NFC d\u00e9connect\u00e9</strong>
+                                            <span id="nfc-status-detail" style="color:var(--text-muted);font-size:.85rem;" data-i18n="nfc.disconnected_detail">Lancez NFC-Reader.exe pour connecter le lecteur.</span>
                                         </div>
                                     </div>
                                 </div>
@@ -548,35 +561,35 @@
                                 <div class="nfc-setup-card">
                                     <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" style="width:20px;height:20px;"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
-                                        <h3 style="font-size:.95rem;margin:0;">Configuration du poste</h3>
+                                        <h3 style="font-size:.95rem;margin:0;" data-i18n="nfc_setup.title">Configuration du poste</h3>
                                     </div>
 
                                     <div class="nfc-step">
                                         <span class="nfc-step-num">1</span>
                                         <div class="nfc-step-text">
-                                            <strong>Installer le driver ACR122U</strong>
-                                            <p>Téléchargez le MSI Installer depuis le site ACS. Une seule fois par ordinateur.</p>
+                                            <strong data-i18n="nfc_setup.step1_title">Installer le driver ACR122U</strong>
+                                            <p data-i18n="nfc_setup.step1_desc">T\u00e9l\u00e9chargez le MSI Installer depuis le site ACS. Une seule fois par ordinateur.</p>
                                         </div>
                                     </div>
                                     <div class="nfc-step">
                                         <span class="nfc-step-num">2</span>
                                         <div class="nfc-step-text">
-                                            <strong>Télécharger NFC Reader</strong>
-                                            <p>Le pont entre le lecteur USB et le navigateur. Placez-le dans un dossier permanent.</p>
+                                            <strong data-i18n="nfc_setup.step2_title">T\u00e9l\u00e9charger NFC Reader</strong>
+                                            <p data-i18n="nfc_setup.step2_desc">Le pont entre le lecteur USB et le navigateur. Placez-le dans un dossier permanent.</p>
                                         </div>
                                     </div>
                                     <div class="nfc-step">
                                         <span class="nfc-step-num">3</span>
                                         <div class="nfc-step-text">
-                                            <strong>Brancher le lecteur USB</strong>
-                                            <p>Connectez le ACR122U. Windows le détectera automatiquement.</p>
+                                            <strong data-i18n="nfc_setup.step3_title">Brancher le lecteur USB</strong>
+                                            <p data-i18n="nfc_setup.step3_desc">Connectez le ACR122U. Windows le d\u00e9tectera automatiquement.</p>
                                         </div>
                                     </div>
                                     <div class="nfc-step">
                                         <span class="nfc-step-num">4</span>
                                         <div class="nfc-step-text">
-                                            <strong>Lancer NFC Reader</strong>
-                                            <p>Double-cliquez sur le .exe. La pastille de statut passera au vert.</p>
+                                            <strong data-i18n="nfc_setup.step4_title">Lancer NFC Reader</strong>
+                                            <p data-i18n="nfc_setup.step4_desc">Double-cliquez sur le .exe. La pastille de statut passera au vert.</p>
                                         </div>
                                     </div>
 
@@ -596,14 +609,14 @@
                                 <details class="nfc-autostart">
                                     <summary>
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
-                                        Démarrage automatique avec Windows
+                                        <span data-i18n="nfc_setup.autostart">D\u00e9marrage automatique avec Windows</span>
                                     </summary>
                                     <div class="nfc-autostart-body">
                                         <ol>
-                                            <li>Appuyez sur <kbd>Win + R</kbd></li>
-                                            <li>Tapez <code>shell:startup</code> puis Entrée</li>
-                                            <li>Copiez <strong style="color:var(--text);">NFC-Reader.exe</strong> dans ce dossier</li>
-                                            <li>Le serveur se lancera automatiquement au prochain démarrage</li>
+                                            <li><span data-i18n="nfc_setup.autostart_step1">Appuyez sur </span><kbd>Win + R</kbd></li>
+                                            <li><span data-i18n="nfc_setup.autostart_step2">Tapez </span><code>shell:startup</code><span data-i18n="nfc_setup.autostart_step2b"> puis Entr\u00e9e</span></li>
+                                            <li><span data-i18n="nfc_setup.autostart_step3">Copiez </span><strong style="color:var(--text);">NFC-Reader.exe</strong><span data-i18n="nfc_setup.autostart_step3b"> dans ce dossier</span></li>
+                                            <li data-i18n="nfc_setup.autostart_step4">Le serveur se lancera automatiquement au prochain d\u00e9marrage</li>
                                         </ol>
                                     </div>
                                 </details>
@@ -621,23 +634,23 @@
     <div class="modal-overlay" id="employee-modal">
         <div class="modal">
             <div class="modal__header">
-                <h2 id="employee-modal-title">Nouvel employé</h2>
+                <h2 id="employee-modal-title" data-i18n="emp.modal_new">Nouvel employ\u00e9</h2>
                 <button class="modal__close" id="employee-modal-close">&times;</button>
             </div>
             <div class="modal__body">
                 <input type="hidden" id="emp-edit-id">
                 <div class="form-group">
-                    <label>Prénom</label>
+                    <label data-i18n="emp.label_first_name">Pr\u00e9nom</label>
                     <input type="text" id="emp-first-name" placeholder=" ">
                 </div>
                 <div class="form-group">
-                    <label>Nom</label>
+                    <label data-i18n="emp.label_last_name">Nom</label>
                     <input type="text" id="emp-last-name" placeholder=" ">
                 </div>
                 <div class="form-group">
-                    <label>Date d'embauche</label>
+                    <label data-i18n="emp.label_hire_date">Date d'embauche</label>
                     <div class="datepicker-wrap">
-                        <input type="text" id="emp-hire-date" placeholder="jj-mm-aaaa" maxlength="10" readonly>
+                        <input type="text" id="emp-hire-date" data-i18n-placeholder="emp.hire_date_placeholder" placeholder="jj-mm-aaaa" maxlength="10" readonly>
                         <button type="button" class="datepicker-trigger" id="emp-hire-date-trigger">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                         </button>
@@ -645,20 +658,20 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Badge NFC</label>
+                    <label data-i18n="emp.label_nfc">Badge NFC</label>
                     <div class="nfc-assign-row">
-                        <input type="text" id="emp-nfc-tag" placeholder="Aucun badge assigné" readonly>
+                        <input type="text" id="emp-nfc-tag" data-i18n-placeholder="emp.nfc_placeholder" placeholder="Aucun badge assign\u00e9" readonly>
                         <button type="button" class="btn btn--ghost btn--sm" id="emp-assign-nfc">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M23 7V1h-6M1 17v6h6M23 17v6h-6M1 7V1h6"/></svg>
-                            Scanner
+                            <span data-i18n="emp.nfc_scan">Scanner</span>
                         </button>
-                        <button type="button" class="btn btn--ghost btn--sm" id="emp-clear-nfc" style="display:none;">Retirer</button>
+                        <button type="button" class="btn btn--ghost btn--sm" id="emp-clear-nfc" style="display:none;" data-i18n="emp.nfc_remove">Retirer</button>
                     </div>
                 </div>
             </div>
             <div class="modal__footer">
-                <button class="btn btn--ghost" id="emp-cancel">Annuler</button>
-                <button class="btn btn--primary" id="emp-save">Sauvegarder</button>
+                <button class="btn btn--ghost" id="emp-cancel" data-i18n="emp.btn_cancel">Annuler</button>
+                <button class="btn btn--primary" id="emp-save" data-i18n="emp.btn_save">Sauvegarder</button>
             </div>
         </div>
     </div>
@@ -667,7 +680,7 @@
     <div class="modal-overlay" id="employee-stats-modal">
         <div class="modal modal--wide">
             <div class="modal__header">
-                <h2 id="emp-stats-title">Statistiques</h2>
+                <h2 id="emp-stats-title" data-i18n="emp_stats.title">Statistiques</h2>
                 <button class="modal__close" id="emp-stats-close">&times;</button>
             </div>
             <div class="modal__body">
@@ -701,7 +714,7 @@
                         <div class="stat-card__label">Temps moyen / véhicule</div>
                     </div>
                 </div>
-                <h3 style="margin:28px 0 14px;font-size:0.95rem;">Historique récent</h3>
+                <h3 style="margin:28px 0 14px;font-size:0.95rem;" data-i18n="emp_stats.recent_history">Historique r\u00e9cent</h3>
                 <div id="emp-stats-history"></div>
             </div>
         </div>
@@ -744,86 +757,86 @@
     <div class="modal-overlay" id="vehicle-modal">
         <div class="modal modal--wide">
             <div class="modal__header">
-                <h2 id="vehicle-modal-title">Nouveau véhicule</h2>
+                <h2 id="vehicle-modal-title" data-i18n="veh.modal_new">Nouveau v\u00e9hicule</h2>
                 <button class="modal__close" id="vehicle-modal-close">&times;</button>
             </div>
             <div class="modal__body">
                 <input type="hidden" id="veh-edit-id">
                 <div class="form-row">
                     <div class="form-group form-group--half">
-                        <label>Propriétaire *</label>
+                        <label data-i18n="veh.label_owner">Propri\u00e9taire *</label>
                         <input type="text" id="veh-owner" placeholder=" ">
                     </div>
                     <div class="form-group form-group--half">
-                        <label>Téléphone</label>
+                        <label data-i18n="veh.label_phone">T\u00e9l\u00e9phone</label>
                         <input type="tel" id="veh-phone" placeholder=" ">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group form-group--half">
-                        <label>Courriel</label>
+                        <label data-i18n="veh.label_email">Courriel</label>
                         <input type="email" id="veh-email" placeholder=" ">
                     </div>
                     <div class="form-group form-group--half">
-                        <label>Référence</label>
+                        <label data-i18n="veh.label_reference">R\u00e9f\u00e9rence</label>
                         <input type="text" id="veh-reference" placeholder=" ">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group form-group--half">
-                        <label>Marque *</label>
+                        <label data-i18n="veh.label_make">Marque *</label>
                         <input type="text" id="veh-make" placeholder=" ">
                     </div>
                     <div class="form-group form-group--half">
-                        <label>Modèle</label>
+                        <label data-i18n="veh.label_model">Mod\u00e8le</label>
                         <input type="text" id="veh-model" placeholder=" ">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group form-group--half">
-                        <label>Année</label>
+                        <label data-i18n="veh.label_year">Ann\u00e9e</label>
                         <input type="text" id="veh-year" placeholder=" " maxlength="4">
                     </div>
                     <div class="form-group form-group--half">
-                        <label>Couleur</label>
+                        <label data-i18n="veh.label_color">Couleur</label>
                         <input type="text" id="veh-color" placeholder=" ">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group form-group--half">
-                        <label>Plaque</label>
+                        <label data-i18n="veh.label_plate">Plaque</label>
                         <input type="text" id="veh-plate" placeholder=" " style="text-transform:uppercase;">
                     </div>
                     <div class="form-group form-group--half">
-                        <label>NIV (VIN)</label>
+                        <label data-i18n="veh.label_vin">NIV (VIN)</label>
                         <input type="text" id="veh-vin" placeholder=" " maxlength="17" style="text-transform:uppercase;">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Photo du véhicule</label>
+                    <label data-i18n="veh.label_photo">Photo du v\u00e9hicule</label>
                     <div class="image-upload" id="veh-photo-upload" style="position:relative;">
                         <input type="file" id="veh-photo-file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;">
                         <div id="veh-photo-preview">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="width:40px;height:40px;color:var(--text-muted);"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                            <p style="color:var(--text-muted);font-size:0.85rem;margin-top:8px;">Cliquez pour ajouter une photo</p>
+                            <p style="color:var(--text-muted);font-size:0.85rem;margin-top:8px;" data-i18n="veh.photo_add">Cliquez pour ajouter une photo</p>
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Badge NFC</label>
+                    <label data-i18n="veh.label_nfc">Badge NFC</label>
                     <div class="nfc-assign-row">
-                        <input type="text" id="veh-nfc-tag" placeholder="Aucun badge assigné" readonly>
+                        <input type="text" id="veh-nfc-tag" data-i18n-placeholder="veh.nfc_placeholder" placeholder="Aucun badge assign\u00e9" readonly>
                         <button type="button" class="btn btn--ghost btn--sm" id="veh-assign-nfc">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M23 7V1h-6M1 17v6h6M23 17v6h-6M1 7V1h6"/></svg>
-                            Scanner
+                            <span data-i18n="veh.nfc_scan">Scanner</span>
                         </button>
-                        <button type="button" class="btn btn--ghost btn--sm" id="veh-clear-nfc" style="display:none;">Retirer</button>
+                        <button type="button" class="btn btn--ghost btn--sm" id="veh-clear-nfc" style="display:none;" data-i18n="veh.nfc_remove">Retirer</button>
                     </div>
                 </div>
             </div>
             <div class="modal__footer">
-                <button class="btn btn--ghost" id="veh-cancel">Annuler</button>
-                <button class="btn btn--primary" id="veh-save">Sauvegarder</button>
+                <button class="btn btn--ghost" id="veh-cancel" data-i18n="veh.btn_cancel">Annuler</button>
+                <button class="btn btn--primary" id="veh-save" data-i18n="veh.btn_save">Sauvegarder</button>
             </div>
         </div>
     </div>
@@ -832,7 +845,7 @@
     <div class="modal-overlay" id="vehicle-detail-modal">
         <div class="modal modal--wide">
             <div class="modal__header">
-                <h2 id="veh-detail-title">Détail du véhicule</h2>
+                <h2 id="veh-detail-title" data-i18n="veh_detail.title">D\u00e9tail du v\u00e9hicule</h2>
                 <button class="modal__close" id="veh-detail-close">&times;</button>
             </div>
             <div class="modal__body" id="veh-detail-body">
@@ -845,15 +858,15 @@
     <div class="modal-overlay" id="control-confirm-modal">
         <div class="modal modal--sm">
             <div class="modal__header">
-                <h2 id="control-confirm-title">Confirmer la suppression ?</h2>
+                <h2 id="control-confirm-title" data-i18n="confirm.delete_title">Confirmer la suppression ?</h2>
                 <button class="modal__close" id="control-confirm-close">&times;</button>
             </div>
             <div class="modal__body">
-                <p id="control-confirm-msg">Cette action est irréversible.</p>
+                <p id="control-confirm-msg" data-i18n="confirm.delete_msg">Cette action est irr\u00e9versible.</p>
             </div>
             <div class="modal__footer">
-                <button class="btn btn--ghost" id="control-cancel-delete">Annuler</button>
-                <button class="btn btn--danger" id="control-confirm-delete">Supprimer</button>
+                <button class="btn btn--ghost" id="control-cancel-delete" data-i18n="confirm.cancel">Annuler</button>
+                <button class="btn btn--danger" id="control-confirm-delete" data-i18n="confirm.delete">Supprimer</button>
             </div>
         </div>
     </div>
@@ -982,7 +995,7 @@
     <div id="nfc-scanner-overlay" class="nfc-scanner">
         <button class="nfc-scanner__close" id="scanner-close">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            Fermer
+            <span data-i18n="scanner.close">Fermer</span>
         </button>
         <div id="scanner-content"></div>
     </div>
@@ -991,7 +1004,7 @@
     <div class="modal-overlay" id="article-modal">
         <div class="modal modal--wide">
             <div class="modal__header">
-                <h2 id="modal-title">Nouvel article</h2>
+                <h2 id="modal-title" data-i18n="blog.modal_new">Nouvel article</h2>
                 <button class="modal__close" id="modal-close">&times;</button>
             </div>
             <div class="modal__body">
@@ -1006,12 +1019,12 @@
                 <!-- FR fields -->
                 <div class="lang-panel active" id="panel-fr">
                     <div class="form-group">
-                        <label for="edit-title-fr">Titre</label>
-                        <input type="text" id="edit-title-fr" placeholder="Titre de l'article en français">
+                        <label for="edit-title-fr" data-i18n="blog.label_title_fr">Titre</label>
+                        <input type="text" id="edit-title-fr" data-i18n-placeholder="blog.placeholder_title_fr" placeholder="Titre de l'article en fran\u00e7ais">
                     </div>
                     <div class="form-group">
-                        <label for="edit-excerpt-fr">Extrait (résumé court)</label>
-                        <input type="text" id="edit-excerpt-fr" placeholder="Bref résumé en français...">
+                        <label for="edit-excerpt-fr" data-i18n="blog.label_excerpt_fr">Extrait (r\u00e9sum\u00e9 court)</label>
+                        <input type="text" id="edit-excerpt-fr" data-i18n-placeholder="blog.placeholder_excerpt_fr" placeholder="Bref r\u00e9sum\u00e9 en fran\u00e7ais...">
                     </div>
                     <div class="form-group">
                         <label>Contenu</label>
@@ -1060,32 +1073,32 @@
                 <!-- Shared fields (below both tabs) -->
                 <div class="form-row">
                     <div class="form-group form-group--half">
-                        <label>Image principale</label>
+                        <label data-i18n="blog.label_image">Image principale</label>
                         <div class="image-upload" id="image-upload">
                             <input type="file" id="image-file" accept="image/*">
                             <div id="image-preview">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;opacity:.4;margin-bottom:6px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-                                <span>Cliquer pour ajouter</span>
+                                <span data-i18n="blog.image_add">Cliquer pour ajouter</span>
                             </div>
                         </div>
                         <button type="button" class="btn-remove-image" id="btn-remove-image" style="display:none;">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                            Retirer l'image
+                            <span data-i18n="blog.image_remove">Retirer l'image</span>
                         </button>
                         <input type="hidden" id="edit-image-url">
                     </div>
                     <div class="form-group form-group--half">
-                        <label for="edit-status">Statut</label>
+                        <label for="edit-status" data-i18n="blog.label_status">Statut</label>
                         <select id="edit-status">
-                            <option value="draft">Brouillon</option>
-                            <option value="published">Publié</option>
+                            <option value="draft" data-i18n="blog.status_draft">Brouillon</option>
+                            <option value="published" data-i18n="blog.status_published">Publi\u00e9</option>
                         </select>
                     </div>
                 </div>
             </div>
             <div class="modal__footer">
-                <button class="btn btn--ghost" id="btn-cancel">Annuler</button>
-                <button class="btn btn--primary" id="btn-save">Sauvegarder</button>
+                <button class="btn btn--ghost" id="btn-cancel" data-i18n="blog.btn_cancel">Annuler</button>
+                <button class="btn btn--primary" id="btn-save" data-i18n="blog.btn_save">Sauvegarder</button>
             </div>
         </div>
     </div>
@@ -1094,15 +1107,15 @@
     <div class="modal-overlay" id="confirm-modal">
         <div class="modal modal--sm">
             <div class="modal__header">
-                <h2>Supprimer cet article ?</h2>
+                <h2 data-i18n="blog.delete_title">Supprimer cet article ?</h2>
                 <button class="modal__close" id="confirm-close">&times;</button>
             </div>
             <div class="modal__body">
-                <p>Cette action est irréversible.</p>
+                <p data-i18n="blog.delete_msg">Cette action est irr\u00e9versible.</p>
             </div>
             <div class="modal__footer">
-                <button class="btn btn--ghost" id="btn-cancel-delete">Annuler</button>
-                <button class="btn btn--danger" id="btn-confirm-delete">Supprimer</button>
+                <button class="btn btn--ghost" id="btn-cancel-delete" data-i18n="blog.delete_cancel">Annuler</button>
+                <button class="btn btn--danger" id="btn-confirm-delete" data-i18n="blog.delete_confirm">Supprimer</button>
             </div>
         </div>
     </div>
@@ -1111,7 +1124,7 @@
     <div class="modal-overlay" id="crop-modal">
         <div class="modal modal--crop">
             <div class="modal__header">
-                <h2>Recadrer l'image</h2>
+                <h2 data-i18n="crop.title">Recadrer l'image</h2>
                 <button class="modal__close" id="crop-close">&times;</button>
             </div>
             <div class="modal__body crop-body">
@@ -1123,18 +1136,19 @@
                         <button class="crop-ratio active" data-ratio="1.777">16:9</button>
                         <button class="crop-ratio" data-ratio="1.333">4:3</button>
                         <button class="crop-ratio" data-ratio="1">1:1</button>
-                        <button class="crop-ratio" data-ratio="0">Libre</button>
+                        <button class="crop-ratio" data-ratio="0" data-i18n="crop.ratio_free">Libre</button>
                     </div>
                 </div>
             </div>
             <div class="modal__footer">
-                <button class="btn btn--ghost" id="crop-cancel">Annuler</button>
-                <button class="btn btn--primary" id="crop-confirm">Recadrer</button>
+                <button class="btn btn--ghost" id="crop-cancel" data-i18n="crop.cancel">Annuler</button>
+                <button class="btn btn--primary" id="crop-confirm" data-i18n="crop.confirm">Recadrer</button>
             </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+    <script src="js/admin-i18n.js"></script>
     <script src="js/admin.js"></script>
     <script src="js/control.js"></script>
     <script src="js/todos.js"></script>

@@ -144,7 +144,7 @@ exports.handler = async (event) => {
 
             // All active orders (with employee + vehicle details)
             if (params.active === 'true') {
-                const data = await supaFetch('control_work_orders?ended_at=is.null&order=started_at.desc&select=id,started_at,paused,paused_at,total_paused_seconds,vehicle_id,employee_id,vehicle:control_vehicles(id,make,year,plate,owner_name,color),employee:control_employees(id,first_name,last_name)');
+                const data = await supaFetch('control_work_orders?ended_at=is.null&order=started_at.desc&select=id,started_at,paused,paused_at,pause_source,total_paused_seconds,vehicle_id,employee_id,vehicle:control_vehicles(id,make,year,plate,owner_name,color),employee:control_employees(id,first_name,last_name)');
                 return { statusCode: 200, headers, body: JSON.stringify(data) };
             }
 
@@ -218,8 +218,13 @@ exports.handler = async (event) => {
 
             // Pause by order ID
             if (body.action === 'pause' && body.id) {
+                const source = body.source === 'scheduled' ? 'scheduled' : 'manual';
                 await supaFetch(`control_work_orders?id=eq.${body.id}`, {
-                    method: 'PATCH', body: { paused: true, paused_at: new Date().toISOString() }
+                    method: 'PATCH', body: {
+                        paused: true,
+                        paused_at: new Date().toISOString(),
+                        pause_source: source
+                    }
                 });
                 return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
             }
@@ -236,6 +241,7 @@ exports.handler = async (event) => {
                     method: 'PATCH', body: {
                         paused: false,
                         paused_at: null,
+                        pause_source: null,
                         total_paused_seconds: (order ? order.total_paused_seconds || 0 : 0) + addSeconds
                     }
                 });
@@ -265,7 +271,7 @@ exports.handler = async (event) => {
                     body: {
                         ended_at: now.toISOString(),
                         duration_seconds: Math.max(0, durationSeconds),
-                        paused: false, paused_at: null
+                        paused: false, paused_at: null, pause_source: null
                     }
                 });
 
@@ -292,7 +298,7 @@ exports.handler = async (event) => {
                     body: {
                         ended_at: now2.toISOString(),
                         duration_seconds: Math.max(0, durationSeconds),
-                        paused: false, paused_at: null
+                        paused: false, paused_at: null, pause_source: null
                     }
                 });
 
