@@ -132,40 +132,6 @@
         });
     });
 
-    // ---- Contact Preference Toggle ----
-    var contactPrefInput = form.querySelector('[name="contactPref"]');
-    var contactPrefBtns = document.querySelectorAll('#contact-pref-toggle .appt-toggle__btn');
-
-    var phoneLabel = form.querySelector('[name="phone"]').parentElement.querySelector('label');
-    var emailLabel = form.querySelector('[name="email"]').parentElement.querySelector('label');
-
-    function updateContactPrefLabels(pref) {
-        if (pref === 'phone') {
-            phoneLabel.setAttribute('data-fr', 'Téléphone *');
-            phoneLabel.setAttribute('data-en', 'Phone *');
-            phoneLabel.textContent = document.documentElement.lang === 'en' ? 'Phone *' : 'Téléphone *';
-            emailLabel.setAttribute('data-fr', 'Courriel');
-            emailLabel.setAttribute('data-en', 'Email');
-            emailLabel.textContent = document.documentElement.lang === 'en' ? 'Email' : 'Courriel';
-        } else {
-            phoneLabel.setAttribute('data-fr', 'Téléphone');
-            phoneLabel.setAttribute('data-en', 'Phone');
-            phoneLabel.textContent = document.documentElement.lang === 'en' ? 'Phone' : 'Téléphone';
-            emailLabel.setAttribute('data-fr', 'Courriel *');
-            emailLabel.setAttribute('data-en', 'Email *');
-            emailLabel.textContent = document.documentElement.lang === 'en' ? 'Email *' : 'Courriel *';
-        }
-    }
-
-    contactPrefBtns.forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            contactPrefBtns.forEach(function(b) { b.classList.remove('active'); });
-            btn.classList.add('active');
-            contactPrefInput.value = btn.getAttribute('data-value');
-            updateContactPrefLabels(btn.getAttribute('data-value'));
-        });
-    });
-
     // ---- Input Filtering (digits only) ----
     function digitsOnly(input) {
         input.addEventListener('input', function() {
@@ -389,17 +355,9 @@
         });
 
         var valid = true;
-        var pref = contactPrefInput.value;
 
-        // Always required: name, makeModel, year
-        var required = ['name', 'makeModel', 'year'];
-
-        // Conditionally require phone or email based on preference
-        if (pref === 'phone') {
-            required.push('phone');
-        } else {
-            required.push('email');
-        }
+        // Always required: name, phone, makeModel, year. Email is optional.
+        var required = ['name', 'phone', 'makeModel', 'year'];
 
         required.forEach(function(fieldName) {
             var input = form.querySelector('[name="' + fieldName + '"]');
@@ -491,7 +449,7 @@
                 name: form.querySelector('[name="name"]').value.trim(),
                 phone: form.querySelector('[name="phone"]').value.trim(),
                 email: form.querySelector('[name="email"]').value.trim(),
-                contactPref: contactPrefInput.value,
+                contactPref: 'phone',
                 makeModel: form.querySelector('[name="makeModel"]').value.trim(),
                 year: form.querySelector('[name="year"]').value.trim(),
                 mileage: form.querySelector('[name="mileage"]').value.trim(),
