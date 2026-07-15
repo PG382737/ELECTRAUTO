@@ -5,6 +5,11 @@
 [functions]
   node_bundler = "esbuild"
 
+# Nightly sweep: delete unassigned media past their 10-day countdown.
+# 05:10 UTC = just after midnight in Québec (00:10 EST / 01:10 EDT).
+[functions."media-cleanup"]
+  schedule = "10 5 * * *"
+
 # API redirects
 [[redirects]]
   from = "/api/*"

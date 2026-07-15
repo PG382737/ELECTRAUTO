@@ -1944,6 +1944,16 @@
         }
     }
 
+    // Days left before an unassigned media is auto-deleted (0..10).
+    // Based on expires_at (Québec-midnight boundary), so it steps down at midnight.
+    function mediaDaysLeft(expiresAt) {
+        if (!expiresAt) return null;
+        var diff = new Date(expiresAt).getTime() - Date.now();
+        var days = Math.ceil(diff / 86400000);
+        if (days < 0) days = 0;
+        return days;
+    }
+
     function renderMediaThumb(m, opts) {
         // opts: { selectable, removable }
         opts = opts || {};
@@ -1958,6 +1968,15 @@
             inner += '<div class="media-thumb__video-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></div>';
         } else {
             inner += '<img src="' + escHtml(thumb) + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">';
+        }
+
+        // Expiry pastille — only on unassigned media (expires_at set by the DB).
+        var daysLeft = mediaDaysLeft(m.expires_at);
+        if (daysLeft !== null) {
+            var urgent = daysLeft <= 3;
+            inner += '<div class="media-thumb__expiry' + (urgent ? ' media-thumb__expiry--urgent' : '') +
+                '" title="Sera supprimée automatiquement dans ' + daysLeft + ' jour' + (daysLeft > 1 ? 's' : '') +
+                ' si elle n\'est pas classée">' + daysLeft + ' j</div>';
         }
 
         // Checkmark overlay (classify mode)
