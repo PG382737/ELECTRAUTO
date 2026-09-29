@@ -10,6 +10,11 @@ const PASSWORD_HASH = 'be50e4db19df4d208d3a3440926126de8806191de1818f9e251a80cab
 // punch IN too closely, the same way the terminal refuses to close a fresh job.
 const MIN_SHIFT_MS = 60000;
 
+// An open punch IN older than this is almost certainly a forgotten punch OUT.
+// Same rule as the prototype, so the alert shows the same evening rather than
+// waiting for midnight to pass.
+const FORGOT_MS = 12 * 3600000;
+
 const headers = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': 'https://electrautoquebec.com',
@@ -136,8 +141,8 @@ exports.handler = async (event) => {
                         open_punch: open,
                         is_in: !!open,
                         open_jobs: jobsBy[e.id] || [],
-                        // a punch still open from a previous day is a forgotten punch OUT
-                        forgotten: !!(open && open.punch_in < since)
+                        // still IN after 12 h: almost certainly a forgotten punch OUT
+                        forgotten: !!(open && Date.now() - new Date(open.punch_in).getTime() > FORGOT_MS)
                     };
                 });
                 return { statusCode: 200, headers, body: JSON.stringify(rows) };
