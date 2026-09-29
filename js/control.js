@@ -425,11 +425,167 @@
                             mediaPollingInterval = null;
                         }
                     }, 10000);
+                } else if (target === 'presences') {
+                    document.getElementById('panel-presences').classList.add('active');
+                    loadPresences();
+                    clearInterval(presencePollingInterval);
+                    presencePollingInterval = setInterval(function() {
+                        var panel = document.getElementById('panel-presences');
+                        if (panel && panel.classList.contains('active')) {
+                            loadPresences();
+                        } else {
+                            clearInterval(presencePollingInterval);
+                            presencePollingInterval = null;
+                        }
+                    }, 20000);
                 } else if (target === 'scanner') {
                     document.getElementById('panel-scanner').classList.add('active');
                 }
             });
         });
+    }
+
+    // ---- PRESENCES ----
+
+    var presencePollingInterval = null;
+
+    var PRES_LABEL = {
+        in: 'Punch IN', out: 'Punch OUT',
+        job_start: 'Job commencée', job_end: 'Job terminée',
+        refus_out: 'Punch OUT refusé', refus_job: 'Job refusée', inconnu: 'Badge inconnu',
+        correction: 'Correction', ajout: 'Ajout', suppression: 'Suppression'
+    };
+
+    function presHM(iso) {
+        if (!iso) return '--:--';
+        return new Date(iso).toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Toronto' });
+    }
+
+    function presDur(ms) {
+        if (!ms || ms < 0) return '0 min';
+        var min = Math.floor(ms / 60000);
+        var h = Math.floor(min / 60);
+        return h > 0 ? h + ' h ' + String(min % 60).padStart(2, '0') : min + ' min';
+    }
+
+    // Temps compté pour la journée : les punchs fermes + le punch ouvert jusqu'a maintenant.
+    // Le dîner n'est pas déduit : l'employé punch OUT/IN s'il quitte (décision client).
+    function presWorkedMs(punches) {
+        var now = Date.now();
+        return (punches || []).reduce(function(sum, p) {
+            var start = new Date(p.punch_in).getTime();
+            var end = p.punch_out ? new Date(p.punch_out).getTime() : now;
+            return sum + Math.max(0, end - start);
+        }, 0);
+    }
+
+    function presEmpName(e) {
+        return ((e && e.first_name) || '') + ' ' + ((e && e.last_name) || '');
+    }
+
+    async function loadPresences() {
+        var alertsEl = document.getElementById('presences-alerts');
+        var statsEl = document.getElementById('presences-stats');
+        var todayEl = document.getElementById('presences-today');
+        var histEl = document.getElementById('presences-history');
+        if (!statsEl) return;
+
+        try {
+            var results = await Promise.all([
+                api('GET', '/api/control-punches?today=true'),
+                api('GET', '/api/control-punches?history=true&limit=40')
+            ]);
+            var rows = results[0] || [];
+            var events = results[1] || [];
+
+            var inNow = rows.filter(function(r) { return r.is_in; });
+            var forgotten = rows.filter(function(r) { return r.forgotten; });
+            var withJobs = rows.filter(function(r) { return r.open_jobs.length > 0; });
+            var totalMs = rows.reduce(function(sum, r) { return sum + presWorkedMs(r.punches); }, 0);
+
+            // Seules les alertes sur lesquelles on peut agir
+            alertsEl.innerHTML = forgotten.length === 0 ? '' :
+                '<div class="monitoring-section" style="border-left:3px solid var(--danger,#ef4444);">' +
+                    '<h2 style="color:var(--danger,#ef4444);">À corriger</h2>' +
+                    forgotten.map(function(r) {
+                        return '<div style="padding:8px 0;color:var(--text-muted);">' +
+                            '<strong style="color:var(--text);">' + presEmpName(r) + '</strong> ' +
+                            'est encore punché IN depuis le ' +
+                            new Date(r.open_punch.punch_in).toLocaleDateString('fr-CA', { timeZone: 'America/Toronto' }) +
+                            ' à ' + presHM(r.open_punch.punch_in) + ' — oubli de punch OUT.' +
+                        '</div>';
+                    }).join('') +
+                '</div>';
+
+            statsEl.innerHTML =
+                presCard('employees', inNow.length, 'Punchés IN') +
+                presCard('orders', withJobs.length, 'Avec une job ouverte') +
+                presCard('time', presDur(totalMs), 'Total travaillé aujourd\u2019hui') +
+                presCard('alert', forgotten.length, 'Oublis de punch OUT');
+
+            // Tableau du jour
+            todayEl.innerHTML = rows.length === 0
+                ? '<div class="empty-state"><p>Aucun employé.</p></div>'
+                : '<table class="articles-table"><thead><tr>' +
+                    '<th>Employé</th><th>Statut</th><th>Arrivée</th><th>Départ</th><th>Travaillé</th><th>Jobs ouvertes</th>' +
+                  '</tr></thead><tbody>' +
+                  rows.map(function(r) {
+                      var first = r.punches.length ? r.punches[r.punches.length - 1] : null;
+                      var last = r.punches.length ? r.punches[0] : null;
+                      return '<tr>' +
+                          '<td>' + presEmpName(r) + '</td>' +
+                          '<td>' + (r.forgotten
+                              ? '<span style="color:var(--danger,#ef4444);font-weight:600;">OUT oublié</span>'
+                              : r.is_in
+                                  ? '<span style="color:var(--success,#22c55e);font-weight:600;">IN</span>'
+                                  : '<span style="color:var(--text-muted);">OUT</span>') + '</td>' +
+                          '<td>' + (first ? presHM(first.punch_in) : '--:--') + '</td>' +
+                          '<td>' + (last && last.punch_out ? presHM(last.punch_out) : '--:--') + '</td>' +
+                          '<td>' + presDur(presWorkedMs(r.punches)) + '</td>' +
+                          '<td>' + (r.open_jobs.length || '') + '</td>' +
+                      '</tr>';
+                  }).join('') +
+                  '</tbody></table>';
+
+            // Historique
+            histEl.innerHTML = events.length === 0
+                ? '<div class="empty-state"><p>Aucun événement pour le moment.</p></div>'
+                : '<table class="articles-table"><thead><tr>' +
+                    '<th>Heure</th><th>Employé</th><th>Événement</th><th>Véhicule</th><th>Détail</th>' +
+                  '</tr></thead><tbody>' +
+                  events.map(function(ev) {
+                      var v = ev.vehicle;
+                      return '<tr>' +
+                          '<td>' + new Date(ev.occurred_at).toLocaleString('fr-CA', { timeZone: 'America/Toronto', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) + '</td>' +
+                          '<td>' + (ev.employee ? presEmpName(ev.employee) : '—') + '</td>' +
+                          '<td>' + (PRES_LABEL[ev.type] || ev.type) + '</td>' +
+                          '<td>' + (v ? ((v.make || '') + ' ' + (v.year || '') + (v.plate ? ' · ' + v.plate : '')) : '—') + '</td>' +
+                          '<td style="color:var(--text-muted);">' + (ev.detail || '') + '</td>' +
+                      '</tr>';
+                  }).join('') +
+                  '</tbody></table>';
+
+        } catch (err) {
+            statsEl.innerHTML = '';
+            todayEl.innerHTML = '<div class="empty-state"><p>Erreur de chargement : ' + err.message + '</p></div>';
+            histEl.innerHTML = '';
+        }
+    }
+
+    function presCard(kind, value, label) {
+        var icons = {
+            employees: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>',
+            orders: '<path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/>',
+            time: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+            alert: '<path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/>'
+        };
+        return '<div class="monitoring-card">' +
+            '<div class="monitoring-card__icon monitoring-card__icon--' + kind + '">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">' + icons[kind] + '</svg>' +
+            '</div>' +
+            '<div><div class="monitoring-card__value">' + value + '</div>' +
+            '<div class="monitoring-card__label">' + label + '</div></div>' +
+        '</div>';
     }
 
     // ---- EMPLOYEES ----

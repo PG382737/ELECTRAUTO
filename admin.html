@@ -385,6 +385,10 @@
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
                                 Médias
                             </button>
+                            <button class="control-subtab" data-subtab="presences">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                                <span data-i18n="control.presences">Présences</span>
+                            </button>
                             <button class="control-subtab" data-subtab="scanner">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M12 6v12M6 12h12"/></svg>
                                 <span data-i18n="control.dashboard">Dashboard</span>
@@ -501,6 +505,27 @@
                     </div>
 
                     <!-- Scanner panel (triggers fullscreen) -->
+                    <!-- Presences panel -->
+                    <div class="control-panel" id="panel-presences">
+                        <div class="main__header">
+                            <h1 data-i18n="pres.title">Présences</h1>
+                            <div style="display:flex;gap:8px;align-items:center;">
+                                <span class="monitoring-live-dot"></span>
+                                <span style="font-size:0.8rem;color:var(--text-muted);" data-i18n="mon.live">En direct</span>
+                            </div>
+                        </div>
+                        <div id="presences-alerts"></div>
+                        <div class="monitoring-stats" id="presences-stats"></div>
+                        <div class="monitoring-section">
+                            <h2 data-i18n="pres.today_title">Aujourd'hui</h2>
+                            <div id="presences-today"></div>
+                        </div>
+                        <div class="monitoring-section">
+                            <h2 data-i18n="pres.history_title">Historique</h2>
+                            <div id="presences-history"></div>
+                        </div>
+                    </div>
+
                     <div class="control-panel" id="panel-scanner">
                         <div class="control-scanner-intro">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="width:80px;height:80px;color:var(--accent);margin-bottom:24px;"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M7 7h3v3H7zM14 7h3v3h-3zM7 14h3v3H7z"/><path d="M14 14h3v3h-3z"/></svg>
