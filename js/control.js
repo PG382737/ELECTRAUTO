@@ -1552,6 +1552,55 @@
 
     var SCANNER_NFC_ICON = '<svg class="nfc-scanner__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="4"/><path d="M8 7v10M12 5v14M16 7v10"/></svg>';
 
+    // Apres chaque passage de carte l'ecran se bloque : une carte laissee sur le
+    // lecteur, ou repassee trop vite, ne peut plus declencher une 2e action.
+    var SCAN_LOCK_MS = 2000;
+    var SCAN_READY_MS = 900;
+    var scannerLockUntil = 0;
+    var scannerLockTimers = [];
+    var scannerEmployee = null;    // employe dont le profil est affiche
+    var scannerArmed = false;      // son badge repasse une 2e fois change son statut IN/OUT
+
+    function scannerLockLeft() {
+        return Math.max(0, scannerLockUntil - Date.now());
+    }
+
+    function clearScannerLock() {
+        scannerLockTimers.forEach(function(x) { clearTimeout(x); clearInterval(x); });
+        scannerLockTimers = [];
+        scannerLockUntil = 0;
+        var el = document.getElementById('scanner-lock');
+        if (el) el.className = 'scanner-lock';
+    }
+
+    function startScannerLock() {
+        var el = document.getElementById('scanner-lock');
+        if (!el) return;
+        scannerLockTimers.forEach(function(x) { clearTimeout(x); clearInterval(x); });
+        scannerLockTimers = [];
+
+        var startedAt = Date.now();
+        scannerLockUntil = startedAt + SCAN_LOCK_MS + SCAN_READY_MS;
+        el.className = 'scanner-lock is-on';
+        document.getElementById('scanner-lock-title').textContent = 'Un instant\u2026';
+        document.getElementById('scanner-lock-sub').textContent = 'Ne repasse pas ta carte tout de suite';
+
+        function paint() {
+            var left = Math.max(0, SCAN_LOCK_MS - (Date.now() - startedAt));
+            var c = document.getElementById('scanner-lock-count');
+            if (c) c.textContent = Math.ceil(left / 1000);
+        }
+        paint();
+        scannerLockTimers.push(setInterval(paint, 100));
+
+        scannerLockTimers.push(setTimeout(function() {
+            el.className = 'scanner-lock is-on is-ready';
+            document.getElementById('scanner-lock-title').textContent = 'Tu peux repasser ta carte';
+            document.getElementById('scanner-lock-sub').textContent = '';
+            scannerLockTimers.push(setTimeout(function() { el.className = 'scanner-lock'; }, SCAN_READY_MS));
+        }, SCAN_LOCK_MS));
+    }
+
     function openScanner() {
         var overlay = document.getElementById('nfc-scanner-overlay');
         overlay.classList.add('active');
@@ -1566,9 +1615,12 @@
         document.body.style.overflow = '';
         stopNfcListener();
         clearScannerTimers();
+        clearScannerLock();
         scannerState = null;
         scannerVehicle = null;
         scannerActiveOrder = null;
+        scannerEmployee = null;
+        scannerArmed = false;
     }
 
     function clearScannerTimers() {
@@ -1584,6 +1636,8 @@
 
         if (state === 'WAITING_VEHICLE') {
             scannerVehicle = null;
+            scannerEmployee = null;
+            scannerArmed = false;
             stopDashboardOrderTimers();
             content.innerHTML = '<div class="nfc-scanner__title">' + t('scanner.vehicle_title') + '</div>' + SCANNER_NFC_ICON + '<div class="nfc-scanner__subtitle">' + t('scanner.vehicle_scan') + '</div>' + getScannerSimHtml() + '<div class="nfc-scanner__orders" id="dashboard-orders"><div class="nfc-scanner__orders-title">' + t('scanner.active_orders_title') + '</div><div id="dashboard-orders-list" class="nfc-scanner__orders-grid"><div class="nfc-scanner__orders-empty">' + t('scanner.loading') + '</div></div></div>';
             loadDashboardOrders();
@@ -1600,7 +1654,7 @@
                 countdown--;
                 var el = document.getElementById('scanner-countdown');
                 if (el) el.textContent = t('scanner.countdown').replace('{n}', countdown);
-                if (countdown <= 0) setScannerState('WAITING_VEHICLE');
+                if (countdown <= 0 && scannerLockLeft() === 0) setScannerState('WAITING_VEHICLE');
             }, 1000);
 
         } else if (state === 'SUCCESS_CLOSE') {
@@ -1611,13 +1665,44 @@
                 countdown2--;
                 var el = document.getElementById('scanner-countdown');
                 if (el) el.textContent = t('scanner.countdown').replace('{n}', countdown2);
-                if (countdown2 <= 0) setScannerState('WAITING_VEHICLE');
+                if (countdown2 <= 0 && scannerLockLeft() === 0) setScannerState('WAITING_VEHICLE');
             }, 1000);
+
+        } else if (state === 'EMPLOYEE_PROFILE') {
+            stopDashboardOrderTimers();
+            var e = scannerEmployee;
+            var nameHtml = escHtml((e.first_name || '') + ' ' + (e.last_name || ''));
+            var jobsLine = e.open_jobs && e.open_jobs.length
+                ? '<p>' + e.open_jobs.length + ' job' + (e.open_jobs.length > 1 ? 's' : '') + ' ouverte' + (e.open_jobs.length > 1 ? 's' : '') + '</p>'
+                : '';
+            var statusHtml = e.is_in
+                ? '<p style="color:var(--success,#22c55e);font-weight:700;">Punch\u00e9 IN depuis ' + presHM(e.open_punch.punch_in) + '</p>'
+                : '<p style="color:var(--text-muted);font-weight:700;">Pas punch\u00e9</p>';
+            content.innerHTML =
+                '<div class="nfc-scanner__info"><p><strong>' + nameHtml + '</strong></p>' + statusHtml + jobsLine + '</div>' +
+                '<div class="nfc-scanner__title" style="margin-top:28px;">' + (e.is_in ? 'PUNCH OUT' : 'PUNCH IN') + '</div>' +
+                SCANNER_NFC_ICON +
+                '<div class="nfc-scanner__subtitle">Repasse ton badge pour ' + (e.is_in ? 'puncher OUT' : 'puncher IN') +
+                (e.is_in ? ', ou passe un v\u00e9hicule pour une job' : '') + '</div>';
+            var left = 10;
+            scannerInterval = setInterval(function() {
+                left--;
+                if (left <= 0) setScannerState('WAITING_VEHICLE');
+            }, 1000);
+
+        } else if (state === 'SUCCESS_PUNCH') {
+            stopDashboardOrderTimers();
+            content.innerHTML =
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:80px;height:80px;color:var(--success);margin-bottom:20px;"><path d="M20 6L9 17l-5-5"/></svg>' +
+                '<div class="nfc-scanner__success">' + escHtml(scannerPunchMsg) + '</div>';
+            scannerTimeout = setTimeout(function() { setScannerState('WAITING_VEHICLE'); }, 5000 + scannerLockLeft());
 
         } else if (state === 'ERROR') {
             // Error state is set with custom content before calling this
         }
     }
+
+    var scannerPunchMsg = '';
 
     function stopDashboardOrderTimers() {
         dashboardOrderTimers.forEach(function(t) { clearInterval(t); });
@@ -1720,17 +1805,102 @@
         }
     }
 
+    // Le badge d'un employe, enrichi de son statut de punch et de ses jobs ouvertes
+    async function loadEmployeeState(employee) {
+        var rows = await api('GET', '/api/control-punches?today=true');
+        var mine = (rows || []).find(function(r) { return r.id === employee.id; });
+        return Object.assign({}, employee, {
+            is_in: mine ? mine.is_in : false,
+            open_punch: mine ? mine.open_punch : null,
+            open_jobs: mine ? mine.open_jobs : []
+        });
+    }
+
+    async function togglePunch(emp) {
+        var action = emp.is_in ? 'out' : 'in';
+        try {
+            await api('POST', '/api/control-punches', { employee_id: emp.id, action: action });
+            scannerPunchMsg = action === 'in' ? 'Punch IN enregistr\u00e9' : 'Punch OUT enregistr\u00e9';
+            setScannerState('SUCCESS_PUNCH');
+        } catch (err) {
+            if (/open_jobs|Open work orders/.test(err.message)) {
+                showScannerError('Punch OUT bloqu\u00e9 : ferme d\u2019abord ta job sur le v\u00e9hicule.');
+            } else if (/too_soon|Just punched IN/.test(err.message)) {
+                showScannerError('Tu viens de puncher IN. Attends une minute.');
+            } else {
+                showScannerError(err.message);
+            }
+        }
+    }
+
     async function handleNfcScan(tagId) {
         if (!scannerState) return;
 
+        // Carte laissee sur le lecteur ou repassee trop vite : on ignore
+        if (scannerLockLeft() > 0) return;
+        startScannerLock();
+
         if (scannerState === 'WAITING_VEHICLE') {
-            // Lookup vehicle by NFC
+            // Un vehicule ouvre le flot habituel ; un badge d'employe ouvre son profil
+            var vehicle = null;
             try {
-                var vehicle = await api('GET', '/api/control-vehicles?nfc=' + encodeURIComponent(tagId));
+                vehicle = await api('GET', '/api/control-vehicles?nfc=' + encodeURIComponent(tagId));
+            } catch (e) { vehicle = null; }
+
+            if (vehicle) {
                 scannerVehicle = vehicle;
                 setScannerState('WAITING_EMPLOYEE');
-            } catch(e) {
+                return;
+            }
+
+            try {
+                var emp = await api('GET', '/api/control-employees?nfc=' + encodeURIComponent(tagId));
+                scannerEmployee = await loadEmployeeState(emp);
+                scannerArmed = true;
+                setScannerState('EMPLOYEE_PROFILE');
+            } catch (e2) {
                 showScannerError(t('scanner.error_vehicle'));
+            }
+
+        } else if (scannerState === 'EMPLOYEE_PROFILE') {
+            // Le meme badge une 2e fois : on change son statut IN/OUT
+            var again = null;
+            try {
+                again = await api('GET', '/api/control-employees?nfc=' + encodeURIComponent(tagId));
+            } catch (e3) { again = null; }
+
+            if (again && scannerArmed && again.id === scannerEmployee.id) {
+                await togglePunch(scannerEmployee);
+                return;
+            }
+
+            // Sinon, un vehicule : on ouvre ou ferme la job de cet employe
+            var veh = null;
+            try {
+                veh = await api('GET', '/api/control-vehicles?nfc=' + encodeURIComponent(tagId));
+            } catch (e4) { veh = null; }
+
+            if (!veh) { showScannerError(t('scanner.error_vehicle')); return; }
+
+            if (!scannerEmployee.is_in) {
+                showScannerError('Punch IN d\u2019abord : repasse ton badge pour commencer ta journ\u00e9e.');
+                return;
+            }
+
+            try {
+                var orders = await api('GET', '/api/control-work-orders?vehicle_id=' + veh.id);
+                var mineOrder = orders && orders.length ? orders.find(function(o) { return o.employee_id === scannerEmployee.id; }) : null;
+                if (mineOrder) {
+                    await api('PATCH', '/api/control-work-orders', { vehicle_id: veh.id, employee_id: scannerEmployee.id });
+                    setScannerState('SUCCESS_CLOSE');
+                } else {
+                    await api('POST', '/api/control-work-orders', {
+                        vehicle_id: veh.id, employee_id: scannerEmployee.id, started_at: new Date().toISOString()
+                    });
+                    setScannerState('SUCCESS_OPEN');
+                }
+            } catch (e5) {
+                showScannerError(e5.message);
             }
 
         } else if (scannerState === 'WAITING_EMPLOYEE') {
@@ -1740,6 +1910,15 @@
                 // Check if this employee has an open order on this vehicle
                 var activeOrders = await api('GET', '/api/control-work-orders?vehicle_id=' + scannerVehicle.id);
                 var empOrder = activeOrders && activeOrders.length ? activeOrders.find(function(o) { return o.employee_id === employee.id; }) : null;
+
+                // On ne peut pas commencer une job sans avoir punche IN (on peut toujours fermer la sienne)
+                if (!empOrder) {
+                    var st = await loadEmployeeState(employee);
+                    if (!st.is_in) {
+                        showScannerError('Punch IN d\u2019abord : passe ton badge seul pour commencer ta journ\u00e9e.');
+                        return;
+                    }
+                }
 
                 if (empOrder) {
                     // Close this employee's order
@@ -1770,6 +1949,8 @@
         scannerTimeout = setTimeout(function() {
             if (prevState === 'CLOSING_ORDER') {
                 setScannerState('CLOSING_ORDER');
+            } else if (prevState === 'EMPLOYEE_PROFILE') {
+                setScannerState('WAITING_VEHICLE');
             } else if (prevState === 'WAITING_EMPLOYEE') {
                 setScannerState('WAITING_EMPLOYEE');
             } else {
