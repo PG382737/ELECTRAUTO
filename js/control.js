@@ -431,6 +431,7 @@
                     }, 10000);
                 } else if (target === 'presences') {
                     document.getElementById('panel-presences').classList.add('active');
+                    initPresencesNav();
                     loadPresences();
                     clearInterval(presencePollingInterval);
                     presencePollingInterval = setInterval(function() {
@@ -450,30 +451,79 @@
     }
 
     // ---- PRESENCES ----
+    // Le design vient du prototype valide avec le client (preview-admin-presences.html).
 
     var presencePollingInterval = null;
+    var presView = 'today';
+    var presData = { rows: [], events: [] };
 
-    var PRES_LABEL = {
-        in: 'Punch IN', out: 'Punch OUT',
-        job_start: 'Job commencée', job_end: 'Job terminée',
-        refus_out: 'Punch OUT refusé', refus_job: 'Job refusée', inconnu: 'Badge inconnu',
-        correction: 'Correction', ajout: 'Ajout', suppression: 'Suppression'
+    var PR_ICONS = {
+        users: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+        clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+        wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+        alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+        eye: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+        car: '<circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/>'
     };
+    function prSvg(name) {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (PR_ICONS[name] || '') + '</svg>';
+    }
 
-    function presHM(iso) {
+    var PR_EVENTS = {
+        in:          { label: 'Punch IN',         tone: 'in' },
+        out:         { label: 'Punch OUT',        tone: 'out' },
+        job_start:   { label: 'Job commenc\u00e9e',    tone: 'job' },
+        job_end:     { label: 'Job termin\u00e9e',     tone: 'done' },
+        refus_out:   { label: 'Punch OUT refus\u00e9', tone: 'bad' },
+        refus_job:   { label: 'Job refus\u00e9e',      tone: 'bad' },
+        inconnu:     { label: 'Badge inconnu',    tone: 'bad' },
+        correction:  { label: 'Correction',       tone: 'admin' },
+        ajout:       { label: 'Punch ajout\u00e9',     tone: 'admin' },
+        suppression: { label: 'Punch supprim\u00e9',   tone: 'admin' }
+    };
+    var NBSP = '\u00a0';
+
+    function prHM(iso) {
         if (!iso) return '--:--';
-        return new Date(iso).toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Toronto' });
+        return new Date(iso).toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Toronto' });
+    }
+    function prDay(iso) {
+        return new Date(iso).toLocaleDateString('fr-CA', { day: 'numeric', month: 'short', timeZone: 'America/Toronto' });
+    }
+    function prDateLong(d) {
+        return d.toLocaleDateString('fr-CA', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Toronto' });
+    }
+    function prCap1(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+    function prDur(ms) {
+        if (!ms || ms < 30000) return '\u2014';
+        var min = Math.round(ms / 60000), h = Math.floor(min / 60);
+        return h > 0 ? h + NBSP + 'h' + NBSP + String(min % 60).padStart(2, '0') : min + NBSP + 'min';
+    }
+    function prName(e) { return (((e && e.first_name) || '') + ' ' + ((e && e.last_name) || '')).trim(); }
+    function prHue(id) {
+        var n = 0, str = String(id || '');
+        for (var i = 0; i < str.length; i++) n = (n * 31 + str.charCodeAt(i)) % 997;
+        return (n * 137) % 360;
+    }
+    function prAvatar(e) {
+        var h = prHue(e && e.id);
+        var ini = (((e && e.first_name) || '?').charAt(0) + ((e && e.last_name) || '?').charAt(0)).toUpperCase();
+        return '<span class="pr-av" style="--c1:hsl(' + h + ',62%,62%);--c2:hsl(' + ((h + 38) % 360) + ',62%,48%)">' + escHtml(ini) + '</span>';
+    }
+    function prEmpCell(e) { return '<span class="pr-emp">' + prAvatar(e) + '<span>' + escHtml(prName(e)) + '</span></span>'; }
+    function prKpi(icon, tone, value, label) {
+        return '<div class="monitoring-card"><div class="pr-ic pr-ic--' + tone + '">' + prSvg(icon) + '</div>' +
+            '<div><div class="monitoring-card__value">' + value + '</div><div class="monitoring-card__label">' + label + '</div></div></div>';
+    }
+    function prEvBadge(type) {
+        var t = PR_EVENTS[type] || { label: type, tone: 'admin' };
+        return '<span class="pr-ev pr-ev--' + t.tone + '">' + t.label + '</span>';
+    }
+    function prVehLabel(v) {
+        if (!v) return '';
+        return ((v.make || '') + (v.year ? ' ' + v.year : '') + (v.plate ? ' \u00b7 ' + v.plate : '')).trim();
     }
 
-    function presDur(ms) {
-        if (!ms || ms < 0) return '0 min';
-        var min = Math.floor(ms / 60000);
-        var h = Math.floor(min / 60);
-        return h > 0 ? h + ' h ' + String(min % 60).padStart(2, '0') : min + ' min';
-    }
-
-    // Temps compté pour la journée : les punchs fermes + le punch ouvert jusqu'a maintenant.
-    // Le dîner n'est pas déduit : l'employé punch OUT/IN s'il quitte (décision client).
     // Minuit aujourd'hui, heure de Toronto
     function presDayStart() {
         var et = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Toronto' }));
@@ -482,123 +532,176 @@
 
     // Chaque punch est borne a la journee en cours : sinon un oubli de punch OUT de la
     // veille ajouterait des dizaines d'heures au total du jour.
+    // Le diner n'est pas deduit : l'employe punch OUT/IN s'il quitte (decision client).
     function presWorkedMs(punches) {
         var now = Date.now(), dayStart = presDayStart();
-        return (punches || []).reduce(function(sum, p) {
+        return (punches || []).reduce(function (sum, p) {
             var start = Math.max(new Date(p.punch_in).getTime(), dayStart);
             var end = Math.min(p.punch_out ? new Date(p.punch_out).getTime() : now, now);
             return sum + Math.max(0, end - start);
         }, 0);
     }
 
-    function presEmpName(e) {
-        return ((e && e.first_name) || '') + ' ' + ((e && e.last_name) || '');
+    var presencesNavReady = false;
+    function initPresencesNav() {
+        if (presencesNavReady) return;
+        presencesNavReady = true;
+        document.getElementById('panel-presences').addEventListener('click', function (ev) {
+            var btn = ev.target.closest('[data-prview]');
+            if (!btn) return;
+            presView = btn.dataset.prview;
+            renderPresences();
+        });
     }
 
     async function loadPresences() {
-        var alertsEl = document.getElementById('presences-alerts');
-        var statsEl = document.getElementById('presences-stats');
-        var todayEl = document.getElementById('presences-today');
-        var histEl = document.getElementById('presences-history');
-        if (!statsEl) return;
-
+        if (!document.getElementById('pv-today')) return;
         try {
             var results = await Promise.all([
                 api('GET', '/api/control-punches?today=true'),
-                api('GET', '/api/control-punches?history=true&limit=40')
+                api('GET', '/api/control-punches?history=true&limit=120')
             ]);
-            var rows = results[0] || [];
-            var events = results[1] || [];
-
-            var inNow = rows.filter(function(r) { return r.is_in; });
-            var forgotten = rows.filter(function(r) { return r.forgotten; });
-            var withJobs = rows.filter(function(r) { return r.open_jobs.length > 0; });
-            var totalMs = rows.reduce(function(sum, r) { return sum + presWorkedMs(r.punches); }, 0);
-
-            // Seules les alertes sur lesquelles on peut agir
-            alertsEl.innerHTML = forgotten.length === 0 ? '' :
-                '<div class="monitoring-section" style="border-left:3px solid var(--danger,#ef4444);">' +
-                    '<h2 style="color:var(--danger,#ef4444);">À corriger</h2>' +
-                    forgotten.map(function(r) {
-                        return '<div style="padding:8px 0;color:var(--text-muted);">' +
-                            '<strong style="color:var(--text);">' + presEmpName(r) + '</strong> ' +
-                            'est encore punché IN depuis le ' +
-                            new Date(r.open_punch.punch_in).toLocaleDateString('fr-CA', { timeZone: 'America/Toronto' }) +
-                            ' à ' + presHM(r.open_punch.punch_in) + ' — oubli de punch OUT.' +
-                        '</div>';
-                    }).join('') +
-                '</div>';
-
-            statsEl.innerHTML =
-                presCard('employees', inNow.length, 'Punchés IN') +
-                presCard('orders', withJobs.length, 'Avec une job ouverte') +
-                presCard('time', presDur(totalMs), 'Total travaillé aujourd\u2019hui') +
-                presCard('alert', forgotten.length, 'Oublis de punch OUT');
-
-            // Tableau du jour
-            todayEl.innerHTML = rows.length === 0
-                ? '<div class="empty-state"><p>Aucun employé.</p></div>'
-                : '<table class="articles-table"><thead><tr>' +
-                    '<th>Employé</th><th>Statut</th><th>Arrivée</th><th>Départ</th><th>Travaillé</th><th>Jobs ouvertes</th>' +
-                  '</tr></thead><tbody>' +
-                  rows.map(function(r) {
-                      var first = r.punches.length ? r.punches[r.punches.length - 1] : null;
-                      var last = r.punches.length ? r.punches[0] : null;
-                      return '<tr>' +
-                          '<td>' + presEmpName(r) + '</td>' +
-                          '<td>' + (r.forgotten
-                              ? '<span style="color:var(--danger,#ef4444);font-weight:600;">OUT oublié</span>'
-                              : r.is_in
-                                  ? '<span style="color:var(--success,#22c55e);font-weight:600;">IN</span>'
-                                  : '<span style="color:var(--text-muted);">OUT</span>') + '</td>' +
-                          '<td>' + (first ? presHM(first.punch_in) : '--:--') + '</td>' +
-                          '<td>' + (last && last.punch_out ? presHM(last.punch_out) : '--:--') + '</td>' +
-                          '<td>' + presDur(presWorkedMs(r.punches)) + '</td>' +
-                          '<td>' + (r.open_jobs.length || '') + '</td>' +
-                      '</tr>';
-                  }).join('') +
-                  '</tbody></table>';
-
-            // Historique
-            histEl.innerHTML = events.length === 0
-                ? '<div class="empty-state"><p>Aucun événement pour le moment.</p></div>'
-                : '<table class="articles-table"><thead><tr>' +
-                    '<th>Heure</th><th>Employé</th><th>Événement</th><th>Véhicule</th><th>Détail</th>' +
-                  '</tr></thead><tbody>' +
-                  events.map(function(ev) {
-                      var v = ev.vehicle;
-                      return '<tr>' +
-                          '<td>' + new Date(ev.occurred_at).toLocaleString('fr-CA', { timeZone: 'America/Toronto', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) + '</td>' +
-                          '<td>' + (ev.employee ? presEmpName(ev.employee) : '—') + '</td>' +
-                          '<td>' + (PRES_LABEL[ev.type] || ev.type) + '</td>' +
-                          '<td>' + (v ? ((v.make || '') + ' ' + (v.year || '') + (v.plate ? ' · ' + v.plate : '')) : '—') + '</td>' +
-                          '<td style="color:var(--text-muted);">' + (ev.detail || '') + '</td>' +
-                      '</tr>';
-                  }).join('') +
-                  '</tbody></table>';
-
+            presData.rows = results[0] || [];
+            presData.events = results[1] || [];
+            renderPresences();
         } catch (err) {
-            statsEl.innerHTML = '';
-            todayEl.innerHTML = '<div class="empty-state"><p>Erreur de chargement : ' + err.message + '</p></div>';
-            histEl.innerHTML = '';
+            document.getElementById('pv-today').innerHTML =
+                '<div class="pr-card"><div class="pr-empty">Erreur de chargement\u00a0: ' + escHtml(err.message) + '</div></div>';
         }
     }
 
-    function presCard(kind, value, label) {
-        var icons = {
-            employees: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>',
-            orders: '<path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/>',
-            time: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
-            alert: '<path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/>'
-        };
-        return '<div class="monitoring-card">' +
-            '<div class="monitoring-card__icon monitoring-card__icon--' + kind + '">' +
-                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">' + icons[kind] + '</svg>' +
-            '</div>' +
-            '<div><div class="monitoring-card__value">' + value + '</div>' +
-            '<div class="monitoring-card__label">' + label + '</div></div>' +
-        '</div>';
+    function renderPresences() {
+        document.querySelectorAll('#panel-presences [data-prview]').forEach(function (b) {
+            b.classList.toggle('active', b.dataset.prview === presView);
+        });
+        document.getElementById('pv-today').classList.toggle('is-active', presView === 'today');
+        document.getElementById('pv-history').classList.toggle('is-active', presView === 'history');
+        if (presView === 'today') renderPresToday(); else renderPresHistory();
     }
+
+    function renderPresToday() {
+        var rows = presData.rows.slice().sort(function (a, b) {
+            return (!!b.is_in - !!a.is_in) || prName(a).localeCompare(prName(b), 'fr');
+        });
+        var inNow = rows.filter(function (r) { return r.is_in; }).length;
+        var openJobs = rows.reduce(function (n, r) { return n + (r.open_jobs || []).length; }, 0);
+        var forgotten = rows.filter(function (r) { return r.forgotten; });
+        var totalMs = rows.reduce(function (sum, r) { return sum + presWorkedMs(r.punches); }, 0);
+        var today = presDayStart();
+
+        document.getElementById('pv-today').innerHTML =
+            '<div class="pr-kpis">' +
+                prKpi('users', 'green', inNow + NBSP + '/' + NBSP + rows.length, 'Au travail maintenant') +
+                prKpi('clock', 'blue', prDur(totalMs), 'Heures travaill\u00e9es aujourd\u2019hui') +
+                prKpi('wrench', 'orange', openJobs, 'Jobs en cours') +
+                prKpi('alert', forgotten.length ? 'red' : 'grey', forgotten.length, forgotten.length > 1 ? 'Punchs \u00e0 corriger' : 'Punch \u00e0 corriger') +
+            '</div>' +
+            (forgotten.length
+                ? '<div class="pr-card"><div class="pr-card__head"><h2>\u00c0 corriger</h2></div>' + forgotten.map(prAlertRow).join('') + '</div>'
+                : '') +
+            '<div class="pr-card">' +
+                '<div class="pr-card__head"><h2>Statut des employ\u00e9s</h2><span class="pr-muted">' + prCap1(prDateLong(new Date())) + '</span></div>' +
+                (rows.length
+                    ? '<div class="pr-table-wrap"><table class="control-table">' +
+                        '<thead><tr><th>Employ\u00e9</th><th>Statut</th><th>Arriv\u00e9e</th><th>D\u00e9part</th><th class="num">Travaill\u00e9es</th><th>Jobs en cours</th></tr></thead>' +
+                        '<tbody>' + rows.map(prTodayRow).join('') + '</tbody></table></div>'
+                    : '<div class="pr-empty">Aucun employ\u00e9.</div>') +
+            '</div>' +
+            '<div class="pr-card">' +
+                '<div class="pr-card__head"><h2>Activit\u00e9 du jour</h2>' +
+                '<button class="btn btn--ghost btn--sm" data-prview="history">Tout l\u2019historique</button></div>' +
+                prFeed(today) +
+            '</div>';
+    }
+
+    function prAlertRow(r) {
+        var since = new Date(r.open_punch.punch_in);
+        var hours = Math.floor((Date.now() - since.getTime()) / 3600000);
+        return '<div class="pr-alert pr-alert--critical">' + prSvg('alert') +
+            '<div class="pr-alert__text"><b>' + escHtml(prName(r)) + '</b> est encore IN depuis ' +
+            prDay(r.open_punch.punch_in) + ' \u00e0 ' + prHM(r.open_punch.punch_in) +
+            ' (' + hours + NBSP + 'h). Probablement un oubli de punch OUT.</div></div>';
+    }
+
+    function prTodayRow(r) {
+        var punches = (r.punches || []).slice().sort(function (a, b) {
+            return new Date(a.punch_in) - new Date(b.punch_in);
+        });
+        var first = punches[0] || null;
+        var lastClosed = null;
+        punches.forEach(function (p) { if (p.punch_out) lastClosed = p; });
+
+        var status = r.is_in
+            ? (r.forgotten
+                ? '<span class="pr-pill pr-pill--bad"><i></i>IN depuis ' + prDay(r.open_punch.punch_in) + ' ' + prHM(r.open_punch.punch_in) + '</span>'
+                : '<span class="pr-pill pr-pill--in"><i></i>IN</span> <span class="pr-muted">depuis ' + prHM(r.open_punch.punch_in) + '</span>')
+            : '<span class="pr-pill">OUT</span>';
+
+        var jobs = (r.open_jobs || []);
+        var shown = jobs.slice(0, 2);
+        var jobsHtml = jobs.length
+            ? shown.map(function (j) {
+                var v = j.vehicle || {};
+                return '<span class="pr-chip">' + escHtml(v.make || 'V\u00e9hicule') +
+                    '<b data-pr-since="' + j.started_at + '">' + prDur(Date.now() - new Date(j.started_at).getTime()) + '</b></span>';
+              }).join('') + (jobs.length > 2 ? '<span class="pr-tag">+' + (jobs.length - 2) + '</span>' : '')
+            : '<span class="pr-muted">\u2014</span>';
+
+        return '<tr>' +
+            '<td>' + prEmpCell(r) + '</td>' +
+            '<td>' + status + '</td>' +
+            '<td>' + (first ? prHM(first.punch_in) : '<span class="pr-muted">\u2014</span>') + '</td>' +
+            '<td>' + (lastClosed && !r.is_in ? prHM(lastClosed.punch_out) : r.is_in ? '<span class="pr-muted">en cours</span>' : '<span class="pr-muted">\u2014</span>') + '</td>' +
+            '<td class="num pr-strong">' + prDur(presWorkedMs(r.punches)) + '</td>' +
+            '<td>' + jobsHtml + '</td>' +
+        '</tr>';
+    }
+
+    function prFeed(fromMs) {
+        var list = presData.events.filter(function (e) { return new Date(e.occurred_at).getTime() >= fromMs; }).slice(0, 8);
+        if (!list.length) return '<div class="pr-empty">Aucune activit\u00e9 aujourd\u2019hui pour l\u2019instant.</div>';
+        return list.map(function (e) {
+            var detail = [e.vehicle ? prVehLabel(e.vehicle) : '', e.detail].filter(Boolean).join(' \u00b7 ');
+            return '<div class="pr-feed__row">' +
+                '<span class="pr-time">' + prHM(e.occurred_at) + '</span>' +
+                prEvBadge(e.type) +
+                '<span>' + (e.employee ? escHtml(prName(e.employee)) : '<span class="pr-muted">\u2014</span>') + '</span>' +
+                '<span class="pr-muted">' + escHtml(detail) + '</span>' +
+            '</div>';
+        }).join('');
+    }
+
+    function renderPresHistory() {
+        var list = presData.events;
+        document.getElementById('pv-history').innerHTML =
+            '<div class="pr-filters">' +
+                '<span class="pr-count">' + list.length.toLocaleString('fr-CA') + ' \u00e9v\u00e9nement' + (list.length > 1 ? 's' : '') + '</span>' +
+            '</div>' +
+            '<div class="pr-card">' +
+                (list.length
+                    ? '<div class="pr-table-wrap"><table class="control-table">' +
+                        '<thead><tr><th>Date</th><th>Heure</th><th>Employ\u00e9</th><th>\u00c9v\u00e9nement</th><th>V\u00e9hicule</th><th>D\u00e9tail</th><th>Source</th></tr></thead>' +
+                        '<tbody>' + list.map(function (e) {
+                            return '<tr>' +
+                                '<td>' + prDay(e.occurred_at) + '</td>' +
+                                '<td class="pr-time">' + prHM(e.occurred_at) + '</td>' +
+                                '<td>' + (e.employee ? prEmpCell(e.employee) : '<span class="pr-muted">\u2014</span>') + '</td>' +
+                                '<td>' + prEvBadge(e.type) + '</td>' +
+                                '<td>' + (e.vehicle ? escHtml(prVehLabel(e.vehicle)) : '<span class="pr-muted">\u2014</span>') + '</td>' +
+                                '<td class="pr-muted">' + (escHtml(e.detail) || '\u2014') + '</td>' +
+                                '<td><span class="pr-src ' + (e.source === 'admin' ? 'pr-src--admin' : '') + '">' + (e.source === 'admin' ? 'Admin' : 'Terminal') + '</span></td>' +
+                            '</tr>';
+                        }).join('') + '</tbody></table></div>'
+                    : '<div class="pr-empty">Aucun \u00e9v\u00e9nement pour le moment.</div>') +
+            '</div>';
+    }
+
+    // Les chronos des jobs en cours avancent sans recharger la page
+    setInterval(function () {
+        document.querySelectorAll('#panel-presences [data-pr-since]').forEach(function (el) {
+            el.textContent = prDur(Date.now() - new Date(el.getAttribute('data-pr-since')).getTime());
+        });
+    }, 30000);
 
     // ---- EMPLOYEES ----
 
@@ -1623,8 +1726,8 @@
     // Une couleur stable par employe, tiree de son identifiant
     function scHue(id) {
         var n = 0, str = String(id || '');
-        for (var i = 0; i < str.length; i++) n = (n * 31 + str.charCodeAt(i)) % 360;
-        return n;
+        for (var i = 0; i < str.length; i++) n = (n * 31 + str.charCodeAt(i)) % 997;
+        return (n * 137) % 360;
     }
     function scAvatar(e, cls, isIn) {
         var h = scHue(e && e.id);

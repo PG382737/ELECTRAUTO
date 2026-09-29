@@ -9,8 +9,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="stylesheet" href="css/admin.css?v=20260929c">
-    <link rel="stylesheet" href="css/scanner.css?v=20260929c">
+    <link rel="stylesheet" href="css/admin.css?v=20260929d">
+    <link rel="stylesheet" href="css/scanner.css?v=20260929d">
+    <link rel="stylesheet" href="css/presences.css?v=20260929d">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 </head>
 <body>
@@ -508,23 +509,12 @@
                     <!-- Scanner panel (triggers fullscreen) -->
                     <!-- Presences panel -->
                     <div class="control-panel" id="panel-presences">
-                        <div class="main__header">
-                            <h1 data-i18n="pres.title">Présences</h1>
-                            <div style="display:flex;gap:8px;align-items:center;">
-                                <span class="monitoring-live-dot"></span>
-                                <span style="font-size:0.8rem;color:var(--text-muted);" data-i18n="mon.live">En direct</span>
-                            </div>
+                        <div class="pr-views">
+                            <button class="period-btn active" data-prview="today">Aujourd’hui</button>
+                            <button class="period-btn" data-prview="history">Historique</button>
                         </div>
-                        <div id="presences-alerts"></div>
-                        <div class="monitoring-stats" id="presences-stats"></div>
-                        <div class="monitoring-section">
-                            <h2 data-i18n="pres.today_title">Aujourd'hui</h2>
-                            <div id="presences-today"></div>
-                        </div>
-                        <div class="monitoring-section">
-                            <h2 data-i18n="pres.history_title">Historique</h2>
-                            <div id="presences-history"></div>
-                        </div>
+                        <section class="pr-view is-active" id="pv-today"></section>
+                        <section class="pr-view" id="pv-history"></section>
                     </div>
 
                     <div class="control-panel" id="panel-scanner">
@@ -1215,9 +1205,9 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
-    <script src="js/admin-i18n.js?v=20260929c"></script>
-    <script src="js/admin.js?v=20260929c"></script>
-    <script src="js/control.js?v=20260929c"></script>
+    <script src="js/admin-i18n.js?v=20260929d"></script>
+    <script src="js/admin.js?v=20260929d"></script>
+    <script src="js/control.js?v=20260929d"></script>
     <script src="js/todos.js"></script>
 </body>
 </html>
