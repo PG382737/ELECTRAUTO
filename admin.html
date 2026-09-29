@@ -9,7 +9,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/admin.css?v=20260929c">
+    <link rel="stylesheet" href="css/scanner.css?v=20260929c">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 </head>
 <body>
@@ -1022,14 +1023,47 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             <span data-i18n="scanner.close">Fermer</span>
         </button>
-        <div id="scanner-content"></div>
-        <div id="scanner-lock" class="scanner-lock">
-            <div class="scanner-lock__ring">
-                <span class="scanner-lock__count" id="scanner-lock-count">2</span>
-                <span class="scanner-lock__ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6.5"/></svg></span>
+
+        <div class="screen" id="scanner-screen" data-mood="idle">
+            <div class="ambient"></div>
+            <div class="dots"></div>
+
+            <header class="topbar">
+                <div class="reader" id="scanner-reader"><i class="reader__dot"></i>Lecteur NFC prêt</div>
+                <div class="clock">
+                    <div class="clock__time" id="scanner-clock-time">--:--</div>
+                    <div class="clock__date"><span id="scanner-clock-date"></span></div>
+                </div>
+            </header>
+
+            <section class="view is-active" id="scanner-view-idle">
+                <div class="idle">
+                    <div class="tapper tapper--lg"><span></span><span></span><span></span><div class="tapper__core"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.32a7.43 7.43 0 0 1 0 7.36"/><path d="M9.46 6.21a11.76 11.76 0 0 1 0 11.58"/><path d="M12.91 4.1a15.91 15.91 0 0 1 .01 15.8"/><path d="M16.37 2a20.16 20.16 0 0 1 0 20"/></svg></div></div>
+                    <h1 class="idle__title">Passe ton badge</h1>
+                </div>
+            </section>
+
+            <section class="view" id="scanner-view-employee"></section>
+            <section class="view" id="scanner-view-vehicle"></section>
+
+            <div class="session" id="scanner-session">
+                <div class="session__track"><div class="session__fill" id="scanner-session-fill"></div></div>
+                <div class="session__label" id="scanner-session-left"></div>
             </div>
-            <div class="scanner-lock__title" id="scanner-lock-title">Un instant…</div>
-            <div class="scanner-lock__sub" id="scanner-lock-sub">Ne repasse pas ta carte tout de suite</div>
+
+            <div class="flash" id="scanner-flash"></div>
+
+            <div class="lock" id="scanner-lock">
+                <div class="lock__box">
+                    <div class="lock__ring">
+                        <svg viewBox="0 0 260 260"><circle class="lock__track" cx="130" cy="130" r="125"/><circle class="lock__fill" id="scanner-lock-fill" cx="130" cy="130" r="125"/></svg>
+                        <span class="lock__count" id="scanner-lock-count">2</span>
+                        <span class="lock__ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 12.5 9.5 18 20 6.5"/></svg></span>
+                    </div>
+                    <div class="lock__title" id="scanner-lock-title">Un instant…</div>
+                    <div class="lock__sub" id="scanner-lock-sub">Ne repasse pas ta carte tout de suite</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1181,9 +1215,9 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
-    <script src="js/admin-i18n.js"></script>
-    <script src="js/admin.js"></script>
-    <script src="js/control.js"></script>
+    <script src="js/admin-i18n.js?v=20260929c"></script>
+    <script src="js/admin.js?v=20260929c"></script>
+    <script src="js/control.js?v=20260929c"></script>
     <script src="js/todos.js"></script>
 </body>
 </html>

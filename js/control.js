@@ -14,6 +14,10 @@
     var scannerInterval = null;
     var scannerTimeout = null;
     var scannerState = null;
+    var scannerVehicleOrders = [];
+    var scannerEmployee = null;     // employe dont le profil est affiche
+    var scannerArmed = false;       // son badge repasse une 2e fois change son statut IN/OUT
+    var scannerActiveOrder = null;
     var scannerVehicle = null;
     var nfcReader = null;
     var nfcAssignCallback = null;
@@ -470,11 +474,19 @@
 
     // Temps compté pour la journée : les punchs fermes + le punch ouvert jusqu'a maintenant.
     // Le dîner n'est pas déduit : l'employé punch OUT/IN s'il quitte (décision client).
+    // Minuit aujourd'hui, heure de Toronto
+    function presDayStart() {
+        var et = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Toronto' }));
+        return Date.now() - (et.getHours() * 3600000 + et.getMinutes() * 60000 + et.getSeconds() * 1000 + et.getMilliseconds());
+    }
+
+    // Chaque punch est borne a la journee en cours : sinon un oubli de punch OUT de la
+    // veille ajouterait des dizaines d'heures au total du jour.
     function presWorkedMs(punches) {
-        var now = Date.now();
+        var now = Date.now(), dayStart = presDayStart();
         return (punches || []).reduce(function(sum, p) {
-            var start = new Date(p.punch_in).getTime();
-            var end = p.punch_out ? new Date(p.punch_out).getTime() : now;
+            var start = Math.max(new Date(p.punch_in).getTime(), dayStart);
+            var end = Math.min(p.punch_out ? new Date(p.punch_out).getTime() : now, now);
             return sum + Math.max(0, end - start);
         }, 0);
     }
@@ -1549,63 +1561,227 @@
     }
 
     // ---- NFC SCANNER (FULLSCREEN) ----
+    // Le design vient du prototype valide avec le client (preview-terminal.html) :
+    // ecran 1920x1080 mis a l'echelle, aucune liste, une seule action a la fois.
 
-    var SCANNER_NFC_ICON = '<svg class="nfc-scanner__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="4"/><path d="M8 7v10M12 5v14M16 7v10"/></svg>';
-
-    // Apres chaque passage de carte l'ecran se bloque : une carte laissee sur le
-    // lecteur, ou repassee trop vite, ne peut plus declencher une 2e action.
-    var SCAN_LOCK_MS = 2000;
-    var SCAN_READY_MS = 900;
-    var scannerLockUntil = 0;
-    var scannerLockTimers = [];
-    var scannerEmployee = null;    // employe dont le profil est affiche
-    var scannerArmed = false;      // son badge repasse une 2e fois change son statut IN/OUT
-
-    function scannerLockLeft() {
-        return Math.max(0, scannerLockUntil - Date.now());
+    var SC_ICONS = {
+        nfc: '<path d="M6 8.32a7.43 7.43 0 0 1 0 7.36"/><path d="M9.46 6.21a11.76 11.76 0 0 1 0 11.58"/><path d="M12.91 4.1a15.91 15.91 0 0 1 .01 15.8"/><path d="M16.37 2a20.16 20.16 0 0 1 0 20"/>',
+        badge: '<rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6.17 15a3 3 0 0 1 5.66 0"/><path d="M16 10h2"/><path d="M16 14h2"/>',
+        car: '<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>',
+        carFront: '<path d="m21 8-2 2-1.5-3.7A2 2 0 0 0 15.646 5H8.4a2 2 0 0 0-1.903 1.257L5 10 3 8"/><path d="M7 14h.01"/><path d="M17 14h.01"/><rect width="18" height="8" x="3" y="10" rx="2"/><path d="M5 18v2"/><path d="M19 18v2"/>',
+        login: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/>',
+        logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',
+        check: '<path d="M20 6 9 17l-5-5"/>',
+        play: '<path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"/>',
+        lock: '<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+        help: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
+        arrow: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+        plate: '<rect x="2" y="6" width="20" height="12" rx="2.5"/><path d="M7 12h10"/>',
+        user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'
+    };
+    function scSvg(name, cls) {
+        return '<svg class="' + (cls || '') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (SC_ICONS[name] || '') + '</svg>';
+    }
+    function scSvgDraw(name) {
+        return scSvg(name, 'draw').replace(/<(path|circle|rect|line|polyline|polygon)\b/g, '<$1 pathLength="1"');
+    }
+    function scTapper(cls) {
+        return '<div class="tapper ' + (cls || '') + '"><span></span><span></span><span></span><div class="tapper__core">' + scSvg('nfc') + '</div></div>';
     }
 
-    function clearScannerLock() {
-        scannerLockTimers.forEach(function(x) { clearTimeout(x); clearInterval(x); });
-        scannerLockTimers = [];
-        scannerLockUntil = 0;
-        var el = document.getElementById('scanner-lock');
-        if (el) el.className = 'scanner-lock';
+    var SC_SESSION_MS = 10000;   // retour a l'accueil sans nouveau scan
+    var SC_FLASH_MS = 5000;      // duree de chaque confirmation plein ecran
+    var SC_LOCK_MS = 2000;       // blocage apres chaque scan
+    var SC_READY_MS = 900;       // « tu peux repasser ta carte »
+    var SC_RING = 785;
+    var SC_FLASH_ICON = { in: 'login', out: 'logout', jobStart: 'play', jobEnd: 'check', block: 'lock', unknown: 'help' };
+
+    var scLockUntil = 0, scLockTimers = [], scSessionTimer = 0, scSessionEnd = 0, scFlashTimer = 0, scFlashOn = false, scClockTimer = 0, scRaf = 0;
+
+    function scEl(id) { return document.getElementById(id); }
+    function scLockLeft() { return Math.max(0, scLockUntil - Date.now()); }
+
+    function scName(e) { return ((e && e.first_name) || '') + ' ' + ((e && e.last_name) || ''); }
+    function scInitials(e) {
+        return (((e && e.first_name) || '?').charAt(0) + ((e && e.last_name) || '?').charAt(0)).toUpperCase();
+    }
+    function scVehName(v) { return ((v && v.make) || 'V\u00e9hicule'); }
+    function scVehLine(v) {
+        var parts = [scVehName(v) + (v && v.year ? ' ' + v.year : '')];
+        if (v && v.plate) parts.push(v.plate);
+        return parts.join(' \u00b7 ');
+    }
+    function scHM(iso) {
+        if (!iso) return '--:--';
+        return new Date(iso).toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Toronto' });
+    }
+    function scTimerText(sinceIso) {
+        var ms = Math.max(0, Date.now() - new Date(sinceIso).getTime());
+        var min = Math.floor(ms / 60000), h = Math.floor(min / 60);
+        return h > 0 ? h + ':' + String(min % 60).padStart(2, '0') : min + ' min';
+    }
+    // Une couleur stable par employe, tiree de son identifiant
+    function scHue(id) {
+        var n = 0, str = String(id || '');
+        for (var i = 0; i < str.length; i++) n = (n * 31 + str.charCodeAt(i)) % 360;
+        return n;
+    }
+    function scAvatar(e, cls, isIn) {
+        var h = scHue(e && e.id);
+        return '<div class="avatar ' + (cls || '') + (isIn ? ' is-in' : '') + '" style="--c1:hsl(' + h + ',62%,62%);--c2:hsl(' + ((h + 38) % 360) + ',62%,48%)">' + escHtml(scInitials(e)) + '<i></i></div>';
+    }
+    function scTile(t) {
+        var cls = ['tile', t.locked ? 'is-locked' : 'tile--' + t.tone, t.primary && !t.locked ? 'is-primary' : ''].join(' ');
+        return '<div class="' + cls + '">' +
+            '<div class="tile__top">' +
+                '<div class="tile__icon">' + scSvg(t.icon) + '</div>' +
+                '<div class="tile__step">' + t.step + '</div>' +
+                (t.primary && !t.locked ? '<div class="tile__tap">' + scSvg('nfc') + '</div>' : '') +
+            '</div>' +
+            '<div>' +
+                '<div class="tile__action">' + t.action + '</div>' +
+                (t.locked ? '<div class="tile__lock">' + scSvg('lock') + t.lock + '</div>' : '<div class="tile__desc">' + t.desc + '</div>') +
+            '</div>' +
+        '</div>';
+    }
+
+    // L'ecran du prototype fait 1920x1080 : on le met a l'echelle de la fenetre
+    function fitScannerScreen() {
+        var screen = scEl('scanner-screen');
+        if (!screen) return;
+        var k = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+        screen.style.transform = 'translate(' + ((window.innerWidth - 1920 * k) / 2) + 'px,' + ((window.innerHeight - 1080 * k) / 2) + 'px) scale(' + k + ')';
+    }
+
+    function scSetView(name) {
+        ['idle', 'employee', 'vehicle'].forEach(function (v) {
+            var el = scEl('scanner-view-' + v);
+            if (el) el.classList.toggle('is-active', v === name);
+        });
+        var screen = scEl('scanner-screen');
+        if (screen) screen.setAttribute('data-mood', name === 'idle' ? 'idle' : name === 'vehicle' ? 'vehicle' : (scannerEmployee && scannerEmployee.is_in ? 'in' : 'out'));
+    }
+
+    function scTick() {
+        var t = scEl('scanner-clock-time'), d = scEl('scanner-clock-date');
+        var now = new Date();
+        if (t) t.textContent = now.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', hour12: false });
+        if (d) d.textContent = now.toLocaleDateString('fr-CA', { weekday: 'long', day: 'numeric', month: 'long' });
+        document.querySelectorAll('#scanner-screen [data-since]').forEach(function (el) {
+            el.textContent = scTimerText(el.getAttribute('data-since'));
+        });
+        var left = scEl('scanner-session-left');
+        if (left && scSessionEnd) left.textContent = 'Retour \u00e0 l\u2019accueil dans ' + Math.max(0, Math.ceil(Math.min(SC_SESSION_MS, scSessionEnd - Date.now()) / 1000)) + ' s';
+    }
+
+    function scFrame() {
+        var on = scannerState && scannerState !== 'WAITING_VEHICLE' && !scFlashOn && scSessionEnd > 0;
+        var sess = scEl('scanner-session');
+        if (sess) sess.classList.toggle('is-on', !!on);
+        var fill = scEl('scanner-session-fill');
+        if (on && fill) fill.style.transform = 'scaleX(' + Math.max(0, Math.min(1, (scSessionEnd - Date.now()) / SC_SESSION_MS)) + ')';
+        scRaf = requestAnimationFrame(scFrame);
+    }
+
+    function scStartSession() {
+        clearTimeout(scSessionTimer);
+        var span = SC_SESSION_MS + scLockLeft();   // le decompte part quand l'ecran se debloque
+        scSessionEnd = Date.now() + span;
+        scSessionTimer = setTimeout(function () { setScannerState('WAITING_VEHICLE'); }, span);
+        scTick();
+    }
+
+    function scClearLock() {
+        scLockTimers.forEach(function (x) { clearTimeout(x); clearInterval(x); });
+        scLockTimers = [];
+        scLockUntil = 0;
+        var el = scEl('scanner-lock');
+        if (el) el.className = 'lock';
+        var r = scEl('scanner-reader');
+        if (r) r.classList.remove('is-busy');
     }
 
     function startScannerLock() {
-        var el = document.getElementById('scanner-lock');
+        var el = scEl('scanner-lock');
         if (!el) return;
-        scannerLockTimers.forEach(function(x) { clearTimeout(x); clearInterval(x); });
-        scannerLockTimers = [];
+        scLockTimers.forEach(function (x) { clearTimeout(x); clearInterval(x); });
+        scLockTimers = [];
 
         var startedAt = Date.now();
-        scannerLockUntil = startedAt + SCAN_LOCK_MS + SCAN_READY_MS;
-        el.className = 'scanner-lock is-on';
-        document.getElementById('scanner-lock-title').textContent = 'Un instant\u2026';
-        document.getElementById('scanner-lock-sub').textContent = 'Ne repasse pas ta carte tout de suite';
+        scLockUntil = startedAt + SC_LOCK_MS + SC_READY_MS;
+        el.className = 'lock is-on';
+        scEl('scanner-lock-title').textContent = 'Un instant\u2026';
+        scEl('scanner-lock-sub').textContent = 'Ne repasse pas ta carte tout de suite';
+        var reader = scEl('scanner-reader');
+        if (reader) reader.classList.add('is-busy');
 
         function paint() {
-            var left = Math.max(0, SCAN_LOCK_MS - (Date.now() - startedAt));
-            var c = document.getElementById('scanner-lock-count');
+            var left = Math.max(0, SC_LOCK_MS - (Date.now() - startedAt));
+            var c = scEl('scanner-lock-count');
             if (c) c.textContent = Math.ceil(left / 1000);
+            var f = scEl('scanner-lock-fill');
+            if (f) f.style.strokeDashoffset = SC_RING * (1 - left / SC_LOCK_MS);
         }
         paint();
-        scannerLockTimers.push(setInterval(paint, 100));
+        scLockTimers.push(setInterval(paint, 100));
 
-        scannerLockTimers.push(setTimeout(function() {
-            el.className = 'scanner-lock is-on is-ready';
-            document.getElementById('scanner-lock-title').textContent = 'Tu peux repasser ta carte';
-            document.getElementById('scanner-lock-sub').textContent = '';
-            scannerLockTimers.push(setTimeout(function() { el.className = 'scanner-lock'; }, SCAN_READY_MS));
-        }, SCAN_LOCK_MS));
+        scLockTimers.push(setTimeout(function () {
+            el.className = 'lock is-on is-ready';
+            scEl('scanner-lock-title').textContent = 'Tu peux repasser ta carte';
+            scEl('scanner-lock-sub').textContent = '';
+            if (reader) reader.classList.remove('is-busy');
+            scLockTimers.push(setTimeout(function () { el.className = 'lock'; }, SC_READY_MS));
+        }, SC_LOCK_MS));
+    }
+
+    // Confirmation plein ecran : la barre ne part qu'une fois l'ecran debloque
+    function scFlash(f) {
+        clearTimeout(scSessionTimer);
+        clearTimeout(scFlashTimer);
+        scSessionEnd = 0;
+        scFlashOn = true;
+        var el = scEl('scanner-flash');
+        el.className = 'flash flash--' + f.kind;
+        var wait = scLockLeft();
+        el.style.setProperty('--dur', SC_FLASH_MS + 'ms');
+        el.style.setProperty('--delay', wait + 'ms');
+        el.innerHTML =
+            '<div class="flash__box">' +
+                '<div class="flash__icon">' + scSvgDraw(SC_FLASH_ICON[f.kind]) + '</div>' +
+                (f.kicker ? '<div class="flash__kicker">' + f.kicker + '</div>' : '') +
+                '<div class="flash__title">' + f.title + '</div>' +
+                (f.sub ? '<div class="flash__sub">' + f.sub + '</div>' : '') +
+                (f.meta ? '<div class="flash__meta">' + f.meta.map(function (x) { return '<span>' + x + '</span>'; }).join('') + '</div>' : '') +
+                (f.next ? '<div class="flash__next">' + scSvg('arrow') + f.next + '</div>' : '') +
+            '</div>' +
+            '<div class="flash__bar"></div>';
+        void el.offsetWidth;
+        el.classList.add('is-on');
+        scFlashTimer = setTimeout(scEndFlash, SC_FLASH_MS + wait);
+    }
+
+    function scEndFlash(goIdle) {
+        clearTimeout(scFlashTimer);
+        if (!scFlashOn) return;
+        scFlashOn = false;
+        var el = scEl('scanner-flash');
+        if (el) el.classList.remove('is-on');
+        if (goIdle === true || !scannerEmployee) setScannerState('WAITING_VEHICLE');
+        else scStartSession();
     }
 
     function openScanner() {
         var overlay = document.getElementById('nfc-scanner-overlay');
         overlay.classList.add('active');
         document.body.style.overflow = 'hidden';
+        fitScannerScreen();
+        window.addEventListener('resize', fitScannerScreen);
         setScannerState('WAITING_VEHICLE');
+        scTick();
+        clearInterval(scClockTimer);
+        scClockTimer = setInterval(scTick, 1000);
+        cancelAnimationFrame(scRaf);
+        scRaf = requestAnimationFrame(scFrame);
         startNfcListener();
     }
 
@@ -1613,9 +1789,15 @@
         var overlay = document.getElementById('nfc-scanner-overlay');
         overlay.classList.remove('active');
         document.body.style.overflow = '';
+        window.removeEventListener('resize', fitScannerScreen);
         stopNfcListener();
         clearScannerTimers();
-        clearScannerLock();
+        scClearLock();
+        clearInterval(scClockTimer);
+        cancelAnimationFrame(scRaf);
+        scRaf = 0;
+        scEndFlash(true);
+        scFlashOn = false;
         scannerState = null;
         scannerVehicle = null;
         scannerActiveOrder = null;
@@ -1626,193 +1808,142 @@
     function clearScannerTimers() {
         if (scannerInterval) { clearInterval(scannerInterval); scannerInterval = null; }
         if (scannerTimeout) { clearTimeout(scannerTimeout); scannerTimeout = null; }
-        stopDashboardOrderTimers();
+        clearTimeout(scSessionTimer);
+        scSessionEnd = 0;
     }
 
     function setScannerState(state) {
         clearScannerTimers();
         scannerState = state;
-        var content = document.getElementById('scanner-content');
 
         if (state === 'WAITING_VEHICLE') {
             scannerVehicle = null;
             scannerEmployee = null;
             scannerArmed = false;
-            stopDashboardOrderTimers();
-            content.innerHTML = '<div class="nfc-scanner__title">' + t('scanner.vehicle_title') + '</div>' + SCANNER_NFC_ICON + '<div class="nfc-scanner__subtitle">' + t('scanner.vehicle_scan') + '</div>' + getScannerSimHtml() + '<div class="nfc-scanner__orders" id="dashboard-orders"><div class="nfc-scanner__orders-title">' + t('scanner.active_orders_title') + '</div><div id="dashboard-orders-list" class="nfc-scanner__orders-grid"><div class="nfc-scanner__orders-empty">' + t('scanner.loading') + '</div></div></div>';
-            loadDashboardOrders();
-
-        } else if (state === 'WAITING_EMPLOYEE') {
-            var v = scannerVehicle;
-            content.innerHTML = '<div class="nfc-scanner__info"><p><strong>' + escHtml(v.make) + (v.year ? ' ' + v.year : '') + '</strong></p>' + (v.plate ? '<p>' + t('scanner.plate_label') + escHtml(v.plate) + '</p>' : '') + '<p>' + t('scanner.owner_label') + escHtml(v.owner_name) + '</p></div><div class="nfc-scanner__title" style="margin-top:32px;">' + t('scanner.employee_title') + '</div>' + SCANNER_NFC_ICON + '<div class="nfc-scanner__subtitle">' + t('scanner.employee_scan') + '</div>' + getScannerSimHtml();
-
-        } else if (state === 'SUCCESS_OPEN') {
-            stopDashboardOrderTimers();
-            content.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:80px;height:80px;color:var(--success);margin-bottom:20px;"><path d="M20 6L9 17l-5-5"/></svg><div class="nfc-scanner__success">' + t('scanner.success_open') + '</div><div class="nfc-scanner__countdown" id="scanner-countdown">' + t('scanner.countdown').replace('{n}', 5) + '</div>';
-            var countdown = 5;
-            scannerInterval = setInterval(function() {
-                countdown--;
-                var el = document.getElementById('scanner-countdown');
-                if (el) el.textContent = t('scanner.countdown').replace('{n}', countdown);
-                if (countdown <= 0 && scannerLockLeft() === 0) setScannerState('WAITING_VEHICLE');
-            }, 1000);
-
-        } else if (state === 'SUCCESS_CLOSE') {
-            stopDashboardOrderTimers();
-            content.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:80px;height:80px;color:var(--success);margin-bottom:20px;"><path d="M20 6L9 17l-5-5"/></svg><div class="nfc-scanner__success">' + t('scanner.success_close') + '</div><div class="nfc-scanner__countdown" id="scanner-countdown">' + t('scanner.countdown').replace('{n}', 5) + '</div>';
-            var countdown2 = 5;
-            scannerInterval = setInterval(function() {
-                countdown2--;
-                var el = document.getElementById('scanner-countdown');
-                if (el) el.textContent = t('scanner.countdown').replace('{n}', countdown2);
-                if (countdown2 <= 0 && scannerLockLeft() === 0) setScannerState('WAITING_VEHICLE');
-            }, 1000);
+            scSessionEnd = 0;
+            scSetView('idle');
 
         } else if (state === 'EMPLOYEE_PROFILE') {
-            stopDashboardOrderTimers();
-            var e = scannerEmployee;
-            var nameHtml = escHtml((e.first_name || '') + ' ' + (e.last_name || ''));
-            var jobsLine = e.open_jobs && e.open_jobs.length
-                ? '<p>' + e.open_jobs.length + ' job' + (e.open_jobs.length > 1 ? 's' : '') + ' ouverte' + (e.open_jobs.length > 1 ? 's' : '') + '</p>'
-                : '';
-            var statusHtml = e.is_in
-                ? '<p style="color:var(--success,#22c55e);font-weight:700;">Punch\u00e9 IN depuis ' + presHM(e.open_punch.punch_in) + '</p>'
-                : '<p style="color:var(--text-muted);font-weight:700;">Pas punch\u00e9</p>';
-            content.innerHTML =
-                '<div class="nfc-scanner__info"><p><strong>' + nameHtml + '</strong></p>' + statusHtml + jobsLine + '</div>' +
-                '<div class="nfc-scanner__title" style="margin-top:28px;">' + (e.is_in ? 'PUNCH OUT' : 'PUNCH IN') + '</div>' +
-                SCANNER_NFC_ICON +
-                '<div class="nfc-scanner__subtitle">Repasse ton badge pour ' + (e.is_in ? 'puncher OUT' : 'puncher IN') +
-                (e.is_in ? ', ou passe un v\u00e9hicule pour une job' : '') + '</div>';
-            var left = 10;
-            scannerInterval = setInterval(function() {
-                left--;
-                if (left <= 0) setScannerState('WAITING_VEHICLE');
-            }, 1000);
+            scRenderEmployee();
+            scSetView('employee');
+            scStartSession();
 
-        } else if (state === 'SUCCESS_PUNCH') {
-            stopDashboardOrderTimers();
-            content.innerHTML =
-                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:80px;height:80px;color:var(--success);margin-bottom:20px;"><path d="M20 6L9 17l-5-5"/></svg>' +
-                '<div class="nfc-scanner__success">' + escHtml(scannerPunchMsg) + '</div>';
-            scannerTimeout = setTimeout(function() { setScannerState('WAITING_VEHICLE'); }, 5000 + scannerLockLeft());
-
-        } else if (state === 'ERROR') {
-            // Error state is set with custom content before calling this
+        } else if (state === 'WAITING_EMPLOYEE') {
+            scRenderVehicle();
+            scSetView('vehicle');
+            scStartSession();
         }
     }
 
-    var scannerPunchMsg = '';
+    // Profil employe : une seule tuile s'il est OUT, deux s'il est IN
+    function scRenderEmployee() {
+        var e = scannerEmployee;
+        var open = e.open_jobs || [];
+        var vehTile = '', badgeTile;
 
-    function stopDashboardOrderTimers() {
-        dashboardOrderTimers.forEach(function(t) { clearInterval(t); });
-        dashboardOrderTimers = [];
-        if (dashboardOrdersInterval) { clearInterval(dashboardOrdersInterval); dashboardOrdersInterval = null; }
-    }
-
-    async function loadDashboardOrders() {
-        try {
-            var orders = await api('GET', '/api/control-work-orders?active=true');
-            renderDashboardOrders(orders || []);
-            // Refresh every 30s
-            if (!dashboardOrdersInterval) {
-                dashboardOrdersInterval = setInterval(function() { loadDashboardOrders(); }, 30000);
-            }
-        } catch(e) {
-            var list = document.getElementById('dashboard-orders-list');
-            if (list) list.innerHTML = '<div class="nfc-scanner__orders-empty">' + t('scanner.load_error') + '</div>';
-        }
-    }
-
-    function renderDashboardOrders(orders) {
-        var list = document.getElementById('dashboard-orders-list');
-        if (!list) return;
-
-        // Clear old timers
-        dashboardOrderTimers.forEach(function(t) { clearInterval(t); });
-        dashboardOrderTimers = [];
-
-        if (!orders || orders.length === 0) {
-            list.innerHTML = '<div class="nfc-scanner__orders-empty">' + t('scanner.no_active_orders') + '</div>';
-            return;
+        if (!e.is_in) {
+            badgeTile = scTile({ primary: true, tone: 'green', icon: 'badge', step: 'Repasse ton badge', action: 'Punch IN', desc: 'pour commencer ta journ\u00e9e.' });
+        } else {
+            vehTile = scTile({ primary: true, tone: 'orange', icon: 'car', step: 'Passe un v\u00e9hicule',
+                action: open.length ? 'Ouvrir ou fermer' : 'Commencer une job',
+                desc: open.length ? 'Ou passe un de tes v\u00e9hicules en cours pour terminer sa job.' : 'Le chrono part d\u00e8s que le v\u00e9hicule est scann\u00e9.' });
+            badgeTile = open.length
+                ? scTile({ locked: true, icon: 'badge', step: 'Repasse ton badge', action: 'Punch OUT',
+                    lock: open.length === 1 ? 'Ferme ta job d\u2019abord' : 'Ferme tes ' + open.length + ' jobs d\u2019abord' })
+                : scTile({ primary: true, tone: 'blue', icon: 'badge', step: 'Repasse ton badge', action: 'Punch OUT', desc: 'pour terminer ta journ\u00e9e.' });
         }
 
-        var html = '';
-        orders.forEach(function(order, i) {
-            var v = order.vehicle || {};
-            var e = order.employee || {};
-            var vehicleName = escHtml(v.make || 'Véhicule') + (v.year ? ' ' + v.year : '');
-            var plate = v.plate ? ' - ' + escHtml(v.plate) : '';
-            var empName = escHtml((e.first_name || '') + ' ' + (e.last_name || ''));
-            var ownerName = v.owner_name ? ' - ' + escHtml(v.owner_name) : '';
-
-            html += '<div class="nfc-scanner__order-card">' +
-                '<div class="nfc-scanner__order-dot"></div>' +
-                '<div class="nfc-scanner__order-info">' +
-                    '<div class="nfc-scanner__order-vehicle">' + vehicleName + plate + '</div>' +
-                    '<div class="nfc-scanner__order-employee">' + empName + ownerName + '</div>' +
-                '</div>' +
-                '<div class="nfc-scanner__order-timer" id="dash-order-timer-' + i + '">00:00:00</div>' +
+        var jobsHtml = '';
+        if (open.length) {
+            var shown = open.slice(0, 4), more = open.length - shown.length;
+            var cards = shown.map(function (j) {
+                var v = j.vehicle || {};
+                var sub = [v.plate, 'depuis ' + scHM(j.started_at)].filter(Boolean).join(' \u00b7 ');
+                return '<div class="ejob">' +
+                    '<div class="job__icon">' + scSvg('car') + '</div>' +
+                    '<div class="ejob__info"><div class="ejob__veh">' + escHtml(scVehName(v)) + (v.year ? ' <span>' + v.year + '</span>' : '') + '</div>' +
+                    '<div class="ejob__sub">' + escHtml(sub) + '</div></div>' +
+                    '<span class="ejob__timer" data-since="' + j.started_at + '">' + scTimerText(j.started_at) + '</span>' +
+                '</div>';
+            }).join('');
+            var moreCard = more > 0 ? '<div class="ejob ejob--more">+' + more + ' autre' + (more > 1 ? 's' : '') + ' job' + (more > 1 ? 's' : '') + ' ouverte' + (more > 1 ? 's' : '') + '</div>' : '';
+            jobsHtml = '<div class="emp__jobs">' +
+                '<div class="section-title">Tes jobs ouvertes <span class="pill">' + open.length + '</span></div>' +
+                '<div class="ejobs">' + cards + moreCard + '</div>' +
             '</div>';
-        });
+        }
 
-        list.innerHTML = html;
-
-        // Start live timers
-        orders.forEach(function(order, i) {
-            var el = document.getElementById('dash-order-timer-' + i);
-            if (!el) return;
-            var card = el.closest('.nfc-scanner__order-card');
-            var dot = card ? card.querySelector('.nfc-scanner__order-dot') : null;
-            var start = new Date(order.started_at).getTime();
-            if (start > Date.now()) start = Date.now();
-            var pausedAtMs = order.paused_at ? new Date(order.paused_at).getTime() : null;
-            var tps = order.total_paused_seconds || 0;
-            function updateTimer() {
-                var now = Date.now();
-                var paused = !!order.paused;
-                var endTime = paused ? (pausedAtMs || now) : now;
-                var working = Math.max(0, elapsedSeconds(start, endTime) - tps);
-                var h = Math.floor(working / 3600);
-                var m = Math.floor((working % 3600) / 60);
-                var s = working % 60;
-                el.textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-                el.classList.toggle('nfc-scanner__order-timer--paused', paused);
-                if (card) card.classList.toggle('nfc-scanner__order-card--paused', paused);
-                if (dot) dot.classList.toggle('nfc-scanner__order-dot--paused', paused);
-            }
-            updateTimer();
-            dashboardOrderTimers.push(setInterval(updateTimer, 1000));
-        });
+        scEl('scanner-view-employee').innerHTML =
+            '<div class="emp">' +
+                '<div class="emp__head">' + scAvatar(e, 'avatar--xl', e.is_in) +
+                    '<div class="emp__who">' +
+                        '<div class="emp__name">' + escHtml(scName(e)) + '</div>' +
+                        '<div class="emp__status">' + (e.is_in
+                            ? '<span class="status status--in"><i></i>IN</span><span>depuis ' + scHM(e.open_punch && e.open_punch.punch_in) + '</span>'
+                            : '<span class="status status--out"><i></i>OUT</span><span>Pas encore de punch aujourd\u2019hui</span>') + '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="tiles ' + (e.is_in ? 'tiles--in' : 'tiles--single') + '">' + vehTile + badgeTile + '</div>' +
+                jobsHtml +
+            '</div>';
     }
 
-    function getScannerSimHtml() {
-        return '';
+    // Vehicule scanne en premier
+    function scRenderVehicle() {
+        var v = scannerVehicle;
+        var open = scannerVehicleOrders || [];
+        var shown = open.slice(0, 3), more = open.length - shown.length;
+        var working = open.length
+            ? '<span>En ce moment :</span>' + shown.map(function (o) {
+                var e = o.employee || {};
+                return '<span class="who">' + scAvatar(e, 'avatar--sm', true) + escHtml(((e.first_name || '') + ' ' + (e.last_name || '').charAt(0) + '.').trim()) +
+                    '<b data-since="' + o.started_at + '">' + scTimerText(o.started_at) + '</b></span>';
+            }).join('') + (more > 0 ? '<span class="who who--more">+' + more + ' autre' + (more > 1 ? 's' : '') + '</span>' : '')
+            : '<span>Personne ne travaille sur ce v\u00e9hicule en ce moment.</span>';
+
+        var plateChip = v.plate ? '<span class="chip chip--plate">' + scSvg('plate') + '<b>' + escHtml(v.plate) + '</b></span>' : '';
+        var ownerChip = v.owner_name ? '<span class="chip">' + scSvg('user') + escHtml(v.owner_name) + '</span>' : '';
+
+        scEl('scanner-view-vehicle').innerHTML =
+            '<div class="veh">' +
+                '<div class="vcard">' +
+                    '<div class="vcard__art" style="--swatch:hsl(' + scHue(v.id) + ',38%,32%)">' + scSvg('carFront') + '</div>' +
+                    '<div class="vcard__body">' +
+                        '<div class="vcard__name">' + escHtml(scVehName(v)) + (v.year ? ' <small>' + v.year + '</small>' : '') + '</div>' +
+                        '<div class="vcard__chips">' + plateChip + ownerChip + '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="veh__now">' + working + '</div>' +
+                '<div class="veh__cta">' + scTapper('tapper--sm') +
+                    '<div class="veh__title">Passe ton badge</div>' +
+                    '<div class="veh__sub">' + (open.length ? 'pour commencer une job, ou terminer la tienne si tu es d\u00e9j\u00e0 dessus' : 'pour commencer une job sur ce v\u00e9hicule') + '</div>' +
+                '</div>' +
+            '</div>';
     }
 
     function startNfcListener() {
-        // WebSocket handles NFC listening globally - nothing to do here
+        // Le WebSocket ecoute globalement : rien a faire ici
     }
 
     function stopNfcListener() {
-        // WebSocket handles NFC listening globally - nothing to do here
-    }
-
-    function simulateNfc() {
-        var input = document.getElementById('nfc-sim-tag');
-        if (input && input.value.trim()) {
-            handleNfcScan(input.value.trim());
-        }
+        // Le WebSocket ecoute globalement : rien a faire ici
     }
 
     // Le badge d'un employe, enrichi de son statut de punch et de ses jobs ouvertes
     async function loadEmployeeState(employee) {
         var rows = await api('GET', '/api/control-punches?today=true');
-        var mine = (rows || []).find(function(r) { return r.id === employee.id; });
+        var mine = (rows || []).find(function (r) { return r.id === employee.id; });
+        var jobs = [];
+        if (mine && mine.open_jobs && mine.open_jobs.length) {
+            try {
+                var active = await api('GET', '/api/control-work-orders?active=true');
+                jobs = (active || []).filter(function (o) { return o.employee_id === employee.id; });
+            } catch (e) { jobs = mine.open_jobs; }
+        }
         return Object.assign({}, employee, {
             is_in: mine ? mine.is_in : false,
             open_punch: mine ? mine.open_punch : null,
-            open_jobs: mine ? mine.open_jobs : []
+            open_jobs: jobs
         });
     }
 
@@ -1820,15 +1951,17 @@
         var action = emp.is_in ? 'out' : 'in';
         try {
             await api('POST', '/api/control-punches', { employee_id: emp.id, action: action });
-            scannerPunchMsg = action === 'in' ? 'Punch IN enregistr\u00e9' : 'Punch OUT enregistr\u00e9';
-            setScannerState('SUCCESS_PUNCH');
+            scFlash(action === 'in'
+                ? { kind: 'in', kicker: escHtml(scName(emp)), title: 'Punch IN', sub: 'Bonne journ\u00e9e !', meta: ['Arriv\u00e9e \u00e0 ' + scHM(new Date().toISOString())] }
+                : { kind: 'out', kicker: escHtml(scName(emp)), title: 'Punch OUT', sub: 'Bonne fin de journ\u00e9e !', meta: ['D\u00e9part \u00e0 ' + scHM(new Date().toISOString())] });
+            scannerEmployee = null;
         } catch (err) {
             if (/open_jobs|Open work orders/.test(err.message)) {
-                showScannerError('Punch OUT bloqu\u00e9 : ferme d\u2019abord ta job sur le v\u00e9hicule.');
+                scFlash({ kind: 'block', title: 'Punch OUT bloqu\u00e9', sub: 'Tu as encore une job ouverte.', next: 'Passe le v\u00e9hicule pour la fermer, puis repasse ton badge.' });
             } else if (/too_soon|Just punched IN/.test(err.message)) {
-                showScannerError('Tu viens de puncher IN. Attends une minute.');
+                scFlash({ kind: 'block', title: 'Tu viens de puncher IN', sub: 'Attends une minute avant de puncher OUT.' });
             } else {
-                showScannerError(err.message);
+                scFlash({ kind: 'block', title: 'Impossible', sub: escHtml(err.message) });
             }
         }
     }
@@ -1837,126 +1970,100 @@
         if (!scannerState) return;
 
         // Carte laissee sur le lecteur ou repassee trop vite : on ignore
-        if (scannerLockLeft() > 0) return;
+        if (scLockLeft() > 0) return;
         startScannerLock();
 
+        var reader = scEl('scanner-reader');
+        if (reader) { reader.classList.remove('is-reading'); void reader.offsetWidth; reader.classList.add('is-reading'); }
+
+        // Une confirmation en cours est coupee par un nouveau scan
+        if (scFlashOn) { scFlashOn = false; var fl = scEl('scanner-flash'); if (fl) fl.classList.remove('is-on'); clearTimeout(scFlashTimer); }
+
         if (scannerState === 'WAITING_VEHICLE') {
-            // Un vehicule ouvre le flot habituel ; un badge d'employe ouvre son profil
-            var vehicle = null;
-            try {
-                vehicle = await api('GET', '/api/control-vehicles?nfc=' + encodeURIComponent(tagId));
-            } catch (e) { vehicle = null; }
+            await handleNfcScanFromIdle(tagId);
 
-            if (vehicle) {
-                scannerVehicle = vehicle;
-                setScannerState('WAITING_EMPLOYEE');
-                return;
-            }
-
-            try {
-                var emp = await api('GET', '/api/control-employees?nfc=' + encodeURIComponent(tagId));
-                scannerEmployee = await loadEmployeeState(emp);
-                scannerArmed = true;
-                setScannerState('EMPLOYEE_PROFILE');
-            } catch (e2) {
-                showScannerError(t('scanner.error_vehicle'));
-            }
-
-        } else if (scannerState === 'EMPLOYEE_PROFILE') {
-            // Le meme badge une 2e fois : on change son statut IN/OUT
+        } else if (scannerState === 'EMPLOYEE_PROFILE' && scannerEmployee) {
             var again = null;
-            try {
-                again = await api('GET', '/api/control-employees?nfc=' + encodeURIComponent(tagId));
-            } catch (e3) { again = null; }
+            try { again = await api('GET', '/api/control-employees?nfc=' + encodeURIComponent(tagId)); } catch (e) { again = null; }
 
-            if (again && scannerArmed && again.id === scannerEmployee.id) {
-                await togglePunch(scannerEmployee);
-                return;
-            }
+            // Le meme badge une 2e fois : on change son statut IN/OUT
+            if (again && scannerArmed && again.id === scannerEmployee.id) { await togglePunch(scannerEmployee); return; }
+            if (again) { scannerEmployee = await loadEmployeeState(again); scannerArmed = true; setScannerState('EMPLOYEE_PROFILE'); return; }
 
-            // Sinon, un vehicule : on ouvre ou ferme la job de cet employe
             var veh = null;
-            try {
-                veh = await api('GET', '/api/control-vehicles?nfc=' + encodeURIComponent(tagId));
-            } catch (e4) { veh = null; }
-
-            if (!veh) { showScannerError(t('scanner.error_vehicle')); return; }
+            try { veh = await api('GET', '/api/control-vehicles?nfc=' + encodeURIComponent(tagId)); } catch (e) { veh = null; }
+            if (!veh) { scFlash({ kind: 'unknown', title: 'Badge inconnu', sub: 'Cette carte n\u2019est associ\u00e9e \u00e0 personne ni \u00e0 aucun v\u00e9hicule.' }); return; }
 
             if (!scannerEmployee.is_in) {
-                showScannerError('Punch IN d\u2019abord : repasse ton badge pour commencer ta journ\u00e9e.');
+                scFlash({ kind: 'block', title: 'Punch IN d\u2019abord', sub: 'Tu dois commencer ta journ\u00e9e avant d\u2019ouvrir une job.', next: 'Repasse ton badge pour puncher IN.' });
                 return;
             }
+            await scJobOnVehicle(veh, scannerEmployee);
 
-            try {
-                var orders = await api('GET', '/api/control-work-orders?vehicle_id=' + veh.id);
-                var mineOrder = orders && orders.length ? orders.find(function(o) { return o.employee_id === scannerEmployee.id; }) : null;
-                if (mineOrder) {
-                    await api('PATCH', '/api/control-work-orders', { vehicle_id: veh.id, employee_id: scannerEmployee.id });
-                    setScannerState('SUCCESS_CLOSE');
-                } else {
-                    await api('POST', '/api/control-work-orders', {
-                        vehicle_id: veh.id, employee_id: scannerEmployee.id, started_at: new Date().toISOString()
-                    });
-                    setScannerState('SUCCESS_OPEN');
-                }
-            } catch (e5) {
-                showScannerError(e5.message);
+        } else if (scannerState === 'WAITING_EMPLOYEE' && scannerVehicle) {
+            var employee = null;
+            try { employee = await api('GET', '/api/control-employees?nfc=' + encodeURIComponent(tagId)); } catch (e) { employee = null; }
+            if (!employee) { scFlash({ kind: 'unknown', title: 'Badge inconnu', sub: 'Cette carte n\u2019est associ\u00e9e \u00e0 personne.' }); return; }
+
+            var st = await loadEmployeeState(employee);
+            var mineOpen = (scannerVehicleOrders || []).some(function (o) { return o.employee_id === employee.id; });
+            if (!mineOpen && !st.is_in) {
+                scFlash({ kind: 'block', title: 'Punch IN d\u2019abord', sub: 'Tu dois commencer ta journ\u00e9e avant d\u2019ouvrir une job.', next: 'Passe ton badge seul pour puncher IN.' });
+                return;
             }
+            await scJobOnVehicle(scannerVehicle, st);
 
-        } else if (scannerState === 'WAITING_EMPLOYEE') {
-            // Lookup employee by NFC, then decide: open or close
-            try {
-                var employee = await api('GET', '/api/control-employees?nfc=' + encodeURIComponent(tagId));
-                // Check if this employee has an open order on this vehicle
-                var activeOrders = await api('GET', '/api/control-work-orders?vehicle_id=' + scannerVehicle.id);
-                var empOrder = activeOrders && activeOrders.length ? activeOrders.find(function(o) { return o.employee_id === employee.id; }) : null;
+        } else {
+            // Session deja retombee (une confirmation venait de s'afficher) : on repart de l'accueil
+            scannerState = 'WAITING_VEHICLE';
+            scannerEmployee = null;
+            scannerVehicle = null;
+            scannerArmed = false;
+            await handleNfcScanFromIdle(tagId);
+        }
+    }
 
-                // On ne peut pas commencer une job sans avoir punche IN (on peut toujours fermer la sienne)
-                if (!empOrder) {
-                    var st = await loadEmployeeState(employee);
-                    if (!st.is_in) {
-                        showScannerError('Punch IN d\u2019abord : passe ton badge seul pour commencer ta journ\u00e9e.');
-                        return;
-                    }
-                }
+    // Traitement d'un scan quand aucune session n'est ouverte
+    async function handleNfcScanFromIdle(tagId) {
+        var vehicle = null;
+        try { vehicle = await api('GET', '/api/control-vehicles?nfc=' + encodeURIComponent(tagId)); } catch (e) { vehicle = null; }
 
-                if (empOrder) {
-                    // Close this employee's order
-                    await api('PATCH', '/api/control-work-orders', { vehicle_id: scannerVehicle.id, employee_id: employee.id });
-                    setScannerState('SUCCESS_CLOSE');
-                } else {
-                    // Open new order
-                    var localStartTime = new Date().toISOString();
-                    await api('POST', '/api/control-work-orders', {
-                        vehicle_id: scannerVehicle.id,
-                        employee_id: employee.id,
-                        started_at: localStartTime
-                    });
-                    setScannerState('SUCCESS_OPEN');
-                }
-            } catch(e) {
-                showScannerError(t('scanner.error_employee'));
+        if (vehicle) {
+            scannerVehicle = vehicle;
+            try { scannerVehicleOrders = await api('GET', '/api/control-work-orders?vehicle_id=' + vehicle.id); } catch (e) { scannerVehicleOrders = []; }
+            setScannerState('WAITING_EMPLOYEE');
+            return;
+        }
+
+        var emp = null;
+        try { emp = await api('GET', '/api/control-employees?nfc=' + encodeURIComponent(tagId)); } catch (e) { emp = null; }
+        if (!emp) { scFlash({ kind: 'unknown', title: 'Badge inconnu', sub: 'Cette carte n\u2019est associ\u00e9e \u00e0 personne ni \u00e0 aucun v\u00e9hicule.' }); return; }
+
+        scannerEmployee = await loadEmployeeState(emp);
+        scannerArmed = true;
+        setScannerState('EMPLOYEE_PROFILE');
+    }
+
+    // Ouvre ou ferme la job de cet employe sur ce vehicule
+    async function scJobOnVehicle(veh, emp) {
+        try {
+            var orders = await api('GET', '/api/control-work-orders?vehicle_id=' + veh.id);
+            var mineOrder = orders && orders.length ? orders.find(function (o) { return o.employee_id === emp.id; }) : null;
+            if (mineOrder) {
+                await api('PATCH', '/api/control-work-orders', { vehicle_id: veh.id, employee_id: emp.id });
+                scFlash({ kind: 'jobEnd', kicker: escHtml(scName(emp)), title: 'Job termin\u00e9e', sub: escHtml(scVehLine(veh)), meta: ['Commenc\u00e9e \u00e0 ' + scHM(mineOrder.started_at)] });
+            } else {
+                await api('POST', '/api/control-work-orders', { vehicle_id: veh.id, employee_id: emp.id, started_at: new Date().toISOString() });
+                scFlash({ kind: 'jobStart', kicker: escHtml(scName(emp)), title: 'Job commenc\u00e9e', sub: escHtml(scVehLine(veh)), meta: ['D\u00e9but \u00e0 ' + scHM(new Date().toISOString())] });
             }
+            scannerEmployee = null;
+        } catch (e) {
+            scFlash({ kind: 'block', title: 'Impossible', sub: escHtml(e.message) });
         }
     }
 
     function showScannerError(msg) {
-        var content = document.getElementById('scanner-content');
-        var prevState = scannerState;
-        clearScannerTimers();
-
-        content.innerHTML = '<div class="nfc-scanner__error">' + escHtml(msg) + '</div>';
-        scannerTimeout = setTimeout(function() {
-            if (prevState === 'CLOSING_ORDER') {
-                setScannerState('CLOSING_ORDER');
-            } else if (prevState === 'EMPLOYEE_PROFILE') {
-                setScannerState('WAITING_VEHICLE');
-            } else if (prevState === 'WAITING_EMPLOYEE') {
-                setScannerState('WAITING_EMPLOYEE');
-            } else {
-                setScannerState('WAITING_VEHICLE');
-            }
-        }, 3000);
+        scFlash({ kind: 'block', title: 'Impossible', sub: escHtml(msg) });
     }
 
     // ---- PHOTO PREVIEW ----
@@ -2237,7 +2344,6 @@
             // Refresh vehicle list, dashboard and monitoring if changes detected
             if (hasChanges) {
                 loadVehicles();
-                loadDashboardOrders();
                 var monPanel = document.getElementById('panel-monitoring');
                 if (monPanel && monPanel.classList.contains('active')) loadMonitoring();
             }
@@ -3148,7 +3254,6 @@
         vehDetailGoTo: vehDetailGoTo,
         addVehicleNote: addVehicleNote,
         deleteVehicleNote: deleteVehicleNote,
-        simulateNfc: simulateNfc,
         toggleMediaSelect: toggleMediaSelect,
         copyMediaLink: function(token) { copyToClipboard(mediaShareUrl(token)); },
         openMediaFull: openMediaFull,
