@@ -6,3 +6,10 @@ node_modules/
 .env
 .netlify/
 .claude/settings.local.json
+
+# Sauvegardes locales et artefacts de compilation (jamais versionnes)
+OLD ELECTR/
+nfc-server/build/
+nfc-server/dist/
+__pycache__/
+supabase/.temp/

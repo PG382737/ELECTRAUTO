@@ -1,0 +1,13 @@
+{
+  "name": "electrauto-nfc-server",
+  "version": "1.0.0",
+  "description": "Serveur NFC local pour Électr'auto Québec - Pont entre ACR122U et le navigateur",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "nfc-pcsc": "^0.8.1",
+    "ws": "^8.16.0"
+  }
+}

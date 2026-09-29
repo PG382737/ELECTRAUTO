@@ -97,14 +97,27 @@ def broadcast(data):
 
 # ---- NFC Card Observer ----
 
+# Une carte laissée sur le lecteur est redétectée par le matériel toutes les quelques secondes.
+# Chaque redétection était envoyée au navigateur, ce qui refermait la job qui venait d'être ouverte
+# (d'où les bons de travail de 0 minute). On n'envoie donc une carte qu'une seule fois,
+# tant qu'elle n'a pas été retirée du lecteur.
+REPEAT_BLOCK_S = 2      # même carte retirée puis repassée trop vite : on ignore
+STUCK_CARD_S = 30       # sécurité si le lecteur n'annonce jamais le retrait de la carte
+
+
 class NFCObserver(CardObserver):
     def __init__(self):
         self.last_uid = None
         self.last_time = 0
+        self.present_uid = None     # carte actuellement posée sur le lecteur
 
     def update(self, observable, actions):
         global reader_connected
         added, removed = actions
+
+        # Carte retirée : la prochaine lecture comptera
+        if removed:
+            self.present_uid = None
 
         for card in added:
             try:
@@ -116,11 +129,17 @@ class NFCObserver(CardObserver):
 
                 if sw1 == 0x90 and sw2 == 0x00:
                     uid = toHexString(data).replace(" ", "").upper()
-
                     now = time.time()
-                    if uid == self.last_uid and (now - self.last_time) < 2:
-                        return
 
+                    # Toujours la même carte, jamais retirée : c'est une redétection, pas un nouveau passage
+                    if uid == self.present_uid and (now - self.last_time) < STUCK_CARD_S:
+                        continue
+
+                    # Carte repassée trop vite après la précédente lecture
+                    if uid == self.last_uid and (now - self.last_time) < REPEAT_BLOCK_S:
+                        continue
+
+                    self.present_uid = uid
                     self.last_uid = uid
                     self.last_time = now
 
@@ -133,21 +152,22 @@ class NFCObserver(CardObserver):
             except Exception:
                 pass
 
-        for card in removed:
-            pass
-
 
 def check_readers():
     """Periodically check if reader is connected."""
     global reader_connected
+    # Wait for tray icon to initialize
+    time.sleep(2)
+    first_run = True
     while True:
         try:
             r = readers()
             connected = len(r) > 0
-            if connected != reader_connected:
+            if connected != reader_connected or first_run:
                 reader_connected = connected
                 broadcast({"type": "status", "reader": connected})
                 update_tray_status()
+                first_run = False
         except Exception:
             pass
         time.sleep(3)
