@@ -1697,6 +1697,7 @@
     var SC_LOCK_MS = 2000;       // blocage apres chaque scan
     var SC_READY_MS = 900;       // « tu peux repasser ta carte »
     var SC_RING = 785;
+    var SC_MIN_JOB_MS = 120000;   // une job ne peut pas se fermer dans ses 2 premieres minutes
     var SC_FLASH_ICON = { in: 'login', out: 'logout', jobStart: 'play', jobEnd: 'check', block: 'lock', unknown: 'help' };
 
     var scLockUntil = 0, scLockTimers = [], scSessionTimer = 0, scSessionEnd = 0, scFlashTimer = 0, scFlashOn = false, scClockTimer = 0, scRaf = 0;
@@ -2152,6 +2153,20 @@
         try {
             var orders = await api('GET', '/api/control-work-orders?vehicle_id=' + veh.id);
             var mineOrder = orders && orders.length ? orders.find(function (o) { return o.employee_id === emp.id; }) : null;
+
+            // Relecture de la meme carte juste apres l'ouverture : on refuse de fermer
+            if (mineOrder) {
+                var age = Date.now() - new Date(mineOrder.started_at).getTime();
+                if (age < SC_MIN_JOB_MS) {
+                    var left = Math.ceil((SC_MIN_JOB_MS - age) / 1000);
+                    scFlash({ kind: 'block', kicker: escHtml(scName(emp)), title: 'Job d\u00e9j\u00e0 commenc\u00e9e',
+                        sub: 'Tu viens de commencer cette job \u00e0 ' + scHM(mineOrder.started_at) + ' sur le ' + escHtml(scVehLine(veh)) + '.',
+                        next: 'Pour la fermer, repasse le v\u00e9hicule dans ' + left + ' secondes.' });
+                    scannerEmployee = null;
+                    return;
+                }
+            }
+
             if (mineOrder) {
                 await api('PATCH', '/api/control-work-orders', { vehicle_id: veh.id, employee_id: emp.id });
                 scFlash({ kind: 'jobEnd', kicker: escHtml(scName(emp)), title: 'Job termin\u00e9e', sub: escHtml(scVehLine(veh)), meta: ['Commenc\u00e9e \u00e0 ' + scHM(mineOrder.started_at)] });
