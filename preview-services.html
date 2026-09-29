@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview — Services avec Programmation de clés</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/v2.css">
+    <style>
+        /* Featured card — spans full width */
+        .scard--featured {
+            grid-column: 1 / -1;
+            padding: 32px 36px 28px;
+            border: 1px solid rgba(207,138,46,0.35);
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(207,138,46,0.06) 100%);
+        }
+        .scard--featured .scard__icon {
+            width: 56px;
+            height: 56px;
+            background: var(--accent-glow);
+            border-color: rgba(207,138,46,0.25);
+            margin-bottom: 16px;
+        }
+        .scard--featured .scard__icon svg {
+            width: 28px;
+            height: 28px;
+            color: var(--accent);
+        }
+        .scard--featured .scard__badge {
+            align-self: flex-start;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+        }
+        .scard--featured h3 {
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+        }
+        .scard--featured .scard__details {
+            display: block;
+            padding-top: 10px;
+            margin-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+        .scard--featured .scard__details .scard__list {
+            border-top: none;
+            padding-top: 0;
+        }
+        .scard--featured .scard__more,
+        .scard--featured .scard__close {
+            display: none;
+        }
+        .scard--featured:hover {
+            transform: none;
+            border-color: rgba(207,138,46,0.5);
+        }
+
+        /* Light mode */
+        [data-theme="light"] .scard--featured {
+            background: linear-gradient(135deg, #fff 0%, rgba(207,138,46,0.06) 100%);
+            border-color: rgba(207,138,46,0.3);
+        }
+    </style>
+</head>
+<body>
+    <section id="services" class="section" style="padding-top: 60px;">
+        <div class="wrap">
+            <div class="section__head">
+                <span class="section__tag">Ce que nous faisons</span>
+                <h2>Services spécialisés</h2>
+                <p>Vous cherchez un endroit fiable et honnête pour la réparation et l'entretien de votre véhicule ? Vous avez trouvé.</p>
+            </div>
+
+            <div class="services-grid" id="services-grid">
+
+                <!-- FEATURED: Programmation de clés -->
+                <div class="scard scard--featured">
+                    <div class="scard__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                    </div>
+                    <span class="scard__badge">Service vedette</span>
+                    <h3>Programmation de clés</h3>
+                    <p>Perte de clé, clé endommagée ou ajout d'une clé supplémentaire ? Nous programmons les clés et télécommandes pour toutes les marques de véhicules, directement à notre atelier.</p>
+                    <div class="scard__details">
+                        <ul class="scard__list">
+                            <li>Programmation de clés neuves</li>
+                            <li>Remplacement de clés perdues (toutes marques)</li>
+                            <li>Programmation de télécommandes</li>
+                            <li>Réparation du système antidémarrage (immobilizer)</li>
+                            <li>Copie et duplication de clés à puce</li>
+                            <li>Programmation de clés intelligentes (smart key / proximity)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Card 1: Audi & BMW -->
+                <div class="scard">
+                    <div class="scard__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9m-6-6h15m-6 0V6"/></svg>
+                    </div>
+                    <h3>Spécialistes Audi et BMW</h3>
+                    <p>Vous cherchez un endroit fiable et honnête pour la réparation et l'entretien de votre BMW ou Audi ? Vous avez trouvé.</p>
+                    <button class="scard__more" onclick="toggleService(this.parentElement)">Détails <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+                    <button class="scard__close" onclick="event.stopPropagation(); toggleService(this.closest('.scard'))" aria-label="Fermer">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                    <div class="scard__details">
+                        <span class="scard__details-title">Toutes les réparations disponibles :</span>
+                        <ul class="scard__list">
+                            <li>Problèmes électroniques</li>
+                            <li>Différentiel quattro et xDrive</li>
+                            <li>Entretien recommandé</li>
+                            <li>Système de refroidissement</li>
+                            <li>Boîtes de vitesses</li>
+                            <li>Direction</li>
+                            <li>Inspection du véhicule et remise en état</li>
+                            <li>Problème de freins</li>
+                            <li>Révision des freins, pneus et pièces</li>
+                            <li>Amortisseurs & suspension</li>
+                            <li>Système de chauffage / dégivreur</li>
+                            <li>Démarreurs et alternateurs</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Card 2: Air climatisé -->
+                <div class="scard">
+                    <div class="scard__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v4m0 12v4M2 12h4m12 0h4M6.34 6.34l2.83 2.83m5.66 5.66l2.83 2.83M17.66 6.34l-2.83 2.83m-5.66 5.66l-2.83 2.83"/><circle cx="12" cy="12" r="3"/></svg>
+                    </div>
+                    <h3>Air climatisé</h3>
+                    <p>Que ce soit pour une voiture de marque populaire ou de prestige, nous disposons de tous les outils nécessaires pour réparer votre système de climatisation.</p>
+                    <button class="scard__more" onclick="toggleService(this.parentElement)">Détails <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+                    <button class="scard__close" onclick="event.stopPropagation(); toggleService(this.closest('.scard'))" aria-label="Fermer">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                    <div class="scard__details">
+                        <span class="scard__details-title">Services offerts :</span>
+                        <ul class="scard__list">
+                            <li>Diagnostic du système A/C</li>
+                            <li>Recharge de réfrigérant</li>
+                            <li>Réparation de compresseur</li>
+                            <li>Détection et réparation de fuites</li>
+                            <li>Remplacement de composants</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Card 3: Entretien préventif -->
+                <div class="scard">
+                    <div class="scard__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                    </div>
+                    <h3>Entretien préventif</h3>
+                    <p>L'entretien régulier de votre véhicule prévient les problèmes majeurs. Nos entretiens détectent les signes de fatigue pour minimiser les dégâts et les coûts.</p>
+                    <button class="scard__more" onclick="toggleService(this.parentElement)">Détails <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+                    <button class="scard__close" onclick="event.stopPropagation(); toggleService(this.closest('.scard'))" aria-label="Fermer">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                    <div class="scard__details">
+                        <ul class="scard__list">
+                            <li>Inspection de transmission</li>
+                            <li>Pneus</li>
+                            <li>Freins et direction</li>
+                            <li>Diagnostic du véhicule</li>
+                            <li>Inspection de véhicule certifié</li>
+                            <li>Système de refroidissement</li>
+                            <li>Vidange d'huile en moins de 30 min</li>
+                            <li>Amortisseurs & suspension</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Card 4: Réparation mécanique -->
+                <div class="scard">
+                    <div class="scard__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 6V4m4 2V4m4 2V4m4 2V4M6 18v2m4-2v2m4-2v2m4-2v2"/><circle cx="12" cy="12" r="3"/></svg>
+                    </div>
+                    <h3>Réparation mécanique</h3>
+                    <p>Notre personnel est qualifié pour bien identifier votre problème, remplacer les pièces et les composantes défectueuses et effectuer les réparations requises.</p>
+                    <button class="scard__more" onclick="toggleService(this.parentElement)">Détails <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+                    <button class="scard__close" onclick="event.stopPropagation(); toggleService(this.closest('.scard'))" aria-label="Fermer">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                    <div class="scard__details">
+                        <span class="scard__details-title">Faites-nous confiance en ce qui concerne :</span>
+                        <ul class="scard__list">
+                            <li>Le reconditionnement du moteur</li>
+                            <li>Le remontage de la boîte de vitesses manuelles</li>
+                            <li>L'expertise de l'électronique automobile</li>
+                            <li>Les systèmes électriques (batterie, démarreur, alternateur)</li>
+                            <li>Les freins et la direction</li>
+                            <li>La suspension et les amortisseurs</li>
+                            <li>Le système d'échappement</li>
+                            <li>Le système antipollution</li>
+                            <li>Le système de refroidissement</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Card 5: Diagnostic électronique avancé -->
+                <div class="scard">
+                    <div class="scard__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/><path d="M7 10l3 3 4-5 3 2"/></svg>
+                    </div>
+                    <h3>Diagnostic électronique avancé</h3>
+                    <p>Notre système de diagnostic avancé permet d'identifier efficacement l'origine de problèmes électroniques.</p>
+                    <button class="scard__more" onclick="toggleService(this.parentElement)">Détails <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+                    <button class="scard__close" onclick="event.stopPropagation(); toggleService(this.closest('.scard'))" aria-label="Fermer">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                    <div class="scard__details">
+                        <span class="scard__details-title">Incluant :</span>
+                        <ul class="scard__list">
+                            <li>Vérification des problèmes d'alimentation en carburant ou de combustion</li>
+                            <li>Essais, vérification et remplacement des capteurs/composants</li>
+                            <li>Mesure des paramètres</li>
+                            <li>Test des équipements électroniques</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Card 6: Reprogrammation électronique -->
+                <div class="scard">
+                    <div class="scard__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="14" height="14" rx="2"/><path d="M9 2v3m6-3v3M9 19v3m6-3v3M2 9h3m-3 6h3M19 9h3m-3 6h3"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+                    </div>
+                    <h3>Reprogrammation électronique</h3>
+                    <p>Lors d'un remplacement de pièces de véhicule moderne, une reprogrammation ou une mise à jour du module de contrôle s'avère très souvent nécessaire.</p>
+                    <button class="scard__more" onclick="toggleService(this.parentElement)">Détails <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+                    <button class="scard__close" onclick="event.stopPropagation(); toggleService(this.closest('.scard'))" aria-label="Fermer">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                    <div class="scard__details">
+                        <p class="scard__details-text">Nous disposons des plus récents outils dans le domaine, ce qui fait de nous l'atelier de référence à Québec.</p>
+                        <ul class="scard__list">
+                            <li>Programmation de l'ordinateur de bord</li>
+                            <li>Mise à jour des modules de contrôle</li>
+                            <li>Calibrage après remplacement de pièces</li>
+                            <li>Codage de clés et antidémarrage</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <script src="js/v2.js"></script>
+</body>
+</html>
