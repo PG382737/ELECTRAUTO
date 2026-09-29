@@ -147,7 +147,7 @@ function updateAttemptsDisplay(attemptsLeft) {
         el.textContent = '';
         return;
     }
-    el.textContent = attemptsLeft + ' essai' + (attemptsLeft > 1 ? 's' : '') + ' restant' + (attemptsLeft > 1 ? 's' : '') + ' avant blocage';
+    el.textContent = attemptsLeft + (attemptsLeft > 1 ? t('login.attempts_plural') : t('login.attempts_singular'));
     el.className = 'login__attempts' + (attemptsLeft <= 2 ? ' danger' : attemptsLeft <= 3 ? ' warning' : '');
 }
 
@@ -287,7 +287,7 @@ document.getElementById('login-form').addEventListener('submit', async function(
         }
 
         if (!res.ok) {
-            throw new Error(data.error || 'Erreur serveur');
+            throw new Error(data.error || t('login.error_server'));
         }
 
         // Trusted device - skip 2FA
@@ -306,10 +306,10 @@ document.getElementById('login-form').addEventListener('submit', async function(
         document.getElementById('tfa-code').focus();
 
     } catch(err) {
-        errorEl.textContent = err.message || 'Erreur de connexion.';
+        errorEl.textContent = err.message || t('login.error_connection');
     } finally {
         btn.disabled = false;
-        btn.textContent = 'Accéder';
+        btn.textContent = t('login.submit');
         btn.classList.remove('btn-loading');
     }
 });
@@ -325,7 +325,7 @@ document.getElementById('tfa-form').addEventListener('submit', async function(e)
 
     var code = codeInput.value.trim();
     if (code.length !== 6) {
-        errorEl.textContent = 'Entrez le code à 6 chiffres.';
+        errorEl.textContent = t('login.2fa_enter_code');
         return;
     }
 
@@ -346,7 +346,7 @@ document.getElementById('tfa-form').addEventListener('submit', async function(e)
         var data = await res.json();
 
         if (!res.ok) {
-            errorEl.textContent = data.message || 'Code invalide.';
+            errorEl.textContent = data.message || t('login.2fa_invalid');
             codeInput.value = '';
             codeInput.focus();
             return;
@@ -361,10 +361,10 @@ document.getElementById('tfa-form').addEventListener('submit', async function(e)
         enterDashboard(adminPassword);
 
     } catch(err) {
-        errorEl.textContent = err.message || 'Erreur de vérification.';
+        errorEl.textContent = err.message || t('login.2fa_error');
     } finally {
         btn.disabled = false;
-        btn.textContent = 'Vérifier';
+        btn.textContent = t('login.2fa_verify');
         btn.classList.remove('btn-loading');
     }
 });
@@ -660,30 +660,31 @@ async function loadArticles() {
             container.innerHTML =
                 '<div class="empty-state">' +
                     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
-                    '<p>Aucun article. Cliquez sur «&nbsp;Nouvel article&nbsp;» pour commencer.</p>' +
+                    '<p>' + t('blog.empty') + '</p>' +
                 '</div>';
             return;
         }
 
         var html = '<table class="articles-table"><thead><tr>' +
-            '<th>Titre</th><th>Date</th><th>Statut</th><th style="text-align:right;">Actions</th>' +
+            '<th>' + t('blog.col_title') + '</th><th>' + t('blog.col_date') + '</th><th>' + t('blog.col_status') + '</th><th style="text-align:right;">' + t('blog.col_actions') + '</th>' +
             '</tr></thead><tbody>';
 
         articles.forEach(function(a) {
-            var date = new Date(a.created_at).toLocaleDateString('fr-CA', {
+            var articleLocale = currentLang === 'en' ? 'en-CA' : 'fr-CA';
+            var date = new Date(a.created_at).toLocaleDateString(articleLocale, {
                 year: 'numeric', month: 'short', day: 'numeric'
             });
             var isPub = a.published;
             var badgeClass = isPub ? 'badge-status--published' : 'badge-status--draft';
-            var badgeText = isPub ? 'Publié' : 'Brouillon';
+            var badgeText = isPub ? t('blog.published') : t('blog.draft');
 
             html += '<tr>' +
                 '<td class="col-title">' + escapeHtml(a.title || a.title_fr || '') + '</td>' +
                 '<td class="col-date">' + date + '</td>' +
                 '<td><span class="badge-status ' + badgeClass + '">' + badgeText + '</span></td>' +
                 '<td><div class="col-actions">' +
-                    '<button class="btn btn--ghost btn--sm" onclick="editArticle(\'' + a.id + '\')">Modifier</button>' +
-                    '<button class="btn btn--danger btn--sm" onclick="confirmDelete(\'' + a.id + '\')">Supprimer</button>' +
+                    '<button class="btn btn--ghost btn--sm" onclick="editArticle(\'' + a.id + '\')">' + t('blog.btn_edit') + '</button>' +
+                    '<button class="btn btn--danger btn--sm" onclick="confirmDelete(\'' + a.id + '\')">' + t('blog.btn_delete') + '</button>' +
                 '</div></td>' +
                 '</tr>';
         });
@@ -695,7 +696,7 @@ async function loadArticles() {
     } catch(e) {
         container.innerHTML =
             '<div class="empty-state">' +
-                '<p>Erreur: ' + escapeHtml(e.message) + '</p>' +
+                '<p>' + t('general.error_prefix') + escapeHtml(e.message) + '</p>' +
             '</div>';
     }
 }
@@ -709,7 +710,7 @@ document.getElementById('btn-new-article').addEventListener('click', function() 
 
 function openArticleModal(article) {
     articleModal.classList.add('active');
-    document.getElementById('modal-title').textContent = article ? 'Modifier l\'article' : 'Nouvel article';
+    document.getElementById('modal-title').textContent = article ? t('blog.modal_edit') : t('blog.modal_new');
     document.getElementById('edit-id').value = article ? article.id : '';
 
     // FR fields
@@ -735,7 +736,7 @@ function openArticleModal(article) {
     } else {
         preview.innerHTML =
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;opacity:.4;margin-bottom:6px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>' +
-            '<span>Cliquer pour ajouter</span>';
+            '<span>' + t('blog.image_add') + '</span>';
         upload.classList.remove('has-image');
     }
 
@@ -775,7 +776,7 @@ document.querySelectorAll('.tb-btn').forEach(function(btn) {
         var val = btn.dataset.val || null;
 
         if (cmd === 'createLink') {
-            var url = prompt('URL du lien:');
+            var url = prompt(t('general.link_url'));
             if (url) document.execCommand('createLink', false, url);
         } else if (cmd === 'formatBlock') {
             document.execCommand('formatBlock', false, '<' + val + '>');
@@ -899,7 +900,7 @@ document.getElementById('crop-confirm').addEventListener('click', async function
 
         closeCropModal();
     } catch(err) {
-        alert('Erreur upload: ' + err.message);
+        alert(t('crop.error') + err.message);
     } finally {
         confirmBtn.disabled = false;
         confirmBtn.classList.remove('btn-loading');
@@ -914,7 +915,7 @@ document.getElementById('crop-close').addEventListener('click', closeCropModal);
 document.getElementById('btn-remove-image').addEventListener('click', function() {
     document.getElementById('edit-image-url').value = '';
     document.getElementById('image-file').value = '';
-    document.getElementById('image-preview').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;opacity:.4;margin-bottom:6px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><span>Cliquer pour ajouter</span>';
+    document.getElementById('image-preview').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;opacity:.4;margin-bottom:6px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><span>' + t('blog.image_add') + '</span>';
     document.getElementById('image-upload').classList.remove('has-image');
     document.getElementById('btn-remove-image').style.display = 'none';
 });
@@ -929,12 +930,12 @@ document.getElementById('btn-save').addEventListener('click', async function() {
     var titleFr = document.getElementById('edit-title-fr').value.trim();
     var contentFr = document.getElementById('edit-content-fr').innerHTML.trim();
 
-    if (!titleFr) { alert('Le titre français est requis.'); return; }
-    if (!contentFr) { alert('Le contenu français est requis.'); return; }
+    if (!titleFr) { alert(t('blog.title_required')); return; }
+    if (!contentFr) { alert(t('blog.content_required')); return; }
 
     var btn = document.getElementById('btn-save');
     btn.disabled = true;
-    btn.textContent = 'Sauvegarde...';
+    btn.textContent = t('blog.saving');
 
     try {
         var data = {
@@ -959,11 +960,11 @@ document.getElementById('btn-save').addEventListener('click', async function() {
         closeArticleModal();
         loadArticles();
     } catch(e) {
-        alert('Erreur: ' + e.message);
+        alert(t('general.error_prefix') + e.message);
     }
 
     btn.disabled = false;
-    btn.textContent = 'Sauvegarder';
+    btn.textContent = t('blog.btn_save');
 });
 
 // ---- Edit Article ----
@@ -998,7 +999,7 @@ document.getElementById('btn-confirm-delete').addEventListener('click', async fu
         closeConfirm();
         loadArticles();
     } catch(e) {
-        alert('Erreur: ' + e.message);
+        alert(t('general.error_prefix') + e.message);
         closeConfirm();
     }
 });
@@ -1050,11 +1051,11 @@ async function saveDelays() {
     try {
         await api('POST', '/api/delays', data);
         statusEl.className = 'delays-status success';
-        statusEl.textContent = 'Délais sauvegardés avec succès.';
+        statusEl.textContent = t('delays.saved');
         setTimeout(function() { statusEl.className = 'delays-status'; }, 3000);
     } catch(e) {
         statusEl.className = 'delays-status error';
-        statusEl.textContent = 'Erreur: ' + e.message;
+        statusEl.textContent = t('general.error_prefix') + e.message;
     }
 }
 
@@ -1080,12 +1081,12 @@ async function loadNotes() {
 function renderNotes(notes) {
     var feed = document.getElementById('notes-feed');
     if (!notes || notes.length === 0) {
-        feed.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="width:48px;height:48px;opacity:.3;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><p>Aucune note. Écrivez votre première note ci-dessous.</p></div>';
+        feed.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="width:48px;height:48px;opacity:.3;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><p>' + t('notes.empty') + '</p></div>';
         return;
     }
     feed.innerHTML = notes.map(function(note) {
         return '<div class="note-item" data-id="' + note.id + '">' +
-            '<button class="note-item__delete" onclick="deleteNote(\'' + note.id + '\')" title="Supprimer">&times;</button>' +
+            '<button class="note-item__delete" onclick="deleteNote(\'' + note.id + '\')" title="' + t('notes.delete_tooltip') + '">&times;</button>' +
             '<div class="note-item__date">' + formatNoteDate(note.created_at) + '</div>' +
             '<div class="note-item__text">' + escapeHtml(note.text) + '</div>' +
             '</div>';
@@ -1095,16 +1096,18 @@ function renderNotes(notes) {
 function formatNoteDate(iso) {
     var d = new Date(iso);
     var now = new Date();
+    var locale = currentLang === 'en' ? 'en-CA' : 'fr-CA';
     var opts = { hour: '2-digit', minute: '2-digit' };
-    var time = d.toLocaleTimeString('fr-CA', opts);
+    var time = d.toLocaleTimeString(locale, opts);
 
     var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     var noteDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
     var diff = Math.floor((today - noteDay) / 86400000);
 
-    if (diff === 0) return "Aujourd'hui à " + time;
-    if (diff === 1) return 'Hier à ' + time;
-    return d.toLocaleDateString('fr-CA', { day: 'numeric', month: 'long', year: 'numeric' }) + ' à ' + time;
+    if (diff === 0) return t('notes.today') + time;
+    if (diff === 1) return t('notes.yesterday') + time;
+    var sep = currentLang === 'en' ? ' at ' : ' \u00e0 ';
+    return d.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }) + sep + time;
 }
 
 // Send note
@@ -1130,7 +1133,7 @@ async function sendNote() {
         // Reload all notes to stay in sync
         await loadNotes();
     } catch(e) {
-        alert('Erreur: ' + e.message);
+        alert(t('general.error_prefix') + e.message);
     } finally {
         btn.disabled = false;
         input.focus();
@@ -1143,7 +1146,7 @@ window.deleteNote = async function(id) {
         await api('DELETE', '/api/notes?id=' + id);
         await loadNotes();
     } catch(e) {
-        alert('Erreur: ' + e.message);
+        alert(t('general.error_prefix') + e.message);
     }
 };
 
