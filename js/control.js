@@ -547,10 +547,24 @@
         if (presencesNavReady) return;
         presencesNavReady = true;
         document.getElementById('panel-presences').addEventListener('click', function (ev) {
+            var edit = ev.target.closest('[data-punch-edit]');
+            if (edit) return openPunchEditor(edit.getAttribute('data-punch-edit'));
             var btn = ev.target.closest('[data-prview]');
             if (!btn) return;
             presView = btn.dataset.prview;
             renderPresences();
+        });
+
+        document.getElementById('m-punch').addEventListener('click', function (ev) {
+            if (ev.target.closest('[data-punch-close]') || ev.target.id === 'm-punch') return closePunchEditor();
+            var chip = ev.target.closest('[data-punch-reason]');
+            if (chip) {
+                document.querySelectorAll('#m-punch [data-punch-reason]').forEach(function (b) { b.classList.remove('active'); });
+                chip.classList.add('active');
+                document.getElementById('m-punch-reason').value = chip.getAttribute('data-punch-reason');
+                return;
+            }
+            if (ev.target.id === 'm-punch-save') savePunchEditor();
         });
     }
 
@@ -620,7 +634,9 @@
         return '<div class="pr-alert pr-alert--critical">' + prSvg('alert') +
             '<div class="pr-alert__text"><b>' + escHtml(prName(r)) + '</b> est encore IN depuis ' +
             prDay(r.open_punch.punch_in) + ' \u00e0 ' + prHM(r.open_punch.punch_in) +
-            ' (' + hours + NBSP + 'h). Probablement un oubli de punch OUT.</div></div>';
+            ' (' + hours + NBSP + 'h). Probablement un oubli de punch OUT.</div>' +
+            '<button class="btn btn--primary btn--sm" data-punch-edit="' + r.open_punch.id + '">Corriger</button>' +
+        '</div>';
     }
 
     function prTodayRow(r) {
@@ -694,6 +710,80 @@
                         }).join('') + '</tbody></table></div>'
                     : '<div class="pr-empty">Aucun \u00e9v\u00e9nement pour le moment.</div>') +
             '</div>';
+    }
+
+    /* ----- Correction d'un punch ----- */
+
+    var punchEdit = null;
+
+    // <input type="datetime-local"> attend l'heure locale du navigateur, sans fuseau
+    function toLocalInput(iso) {
+        if (!iso) return '';
+        var d = new Date(iso);
+        var pad = function (n) { return String(n).padStart(2, '0'); };
+        return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
+            'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+    function fromLocalInput(v) {
+        if (!v) return null;
+        var d = new Date(v);
+        return isNaN(d.getTime()) ? null : d.toISOString();
+    }
+
+    function openPunchEditor(punchId) {
+        var row = presData.rows.find(function (r) { return r.open_punch && r.open_punch.id === punchId; });
+        if (!row) return;
+        punchEdit = { id: punchId, row: row };
+
+        document.getElementById('m-punch-sub').textContent =
+            prName(row) + ' · punch commencé le ' + prDay(row.open_punch.punch_in) + ' à ' + prHM(row.open_punch.punch_in);
+
+        var jobs = row.open_jobs || [];
+        document.getElementById('m-punch-warn').innerHTML = jobs.length
+            ? '<p class="pr-warn-note">Attention : ' + escHtml(row.first_name || '') + ' a encore ' + jobs.length +
+              ' job' + (jobs.length > 1 ? 's' : '') + ' ouverte' + (jobs.length > 1 ? 's' : '') +
+              '. Corriger le punch ne ferme pas les jobs.</p>'
+            : '';
+
+        document.getElementById('m-punch-in').value = toLocalInput(row.open_punch.punch_in);
+        document.getElementById('m-punch-out').value = '';
+        document.getElementById('m-punch-reason').value = '';
+        document.getElementById('m-punch-error').textContent = '';
+        document.querySelectorAll('#m-punch [data-punch-reason]').forEach(function (b) { b.classList.remove('active'); });
+        document.getElementById('m-punch').classList.add('active');
+    }
+
+    function closePunchEditor() {
+        document.getElementById('m-punch').classList.remove('active');
+        punchEdit = null;
+    }
+
+    async function savePunchEditor() {
+        if (!punchEdit) return;
+        var err = document.getElementById('m-punch-error');
+        var reason = document.getElementById('m-punch-reason').value.trim();
+        var inIso = fromLocalInput(document.getElementById('m-punch-in').value);
+        var outIso = fromLocalInput(document.getElementById('m-punch-out').value);
+
+        if (!inIso) { err.textContent = 'L’heure d’entrée est obligatoire.'; return; }
+        if (!outIso) { err.textContent = 'Entre l’heure de sortie, c’est ce qui manque.'; return; }
+        if (new Date(outIso) <= new Date(inIso)) { err.textContent = 'La sortie doit être après l’entrée.'; return; }
+        if (new Date(outIso) > new Date()) { err.textContent = 'La sortie ne peut pas être dans le futur.'; return; }
+        if (!reason) { err.textContent = 'La raison est obligatoire : elle reste dans l’historique.'; return; }
+
+        var btn = document.getElementById('m-punch-save');
+        btn.disabled = true;
+        try {
+            await api('PATCH', '/api/control-punches', {
+                punch_id: punchEdit.id, punch_in: inIso, punch_out: outIso, reason: reason
+            });
+            closePunchEditor();
+            await loadPresences();
+        } catch (e) {
+            err.textContent = e.message;
+        } finally {
+            btn.disabled = false;
+        }
     }
 
     // Les chronos des jobs en cours avancent sans recharger la page

@@ -9,9 +9,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="stylesheet" href="css/admin.css?v=20260929d">
-    <link rel="stylesheet" href="css/scanner.css?v=20260929d">
-    <link rel="stylesheet" href="css/presences.css?v=20260929d">
+    <link rel="stylesheet" href="css/admin.css?v=20260929e">
+    <link rel="stylesheet" href="css/scanner.css?v=20260929e">
+    <link rel="stylesheet" href="css/presences.css?v=20260929e">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 </head>
 <body>
@@ -1057,6 +1057,39 @@
         </div>
     </div>
 
+    <!-- ===== CORRECTION D'UN PUNCH ===== -->
+    <div class="modal-overlay" id="m-punch">
+        <div class="modal">
+            <div class="modal__header">
+                <h2>Corriger le punch</h2>
+                <button class="modal__close" data-punch-close aria-label="Fermer">&times;</button>
+            </div>
+            <div class="modal__body">
+                <p class="pr-muted" id="m-punch-sub" style="margin-bottom:14px;"></p>
+                <div id="m-punch-warn"></div>
+                <div class="pr-erow">
+                    <label>Entrée<input type="datetime-local" id="m-punch-in"></label>
+                    <label>Sortie<input type="datetime-local" id="m-punch-out"></label>
+                </div>
+                <div class="form-group" style="margin-top:18px;">
+                    <label for="m-punch-reason">Raison (obligatoire)</label>
+                    <div class="pr-chips">
+                        <button type="button" class="pr-reason" data-punch-reason="Oubli de punch OUT">Oubli de punch OUT</button>
+                        <button type="button" class="pr-reason" data-punch-reason="Oubli de punch IN">Oubli de punch IN</button>
+                        <button type="button" class="pr-reason" data-punch-reason="Badge oublié à la maison">Badge oublié</button>
+                        <button type="button" class="pr-reason" data-punch-reason="Ajustement approuvé par le patron">Ajustement approuvé</button>
+                    </div>
+                    <textarea id="m-punch-reason" rows="2" placeholder="Ex. : oubli de punch OUT, heure confirmée avec l’employé"></textarea>
+                </div>
+                <div class="pr-error" id="m-punch-error"></div>
+            </div>
+            <div class="modal__footer">
+                <button class="btn btn--ghost" data-punch-close>Annuler</button>
+                <button class="btn btn--primary" id="m-punch-save">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== ARTICLE MODAL ===== -->
     <div class="modal-overlay" id="article-modal">
         <div class="modal modal--wide">
@@ -1205,9 +1238,9 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
-    <script src="js/admin-i18n.js?v=20260929d"></script>
-    <script src="js/admin.js?v=20260929d"></script>
-    <script src="js/control.js?v=20260929d"></script>
+    <script src="js/admin-i18n.js?v=20260929e"></script>
+    <script src="js/admin.js?v=20260929e"></script>
+    <script src="js/control.js?v=20260929e"></script>
     <script src="js/todos.js"></script>
 </body>
 </html>
