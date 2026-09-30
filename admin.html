@@ -1061,15 +1061,15 @@
     <div class="modal-overlay" id="m-punch">
         <div class="modal">
             <div class="modal__header">
-                <h2>Corriger le punch</h2>
+                <h2 id="m-punch-title">Corriger le punch</h2>
                 <button class="modal__close" data-punch-close aria-label="Fermer">&times;</button>
             </div>
             <div class="modal__body">
                 <p class="pr-muted" id="m-punch-sub" style="margin-bottom:14px;"></p>
                 <div id="m-punch-warn"></div>
                 <div class="pr-erow">
-                    <label>Entrée<input type="datetime-local" id="m-punch-in"></label>
-                    <label>Sortie<input type="datetime-local" id="m-punch-out"></label>
+                    <label id="m-punch-in-label">Entrée<input type="datetime-local" id="m-punch-in"></label>
+                    <label id="m-punch-out-label"><span id="m-punch-out-title">Sortie</span><input type="datetime-local" id="m-punch-out"></label>
                 </div>
                 <div class="form-group" style="margin-top:18px;">
                     <label for="m-punch-reason">Raison (obligatoire)</label>
@@ -1086,6 +1086,20 @@
             <div class="modal__footer">
                 <button class="btn btn--ghost" data-punch-close>Annuler</button>
                 <button class="btn btn--primary" id="m-punch-save">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== FICHE D'UN EMPLOYÉ (7 derniers jours) ===== -->
+    <div class="modal-overlay" id="m-emp">
+        <div class="modal modal--wide">
+            <div class="modal__header">
+                <h2 id="m-emp-title">Détail de l'employé</h2>
+                <button class="modal__close" data-emp-close aria-label="Fermer">&times;</button>
+            </div>
+            <div class="modal__body" id="m-emp-body"></div>
+            <div class="modal__footer">
+                <button class="btn btn--ghost" data-emp-close>Fermer</button>
             </div>
         </div>
     </div>

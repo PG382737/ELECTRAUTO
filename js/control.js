@@ -463,7 +463,10 @@
         wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
         alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
         eye: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
-        car: '<circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/>'
+        car: '<circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/>',
+        coffee: '<path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4z"/><path d="M6 2v3M10 2v3M14 2v3"/>',
+        login: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/>',
+        logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>'
     };
     function prSvg(name) {
         return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (PR_ICONS[name] || '') + '</svg>';
@@ -549,10 +552,18 @@
         document.getElementById('panel-presences').addEventListener('click', function (ev) {
             var edit = ev.target.closest('[data-punch-edit]');
             if (edit) return openPunchEditor(edit.getAttribute('data-punch-edit'));
+            var manual = ev.target.closest('[data-punch-manual]');
+            if (manual) return openManualPunch(manual.getAttribute('data-punch-manual'), manual.getAttribute('data-emp'));
+            var detail = ev.target.closest('[data-emp-detail]');
+            if (detail) return openEmployeeDetail(detail.getAttribute('data-emp-detail'));
             var btn = ev.target.closest('[data-prview]');
             if (!btn) return;
             presView = btn.dataset.prview;
             renderPresences();
+        });
+
+        document.getElementById('m-emp').addEventListener('click', function (ev) {
+            if (ev.target.closest('[data-emp-close]') || ev.target.id === 'm-emp') closeEmployeeDetail();
         });
 
         document.getElementById('m-punch').addEventListener('click', function (ev) {
@@ -598,16 +609,16 @@
             return (!!b.is_in - !!a.is_in) || prName(a).localeCompare(prName(b), 'fr');
         });
         var inNow = rows.filter(function (r) { return r.is_in; }).length;
-        var openJobs = rows.reduce(function (n, r) { return n + (r.open_jobs || []).length; }, 0);
         var forgotten = rows.filter(function (r) { return r.forgotten; });
         var totalMs = rows.reduce(function (sum, r) { return sum + presWorkedMs(r.punches); }, 0);
+        var breakMs = rows.reduce(function (sum, r) { return sum + prBreakMs(r); }, 0);
         var today = presDayStart();
 
         document.getElementById('pv-today').innerHTML =
             '<div class="pr-kpis">' +
                 prKpi('users', 'green', inNow + NBSP + '/' + NBSP + rows.length, 'Au travail maintenant') +
                 prKpi('clock', 'blue', prDur(totalMs), 'Heures travaill\u00e9es aujourd\u2019hui') +
-                prKpi('wrench', 'orange', openJobs, 'Jobs en cours') +
+                prKpi('coffee', 'orange', prDur(breakMs), 'Temps de break') +
                 prKpi('alert', forgotten.length ? 'red' : 'grey', forgotten.length, forgotten.length > 1 ? 'Punchs \u00e0 corriger' : 'Punch \u00e0 corriger') +
             '</div>' +
             (forgotten.length
@@ -617,7 +628,7 @@
                 '<div class="pr-card__head"><h2>Statut des employ\u00e9s</h2><span class="pr-muted">' + prCap1(prDateLong(new Date())) + '</span></div>' +
                 (rows.length
                     ? '<div class="pr-table-wrap"><table class="control-table">' +
-                        '<thead><tr><th>Employ\u00e9</th><th>Statut</th><th>Arriv\u00e9e</th><th>D\u00e9part</th><th class="num">Travaill\u00e9es</th><th>Jobs en cours</th></tr></thead>' +
+                        '<thead><tr><th>Employ\u00e9</th><th>Statut</th><th>Arriv\u00e9e</th><th>D\u00e9part</th><th class="num">Break</th><th class="num">Travaill\u00e9es</th><th></th></tr></thead>' +
                         '<tbody>' + rows.map(prTodayRow).join('') + '</tbody></table></div>'
                     : '<div class="pr-empty">Aucun employ\u00e9.</div>') +
             '</div>' +
@@ -639,10 +650,32 @@
         '</div>';
     }
 
+    // Les punchs de la journee, du plus ancien au plus recent
+    function prDayPunches(r) {
+        var dayStart = presDayStart();
+        return (r.punches || [])
+            .filter(function (p) { return new Date(p.punch_in).getTime() >= dayStart || !p.punch_out; })
+            .slice()
+            .sort(function (a, b) { return new Date(a.punch_in) - new Date(b.punch_in); });
+    }
+
+    // Temps de pause : chaque intervalle entre un punch OUT et le punch IN suivant.
+    // Une pause en cours (l'employe est sorti et n'est pas revenu) ne compte pas encore.
+    function prBreakMs(r) {
+        var punches = prDayPunches(r);
+        var total = 0;
+        for (var i = 0; i < punches.length - 1; i++) {
+            var out = punches[i].punch_out;
+            var nextIn = punches[i + 1].punch_in;
+            if (!out) continue;
+            var gap = new Date(nextIn).getTime() - new Date(out).getTime();
+            if (gap > 0) total += gap;
+        }
+        return total;
+    }
+
     function prTodayRow(r) {
-        var punches = (r.punches || []).slice().sort(function (a, b) {
-            return new Date(a.punch_in) - new Date(b.punch_in);
-        });
+        var punches = prDayPunches(r);
         var first = punches[0] || null;
         var lastClosed = null;
         punches.forEach(function (p) { if (p.punch_out) lastClosed = p; });
@@ -653,23 +686,32 @@
                 : '<span class="pr-pill pr-pill--in"><i></i>IN</span> <span class="pr-muted">depuis ' + prHM(r.open_punch.punch_in) + '</span>')
             : '<span class="pr-pill">OUT</span>';
 
-        var jobs = (r.open_jobs || []);
-        var shown = jobs.slice(0, 2);
-        var jobsHtml = jobs.length
-            ? shown.map(function (j) {
-                var v = j.vehicle || {};
-                return '<span class="pr-chip">' + escHtml(v.make || 'V\u00e9hicule') +
-                    '<b data-pr-since="' + j.started_at + '">' + prDur(Date.now() - new Date(j.started_at).getTime()) + '</b></span>';
-              }).join('') + (jobs.length > 2 ? '<span class="pr-tag">+' + (jobs.length - 2) + '</span>' : '')
+        // Des qu'il repunch IN, le depart affiche redevient \u00ab en cours \u00bb et l'ecart
+        // qui vient de s'ecouler bascule dans la colonne Break.
+        var departure = r.is_in
+            ? '<span class="pr-muted">en cours</span>'
+            : (lastClosed ? prHM(lastClosed.punch_out) : '<span class="pr-muted">\u2014</span>');
+
+        var breakMs = prBreakMs(r);
+        var breakCell = breakMs > 0
+            ? '<span class="pr-tag">' + prDur(breakMs) + '</span>'
             : '<span class="pr-muted">\u2014</span>';
+
+        var punchBtn = r.is_in
+            ? '<button class="icon-btn" data-punch-manual="out" data-emp="' + r.id + '" title="Puncher OUT manuellement">' + prSvg('logout') + '</button>'
+            : '<button class="icon-btn" data-punch-manual="in" data-emp="' + r.id + '" title="Puncher IN manuellement">' + prSvg('login') + '</button>';
 
         return '<tr>' +
             '<td>' + prEmpCell(r) + '</td>' +
             '<td>' + status + '</td>' +
             '<td>' + (first ? prHM(first.punch_in) : '<span class="pr-muted">\u2014</span>') + '</td>' +
-            '<td>' + (lastClosed && !r.is_in ? prHM(lastClosed.punch_out) : r.is_in ? '<span class="pr-muted">en cours</span>' : '<span class="pr-muted">\u2014</span>') + '</td>' +
+            '<td>' + departure + '</td>' +
+            '<td class="num">' + breakCell + '</td>' +
             '<td class="num pr-strong">' + prDur(presWorkedMs(r.punches)) + '</td>' +
-            '<td>' + jobsHtml + '</td>' +
+            '<td><div class="col-actions col-actions--icons">' +
+                '<button class="icon-btn" data-emp-detail="' + r.id + '" title="D\u00e9tail de l\u2019employ\u00e9">' + prSvg('eye') + '</button>' +
+                punchBtn +
+            '</div></td>' +
         '</tr>';
     }
 
@@ -730,27 +772,54 @@
         return isNaN(d.getTime()) ? null : d.toISOString();
     }
 
-    function openPunchEditor(punchId) {
-        var row = presData.rows.find(function (r) { return r.open_punch && r.open_punch.id === punchId; });
-        if (!row) return;
-        punchEdit = { id: punchId, row: row };
+    // Trois usages de la meme fenetre :
+    //   'correct'     corriger un punch ouvert (depuis l'alerte)
+    //   'manual-out'  puncher OUT un employe a la main
+    //   'manual-in'   puncher IN un employe a la main
+    function openPunchModal(mode, row) {
+        punchEdit = { mode: mode, row: row, id: row.open_punch ? row.open_punch.id : null };
+        var isIn = mode === 'manual-in';
 
-        document.getElementById('m-punch-sub').textContent =
-            prName(row) + ' · punch commencé le ' + prDay(row.open_punch.punch_in) + ' à ' + prHM(row.open_punch.punch_in);
+        document.getElementById('m-punch-title').textContent =
+            mode === 'correct' ? 'Corriger le punch' : isIn ? 'Puncher IN manuellement' : 'Puncher OUT manuellement';
+
+        document.getElementById('m-punch-sub').textContent = isIn
+            ? prName(row) + ' \u00b7 aucun punch ouvert en ce moment'
+            : prName(row) + ' \u00b7 punch commenc\u00e9 le ' + prDay(row.open_punch.punch_in) + ' \u00e0 ' + prHM(row.open_punch.punch_in);
 
         var jobs = row.open_jobs || [];
-        document.getElementById('m-punch-warn').innerHTML = jobs.length
-            ? '<p class="pr-warn-note">Attention : ' + escHtml(row.first_name || '') + ' a encore ' + jobs.length +
+        document.getElementById('m-punch-warn').innerHTML = (!isIn && jobs.length)
+            ? '<p class="pr-warn-note">Attention\u00a0: ' + escHtml(row.first_name || '') + ' a encore ' + jobs.length +
               ' job' + (jobs.length > 1 ? 's' : '') + ' ouverte' + (jobs.length > 1 ? 's' : '') +
-              '. Corriger le punch ne ferme pas les jobs.</p>'
+              '. Puncher OUT ne ferme pas les jobs.</p>'
             : '';
 
-        document.getElementById('m-punch-in').value = toLocalInput(row.open_punch.punch_in);
-        document.getElementById('m-punch-out').value = '';
+        // En punch IN manuel, seule une heure est demandee
+        document.getElementById('m-punch-in-label').hidden = isIn;
+        document.getElementById('m-punch-out-title').textContent = isIn ? 'Heure d\u2019entr\u00e9e' : 'Sortie';
+
+        document.getElementById('m-punch-in').value = isIn ? '' : toLocalInput(row.open_punch.punch_in);
+        // En correction on laisse la sortie vide : l'admin doit saisir l'heure reelle,
+        // pas enregistrer « maintenant » par inadvertance. En punch manuel, l'admin agit
+        // a l'instant meme, donc on prerempli.
+        document.getElementById('m-punch-out').value =
+            mode === 'correct' ? '' : toLocalInput(new Date().toISOString());
         document.getElementById('m-punch-reason').value = '';
         document.getElementById('m-punch-error').textContent = '';
         document.querySelectorAll('#m-punch [data-punch-reason]').forEach(function (b) { b.classList.remove('active'); });
         document.getElementById('m-punch').classList.add('active');
+    }
+
+    function openPunchEditor(punchId) {
+        var row = presData.rows.find(function (r) { return r.open_punch && r.open_punch.id === punchId; });
+        if (row) openPunchModal('correct', row);
+    }
+
+    function openManualPunch(action, employeeId) {
+        var row = presData.rows.find(function (r) { return r.id === employeeId; });
+        if (!row) return;
+        if (action === 'out' && !row.open_punch) return;
+        openPunchModal(action === 'in' ? 'manual-in' : 'manual-out', row);
     }
 
     function closePunchEditor() {
@@ -762,21 +831,30 @@
         if (!punchEdit) return;
         var err = document.getElementById('m-punch-error');
         var reason = document.getElementById('m-punch-reason').value.trim();
+        var isIn = punchEdit.mode === 'manual-in';
         var inIso = fromLocalInput(document.getElementById('m-punch-in').value);
         var outIso = fromLocalInput(document.getElementById('m-punch-out').value);
+        var when = isIn ? outIso : outIso;   // le 2e champ porte l'heure saisie dans les deux cas
 
-        if (!inIso) { err.textContent = 'L’heure d’entrée est obligatoire.'; return; }
-        if (!outIso) { err.textContent = 'Entre l’heure de sortie, c’est ce qui manque.'; return; }
-        if (new Date(outIso) <= new Date(inIso)) { err.textContent = 'La sortie doit être après l’entrée.'; return; }
-        if (new Date(outIso) > new Date()) { err.textContent = 'La sortie ne peut pas être dans le futur.'; return; }
-        if (!reason) { err.textContent = 'La raison est obligatoire : elle reste dans l’historique.'; return; }
+        if (!isIn && !inIso) { err.textContent = 'L\u2019heure d\u2019entr\u00e9e est obligatoire.'; return; }
+        if (!when) { err.textContent = isIn ? 'Entre l\u2019heure d\u2019entr\u00e9e.' : 'Entre l\u2019heure de sortie.'; return; }
+        if (!isIn && new Date(when) <= new Date(inIso)) { err.textContent = 'La sortie doit \u00eatre apr\u00e8s l\u2019entr\u00e9e.'; return; }
+        if (new Date(when) > new Date()) { err.textContent = 'L\u2019heure ne peut pas \u00eatre dans le futur.'; return; }
+        if (!reason) { err.textContent = 'La raison est obligatoire\u00a0: elle reste dans l\u2019historique.'; return; }
 
         var btn = document.getElementById('m-punch-save');
         btn.disabled = true;
         try {
-            await api('PATCH', '/api/control-punches', {
-                punch_id: punchEdit.id, punch_in: inIso, punch_out: outIso, reason: reason
-            });
+            if (punchEdit.mode === 'correct') {
+                await api('PATCH', '/api/control-punches', {
+                    punch_id: punchEdit.id, punch_in: inIso, punch_out: when, reason: reason
+                });
+            } else {
+                await api('POST', '/api/control-punches', {
+                    employee_id: punchEdit.row.id, action: isIn ? 'in' : 'out',
+                    source: 'admin', at: when, reason: reason
+                });
+            }
             closePunchEditor();
             await loadPresences();
         } catch (e) {
@@ -784,6 +862,98 @@
         } finally {
             btn.disabled = false;
         }
+    }
+
+    /* ----- Fiche d'un employe : les 7 derniers jours ----- */
+
+    function prDayKey(iso) {
+        var d = new Date(new Date(iso).toLocaleString('en-US', { timeZone: 'America/Toronto' }));
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    // Regroupe des punchs par journee, puis calcule arrivee / depart / break / travail
+    function prGroupByDay(punches) {
+        var byDay = {};
+        (punches || []).forEach(function (p) {
+            var k = prDayKey(p.punch_in);
+            (byDay[k] = byDay[k] || []).push(p);
+        });
+        return Object.keys(byDay).sort().reverse().map(function (k) {
+            var list = byDay[k].slice().sort(function (a, b) { return new Date(a.punch_in) - new Date(b.punch_in); });
+            var worked = 0, brk = 0;
+            list.forEach(function (p) {
+                var end = p.punch_out ? new Date(p.punch_out).getTime() : Date.now();
+                worked += Math.max(0, end - new Date(p.punch_in).getTime());
+            });
+            for (var i = 0; i < list.length - 1; i++) {
+                if (!list[i].punch_out) continue;
+                var gap = new Date(list[i + 1].punch_in).getTime() - new Date(list[i].punch_out).getTime();
+                if (gap > 0) brk += gap;
+            }
+            var last = null;
+            list.forEach(function (p) { if (p.punch_out) last = p; });
+            var stillOpen = list.some(function (p) { return !p.punch_out; });
+            return {
+                day: k, punches: list, worked: worked, brk: brk,
+                firstIn: list[0].punch_in,
+                lastOut: stillOpen ? null : (last ? last.punch_out : null),
+                edited: list.some(function (p) { return !!p.edited_at; })
+            };
+        });
+    }
+
+    async function openEmployeeDetail(employeeId) {
+        var row = presData.rows.find(function (r) { return r.id === employeeId; });
+        if (!row) return;
+        document.getElementById('m-emp-title').textContent = prName(row) + ' \u00b7 7 derniers jours';
+        document.getElementById('m-emp-body').innerHTML = '<div class="pr-empty">Chargement\u2026</div>';
+        document.getElementById('m-emp').classList.add('active');
+
+        try {
+            var from = new Date(presDayStart() - 6 * 86400000).toISOString();
+            var to = new Date(Date.now() + 86400000).toISOString();
+            var punches = await api('GET', '/api/control-punches?employee_id=' + encodeURIComponent(employeeId) +
+                '&from=' + encodeURIComponent(from) + '&to=' + encodeURIComponent(to));
+            renderEmployeeDetail(row, punches || []);
+        } catch (e) {
+            document.getElementById('m-emp-body').innerHTML =
+                '<div class="pr-empty">Erreur de chargement\u00a0: ' + escHtml(e.message) + '</div>';
+        }
+    }
+
+    function renderEmployeeDetail(row, punches) {
+        var days = prGroupByDay(punches);
+        var totalWorked = days.reduce(function (n, d) { return n + d.worked; }, 0);
+        var totalBreak = days.reduce(function (n, d) { return n + d.brk; }, 0);
+
+        document.getElementById('m-emp-body').innerHTML =
+            '<div class="pr-kpis" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:18px;">' +
+                prKpi('clock', 'blue', prDur(totalWorked), 'Travaill\u00e9 sur 7 jours') +
+                prKpi('coffee', 'orange', prDur(totalBreak), 'Break sur 7 jours') +
+                prKpi('users', 'green', days.length, days.length > 1 ? 'Jours travaill\u00e9s' : 'Jour travaill\u00e9') +
+            '</div>' +
+            (days.length
+                ? '<div class="pr-table-wrap"><table class="control-table">' +
+                    '<thead><tr><th>Jour</th><th>Arriv\u00e9e</th><th>D\u00e9part</th><th class="num">Break</th><th class="num">Travaill\u00e9</th><th>Punchs</th></tr></thead>' +
+                    '<tbody>' + days.map(function (d) {
+                        var detail = d.punches.map(function (p) {
+                            return '<span class="pr-chip">' + prHM(p.punch_in) + '\u2009\u2192\u2009' +
+                                (p.punch_out ? prHM(p.punch_out) : '<b>en cours</b>') + '</span>';
+                        }).join('');
+                        return '<tr>' +
+                            '<td>' + prDay(d.firstIn) + (d.edited ? ' <span class="pr-tag">corrig\u00e9</span>' : '') + '</td>' +
+                            '<td>' + prHM(d.firstIn) + '</td>' +
+                            '<td>' + (d.lastOut ? prHM(d.lastOut) : '<span class="pr-muted">en cours</span>') + '</td>' +
+                            '<td class="num">' + (d.brk > 0 ? prDur(d.brk) : '<span class="pr-muted">\u2014</span>') + '</td>' +
+                            '<td class="num pr-strong">' + prDur(d.worked) + '</td>' +
+                            '<td>' + detail + '</td>' +
+                        '</tr>';
+                    }).join('') + '</tbody></table></div>'
+                : '<div class="pr-empty">Aucun punch sur les 7 derniers jours.</div>');
+    }
+
+    function closeEmployeeDetail() {
+        document.getElementById('m-emp').classList.remove('active');
     }
 
     // Les chronos des jobs en cours avancent sans recharger la page

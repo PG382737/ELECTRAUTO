@@ -158,15 +158,35 @@ exports.handler = async (event) => {
             return { statusCode: 200, headers, body: JSON.stringify([]) };
         }
 
-        // POST - punch IN / punch OUT from the terminal
+        // POST - punch IN / punch OUT, from the terminal or by hand from the admin
         if (event.httpMethod === 'POST') {
             const body = JSON.parse(event.body || '{}');
             const employeeId = body.employee_id;
             const action = body.action;
 
+            // An admin punching by hand states a reason, may pick the time, and is not
+            // subject to the anti-double-read guards, which only protect the reader.
+            const byAdmin = body.source === 'admin';
+            const source = byAdmin ? 'admin' : 'terminal';
+
             if (!employeeId || (action !== 'in' && action !== 'out')) {
                 return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing employee_id or action (in|out)' }) };
             }
+            if (byAdmin && !body.reason) {
+                return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing reason' }) };
+            }
+
+            let at = new Date();
+            if (byAdmin && body.at) {
+                at = new Date(body.at);
+                if (isNaN(at.getTime())) {
+                    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid time' }) };
+                }
+                if (at.getTime() > Date.now()) {
+                    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Time is in the future' }) };
+                }
+            }
+            const atISO = at.toISOString();
 
             const open = await openPunchOf(employeeId);
 
@@ -174,11 +194,10 @@ exports.handler = async (event) => {
                 if (open) {
                     return { statusCode: 409, headers, body: JSON.stringify({ error: 'Already punched IN', punch: open }) };
                 }
-                const created = await supaFetch('control_punches', {
-                    method: 'POST',
-                    body: { employee_id: employeeId, punch_in: new Date().toISOString() }
-                });
-                await logEvent('in', employeeId, null, null, 'terminal');
+                const row = { employee_id: employeeId, punch_in: atISO };
+                if (byAdmin) { row.edited_at = new Date().toISOString(); row.edited_reason = body.reason; }
+                const created = await supaFetch('control_punches', { method: 'POST', body: row });
+                await logEvent(byAdmin ? 'ajout' : 'in', employeeId, null, byAdmin ? body.reason : null, source);
                 return { statusCode: 201, headers, body: JSON.stringify(created[0]) };
             }
 
@@ -187,27 +206,36 @@ exports.handler = async (event) => {
                 return { statusCode: 409, headers, body: JSON.stringify({ error: 'Not punched IN' }) };
             }
 
-            // A badge re-read moments after the punch IN must not close the shift
-            const sinceIn = Date.now() - new Date(open.punch_in).getTime();
-            if (sinceIn < MIN_SHIFT_MS) {
-                return {
-                    statusCode: 409, headers,
-                    body: JSON.stringify({ error: 'Just punched IN', code: 'too_soon', retry_in_seconds: Math.ceil((MIN_SHIFT_MS - sinceIn) / 1000), punch: open })
-                };
+            if (byAdmin && new Date(atISO) <= new Date(open.punch_in)) {
+                return { statusCode: 400, headers, body: JSON.stringify({ error: 'punch_out must be after punch_in' }) };
             }
 
-            // Cannot punch OUT while a job is still open
-            const jobs = await supaFetch(`control_work_orders?employee_id=eq.${employeeId}&ended_at=is.null&select=id,vehicle_id,started_at,vehicle:control_vehicles(id,make,year,plate)`);
-            if (jobs && jobs.length > 0) {
-                await logEvent('refus_out', employeeId, jobs[0].vehicle_id, `${jobs.length} job(s) ouverte(s)`, 'terminal');
-                return { statusCode: 409, headers, body: JSON.stringify({ error: 'Open work orders', code: 'open_jobs', jobs }) };
+            if (!byAdmin) {
+                // A badge re-read moments after the punch IN must not close the shift
+                const sinceIn = Date.now() - new Date(open.punch_in).getTime();
+                if (sinceIn < MIN_SHIFT_MS) {
+                    return {
+                        statusCode: 409, headers,
+                        body: JSON.stringify({ error: 'Just punched IN', code: 'too_soon', retry_in_seconds: Math.ceil((MIN_SHIFT_MS - sinceIn) / 1000), punch: open })
+                    };
+                }
+
+                // Cannot punch OUT from the terminal while a job is still open
+                const jobs = await supaFetch(`control_work_orders?employee_id=eq.${employeeId}&ended_at=is.null&select=id,vehicle_id,started_at,vehicle:control_vehicles(id,make,year,plate)`);
+                if (jobs && jobs.length > 0) {
+                    await logEvent('refus_out', employeeId, jobs[0].vehicle_id, `${jobs.length} job(s) ouverte(s)`, 'terminal');
+                    return { statusCode: 409, headers, body: JSON.stringify({ error: 'Open work orders', code: 'open_jobs', jobs }) };
+                }
             }
 
-            const updated = await supaFetch(`control_punches?id=eq.${open.id}`, {
-                method: 'PATCH',
-                body: { punch_out: new Date().toISOString() }
-            });
-            await logEvent('out', employeeId, null, null, 'terminal');
+            const patch = { punch_out: atISO };
+            if (byAdmin) {
+                patch.edited_at = new Date().toISOString();
+                patch.edited_reason = body.reason;
+                patch.edited_before = { punch_in: open.punch_in, punch_out: open.punch_out };
+            }
+            const updated = await supaFetch(`control_punches?id=eq.${open.id}`, { method: 'PATCH', body: patch });
+            await logEvent(byAdmin ? 'correction' : 'out', employeeId, null, byAdmin ? body.reason : null, source);
             return { statusCode: 200, headers, body: JSON.stringify(updated[0]) };
         }
 
