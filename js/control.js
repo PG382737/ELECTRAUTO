@@ -2273,7 +2273,7 @@
 
         scEl('scanner-view-employee').innerHTML =
             '<div class="emp">' +
-                '<div class="emp__head">' + scAvatar(e, 'avatar--xl', e.is_in) +
+                '<div class="emp__head">' +
                     '<div class="emp__who">' +
                         '<div class="emp__name">' + escHtml(scName(e)) + '</div>' +
                         '<div class="emp__status">' + (e.is_in

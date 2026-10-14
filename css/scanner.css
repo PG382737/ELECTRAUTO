@@ -320,3 +320,14 @@
 
 #nfc-scanner-overlay .emp__jobs { position: static; top: auto; left: auto; right: auto; width: 100%; max-width: 1080px; }
 #nfc-scanner-overlay .emp__jobs .section-title { text-align: left; }
+
+/* ===== Profil : plus d'avatar, nom centre et statut centre dessous ===== */
+#nfc-scanner-overlay .emp__head { flex-direction: column; align-items: center; gap: 0; }
+#nfc-scanner-overlay .emp__who { text-align: center; width: 100%; }
+#nfc-scanner-overlay .emp__name { font-size: 84px; }
+#nfc-scanner-overlay .emp__status { justify-content: center; margin-top: 18px; }
+
+/* ===== Confirmation : le halo de l'icone deborde de 42px hors de sa boite,
+   donc un titre colle a 12px passe par-dessus. On degage la place. ===== */
+#nfc-scanner-overlay .flash__icon + .flash__title { margin-top: 72px; }
+#nfc-scanner-overlay .flash__box { justify-content: center; gap: 0; }
