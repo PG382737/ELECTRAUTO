@@ -291,3 +291,32 @@
 /* Le lecteur tombe : la carte bipe mais rien n'arrive au navigateur, ca doit se voir */
 #nfc-scanner-overlay .reader.is-down { background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.35); color: var(--red-2); }
 #nfc-scanner-overlay .reader.is-down .reader__dot { background: var(--red); animation: none; }
+
+/* ===== Profil employe v2 : une seule colonne centree, alignements francs =====
+   Le prototype positionnait tout en absolu a des hauteurs fixes ; avec une seule
+   tuile ca donnait un avatar colle au bord, un nom centre et une grande boite vide. */
+#nfc-scanner-overlay .emp {
+    position: absolute; inset: 0 90px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 52px;
+}
+#nfc-scanner-overlay .emp__head {
+    position: static; top: auto; left: auto; right: auto;
+    display: flex; align-items: center; gap: 32px; max-width: 100%;
+}
+#nfc-scanner-overlay .emp__who { flex: 0 1 auto; min-width: 0; text-align: left; }
+#nfc-scanner-overlay .emp__name { font-size: 74px; letter-spacing: -2px; }
+#nfc-scanner-overlay .emp__status { margin-top: 12px; justify-content: flex-start; }
+#nfc-scanner-overlay .avatar--xl { width: 124px; height: 124px; font-size: 46px; }
+#nfc-scanner-overlay .avatar--xl > i { width: 30px; height: 30px; border-width: 5px; }
+
+#nfc-scanner-overlay .tiles {
+    position: static; top: auto; left: auto; right: auto;
+    width: 100%; height: auto; gap: 26px;
+}
+#nfc-scanner-overlay .tiles--single { max-width: 1080px; margin: 0 auto; }
+#nfc-scanner-overlay .tiles--single .tile { min-height: 268px; padding: 34px 40px; gap: 6px; }
+#nfc-scanner-overlay .tiles--single .tile .tile__action { font-size: 92px; }
+#nfc-scanner-overlay .tiles--in .tile { min-height: 300px; }
+
+#nfc-scanner-overlay .emp__jobs { position: static; top: auto; left: auto; right: auto; width: 100%; max-width: 1080px; }
+#nfc-scanner-overlay .emp__jobs .section-title { text-align: left; }

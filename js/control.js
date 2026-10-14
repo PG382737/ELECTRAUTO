@@ -2260,23 +2260,16 @@
         if (!e.is_in) {
             // Pas punche : une seule action possible, on ne montre que celle-la
             vehTile = '';
-            badgeTile = scTile({ primary: true, tone: 'green', icon: 'badge', step: 'Repasse ton badge', action: 'Punch IN', desc: 'pour commencer ta journ\u00e9e.' });
+            badgeTile = scTile({ primary: true, tone: 'green', icon: 'badge', step: 'Repasse ton badge', action: 'Punch IN', desc: '' });
         } else if (job) {
-            vehTile = scTile({ primary: true, tone: 'orange', icon: 'car', step: 'Passe ' + escHtml(scVehName(job.vehicle)), action: 'Terminer la job', desc: 'Le chrono s\u2019arr\u00eate d\u00e8s que tu le scannes.' });
+            vehTile = scTile({ primary: true, tone: 'orange', icon: 'car', step: 'Passe ' + escHtml(scVehName(job.vehicle)), action: 'Terminer la job',
+                desc: '<span data-since="' + job.started_at + '">' + scTimerText(job.started_at) + '</span>' });
             badgeTile = scTile({ locked: true, icon: 'badge', step: 'Repasse ton badge', action: 'Punch OUT', lock: 'Termine ta job d\u2019abord' });
         } else {
-            vehTile = scTile({ primary: true, tone: 'orange', icon: 'car', step: 'Passe un v\u00e9hicule', action: 'Commencer une job', desc: 'Le chrono part d\u00e8s que le v\u00e9hicule est scann\u00e9.' });
-            badgeTile = scTile({ primary: true, tone: 'blue', icon: 'badge', step: 'Repasse ton badge', action: 'Punch OUT', desc: 'pour terminer ta journ\u00e9e.' });
+            vehTile = scTile({ primary: true, tone: 'orange', icon: 'car', step: 'Passe un v\u00e9hicule', action: 'Commencer une job', desc: '' });
+            badgeTile = scTile({ primary: true, tone: 'blue', icon: 'badge', step: 'Repasse ton badge', action: 'Punch OUT', desc: '' });
         }
 
-        var jobHtml = job
-            ? '<div class="emp__jobs"><div class="section-title">Ta job en cours</div><div class="ejobs">' +
-                '<div class="ejob"><div class="job__icon">' + scSvg('car') + '</div>' +
-                '<div class="ejob__info"><div class="ejob__veh">' + escHtml(scVehName(job.vehicle)) + (job.vehicle && job.vehicle.year ? ' <span>' + job.vehicle.year + '</span>' : '') + '</div>' +
-                '<div class="ejob__sub">' + escHtml([job.vehicle && job.vehicle.plate, 'depuis ' + scHM(job.started_at)].filter(Boolean).join(' \u00b7 ')) + '</div></div>' +
-                '<span class="ejob__timer" data-since="' + job.started_at + '">' + scTimerText(job.started_at) + '</span></div>' +
-              '</div></div>'
-            : '';
 
         scEl('scanner-view-employee').innerHTML =
             '<div class="emp">' +
@@ -2285,11 +2278,10 @@
                         '<div class="emp__name">' + escHtml(scName(e)) + '</div>' +
                         '<div class="emp__status">' + (e.is_in
                             ? '<span class="status status--in"><i></i>IN</span><span>depuis ' + scHM(e.open_punch && e.open_punch.punch_in) + '</span>'
-                            : '<span class="status status--out"><i></i>OUT</span><span>Pas encore punch\u00e9 aujourd\u2019hui</span>') + '</div>' +
+                            : '<span class="status status--out"><i></i>OUT</span>') + '</div>' +
                     '</div>' +
                 '</div>' +
                 '<div class="tiles ' + (e.is_in ? 'tiles--in' : 'tiles--single') + '">' + vehTile + badgeTile + '</div>' +
-                jobHtml +
             '</div>';
     }
 
@@ -2347,7 +2339,7 @@
         }
 
         if (!emp && !veh) {
-            scFlash({ kind: 'unknown', title: 'Carte inconnue', sub: 'Cette carte n\u2019est associ\u00e9e \u00e0 personne ni \u00e0 aucun v\u00e9hicule.' });
+            scFlash({ kind: 'unknown', title: 'Carte inconnue' });
             return;
         }
 
@@ -2366,11 +2358,11 @@
 
         // --- Une carte de vehicule ---
         if (!scannerEmployee) {
-            scFlash({ kind: 'block', title: 'Passe ton badge d\u2019abord', sub: 'Le badge de l\u2019employ\u00e9 vient toujours en premier.', next: 'Passe ton badge, puis le v\u00e9hicule.' });
+            scFlash({ kind: 'block', title: 'Badge d\u2019abord' });
             return;
         }
         if (!scannerEmployee.is_in) {
-            scFlash({ kind: 'block', kicker: escHtml(scName(scannerEmployee)), title: 'Punch IN d\u2019abord', sub: 'Tu dois commencer ta journ\u00e9e avant d\u2019ouvrir une job.', next: 'Repasse ton badge pour puncher IN.' });
+            scFlash({ kind: 'block', kicker: escHtml(scName(scannerEmployee)), title: 'Punch IN d\u2019abord' });
             return;
         }
         await scJobOnVehicle(veh, scannerEmployee);
@@ -2388,17 +2380,14 @@
         var action = emp.is_in ? 'out' : 'in';
         if (action === 'out' && (emp.open_jobs || []).length) {
             var j = emp.open_jobs[0];
-            scFlash({ kind: 'block', kicker: escHtml(scName(emp)), title: 'Termine ta job d\u2019abord',
-                sub: 'Tu travailles encore sur le ' + escHtml(scVehName(j.vehicle)) + '.',
-                next: 'Passe ce v\u00e9hicule, puis repasse ton badge.' });
+            scFlash({ kind: 'block', kicker: escHtml(scName(emp)), title: 'Termine ta job', sub: escHtml(scVehName(j.vehicle)) });
             scannerEmployee = emp;
             return;
         }
         try {
             await api('POST', '/api/control-punches', { employee_id: emp.id, action: action });
-            scFlash(action === 'in'
-                ? { kind: 'in', kicker: escHtml(scName(emp)), title: 'Punch IN', sub: 'Bonne journ\u00e9e\u00a0!', meta: ['Arriv\u00e9e \u00e0 ' + scHM(new Date().toISOString())] }
-                : { kind: 'out', kicker: escHtml(scName(emp)), title: 'Punch OUT', sub: 'Bonne fin de journ\u00e9e\u00a0!', meta: ['D\u00e9part \u00e0 ' + scHM(new Date().toISOString())] });
+            scFlash({ kind: action, kicker: escHtml(scName(emp)),
+                title: action === 'in' ? 'Punch IN' : 'Punch OUT', sub: scHM(new Date().toISOString()) });
             scannerEmployee = null;
             scLoadCrew();
         } catch (e) {
@@ -2411,20 +2400,18 @@
         var open = (emp.open_jobs || [])[0] || null;
 
         if (open && open.vehicle_id !== veh.id) {
-            scFlash({ kind: 'block', kicker: escHtml(scName(emp)), title: 'Un v\u00e9hicule \u00e0 la fois',
-                sub: 'Tu travailles d\u00e9j\u00e0 sur le ' + escHtml(scVehName(open.vehicle)) + '.',
-                next: 'Passe ce v\u00e9hicule pour fermer la job, puis prends l\u2019autre.' });
+            scFlash({ kind: 'block', kicker: escHtml(scName(emp)), title: 'Un v\u00e9hicule \u00e0 la fois', sub: 'Termine le ' + escHtml(scVehName(open.vehicle)) });
             return;
         }
 
         try {
             if (open) {
                 await api('PATCH', '/api/control-work-orders', { vehicle_id: veh.id, employee_id: emp.id });
-                scFlash({ kind: 'jobEnd', kicker: escHtml(scName(emp)), title: 'Job termin\u00e9e', sub: escHtml(scVehLine(veh)),
-                    meta: ['Commenc\u00e9e \u00e0 ' + scHM(open.started_at), 'Dur\u00e9e ' + scTimerText(open.started_at)] });
+                scFlash({ kind: 'jobEnd', kicker: escHtml(scName(emp)), title: 'Job termin\u00e9e',
+                    sub: escHtml(scVehName(veh)), meta: [scTimerText(open.started_at)] });
             } else {
                 await api('POST', '/api/control-work-orders', { vehicle_id: veh.id, employee_id: emp.id, started_at: new Date().toISOString() });
-                scFlash({ kind: 'jobStart', kicker: escHtml(scName(emp)), title: 'Job commenc\u00e9e', sub: escHtml(scVehLine(veh)), meta: ['D\u00e9but \u00e0 ' + scHM(new Date().toISOString())] });
+                scFlash({ kind: 'jobStart', kicker: escHtml(scName(emp)), title: 'Job commenc\u00e9e', sub: escHtml(scVehName(veh)) });
             }
             scannerEmployee = null;
             scLoadCrew();
