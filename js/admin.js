@@ -182,7 +182,7 @@ function enterDashboard(password) {
 
     // Mobile: force Tâches tab
     if (isMobileDevice()) {
-        switchToTab('todos');
+        switchToTab('crew');
         function scrollTop() {
             window.scrollTo(0, 0);
             document.documentElement.scrollTop = 0;
@@ -439,11 +439,94 @@ function switchToTab(tabName) {
     if (window.Todos && window.Todos.ensurePolling) {
         window.Todos.ensurePolling();
     }
+
+    document.querySelectorAll('.mnav__btn[data-mtab]').forEach(function(b) {
+        b.classList.toggle('active', b.dataset.mtab === tabName);
+    });
+    document.body.classList.toggle('m-crew', tabName === 'crew');
+    if (tabName === 'crew') startCrewPolling(); else stopCrewPolling();
+}
+
+/* ===== Tableau de bord mobile : qui travaille, et sur quoi. Lecture seule. ===== */
+
+var crewTimer = null;
+
+function startCrewPolling() {
+    loadCrew();
+    clearInterval(crewTimer);
+    crewTimer = setInterval(loadCrew, 20000);
+}
+function stopCrewPolling() {
+    clearInterval(crewTimer);
+    crewTimer = null;
+}
+
+function crewHue(id) {
+    var n = 0, str = String(id || '');
+    for (var i = 0; i < str.length; i++) n = (n * 31 + str.charCodeAt(i)) % 997;
+    return (n * 137) % 360;
+}
+function crewSince(iso) {
+    var min = Math.floor(Math.max(0, Date.now() - new Date(iso).getTime()) / 60000);
+    var h = Math.floor(min / 60);
+    return h > 0 ? h + ' h ' + String(min % 60).padStart(2, '0') : min + ' min';
+}
+
+async function loadCrew() {
+    var el = document.getElementById('mcrew-list');
+    if (!el) return;
+    try {
+        var rows = await api('GET', '/api/control-punches?today=true');
+        renderCrew(rows || []);
+    } catch (e) {
+        if (!el.children.length) el.innerHTML = '<div class="mcrew__empty">Impossible de charger l\u2019\u00e9quipe.</div>';
+    }
+}
+
+function renderCrew(rows) {
+    var el = document.getElementById('mcrew-list');
+    if (!el) return;
+    var esc = function (x) { return String(x == null ? '' : x).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+    var name = function (r) { return ((r.first_name || '') + ' ' + (r.last_name || '')).trim(); };
+
+    var sorted = rows.slice().sort(function (a, b) {
+        return (!!b.is_in - !!a.is_in) || name(a).localeCompare(name(b), 'fr');
+    });
+    var inNow = sorted.filter(function (r) { return r.is_in; }).length;
+    var car = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/></svg>';
+
+    el.innerHTML =
+        '<div class="mcrew__count"><b>' + inNow + '</b> au travail sur ' + sorted.length + '</div>' +
+        (sorted.length ? sorted.map(function (r) {
+            var job = (r.open_jobs || [])[0];
+            var h = crewHue(r.id);
+            var ini = ((r.first_name || '?').charAt(0) + (r.last_name || '?').charAt(0)).toUpperCase();
+            return '<div class="mcrew__row' + (r.is_in ? ' is-in' : '') + '">' +
+                '<div class="mcrew__av" style="--c1:hsl(' + h + ',62%,62%);--c2:hsl(' + ((h + 38) % 360) + ',62%,48%)">' + esc(ini) + '</div>' +
+                '<div class="mcrew__who"><b>' + esc(name(r)) + '</b>' +
+                    (job
+                        ? '<span class="mcrew__job">' + car + esc((job.vehicle && job.vehicle.make) || 'V\u00e9hicule') + '</span>'
+                        : '<span class="mcrew__idle">' + (r.is_in ? 'aucune job' : 'pas au travail') + '</span>') +
+                '</div>' +
+                (r.is_in
+                    ? (job
+                        ? '<span class="mcrew__timer">' + crewSince(job.started_at) + '</span>'
+                        : '<span class="mcrew__pill mcrew__pill--in">IN</span>')
+                    : '<span class="mcrew__pill">OUT</span>') +
+            '</div>';
+        }).join('') : '<div class="mcrew__empty">Aucun employ\u00e9.</div>');
 }
 
 document.querySelectorAll('.sidebar__link[data-tab]').forEach(function(link) {
     link.addEventListener('click', function() {
         switchToTab(link.dataset.tab);
+    });
+});
+
+document.querySelectorAll('.mnav__btn[data-mtab]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        switchToTab(btn.dataset.mtab);
     });
 });
 

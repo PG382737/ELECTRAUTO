@@ -3268,7 +3268,7 @@ body.mobile-mode.detail-open .mobile-header__back:active {
 body.mobile-mode.detail-open .mobile-header__logout { display: none; }
 
 /* Hide all tabs except todos on mobile */
-body.mobile-mode .tab:not(#tab-todos) { display: none !important; }
+body.mobile-mode .tab:not(#tab-todos):not(#tab-crew) { display: none !important; }
 
 /* Tâches tab mobile layout */
 body.mobile-mode #tab-todos { padding: 16px; }
@@ -3527,7 +3527,7 @@ body.mobile-mode .search-select__dropdown {
 
 /* Ensure all hidden tabs are truly out of flow on mobile - stops them from
    contributing to layout / horizontal overflow if they contain wide desktop tables. */
-body.mobile-mode .tab:not(#tab-todos) {
+body.mobile-mode .tab:not(#tab-todos):not(#tab-crew) {
     display: none !important;
     visibility: hidden;
 }
@@ -3547,3 +3547,69 @@ body.mobile-mode .toast {
 
 
 
+
+
+/* ================================================
+   MOBILE : barre fixe du bas + tableau de bord equipe
+   Demande du client : visuel seulement, aucune interaction.
+   ================================================ */
+.mnav { display: none; }
+
+body.mobile-mode .mnav {
+    display: grid; grid-template-columns: 1fr 1fr;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 900;
+    background: rgba(18, 18, 20, .96);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    border-top: 1px solid var(--border);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+}
+body.mobile-mode .mnav__btn {
+    position: relative;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    padding: 10px 0 12px; border: none; background: none; cursor: pointer;
+    font-family: inherit; font-size: .72rem; font-weight: 700; letter-spacing: .3px;
+    color: var(--text-muted); -webkit-tap-highlight-color: transparent;
+}
+body.mobile-mode .mnav__btn svg { width: 23px; height: 23px; }
+body.mobile-mode .mnav__btn.active { color: var(--accent); }
+body.mobile-mode .mnav__badge {
+    position: absolute; top: 6px; left: 50%; margin-left: 10px;
+    width: 9px; height: 9px; border-radius: 50%; background: var(--danger);
+}
+
+/* De la place au-dessus de la barre, et le bouton flottant au-dessus d'elle */
+body.mobile-mode #tab-todos, body.mobile-mode #tab-crew { padding-bottom: 86px; }
+body.mobile-mode .mobile-fab { bottom: 84px; }
+body.mobile-mode.m-crew .mobile-fab { display: none; }
+
+/* L'equipe */
+body.mobile-mode #tab-crew { padding: 16px 16px 86px; }
+.mcrew__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.mcrew__head h1 { font-size: 1.5rem; font-weight: 800; }
+.mcrew__live { display: flex; align-items: center; gap: 7px; font-size: .78rem; color: var(--text-muted); }
+.mcrew__count { margin-bottom: 12px; font-size: .95rem; color: var(--text-muted); }
+.mcrew__count b { font-size: 1.5rem; font-weight: 800; color: var(--text); }
+.mcrew__row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; margin-bottom: 8px; border-radius: 14px;
+    background: var(--bg-card); border: 1px solid var(--border);
+}
+.mcrew__row.is-in { background: rgba(34, 197, 94, .07); border-color: rgba(34, 197, 94, .22); }
+.mcrew__av {
+    flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%;
+    display: grid; place-items: center; font-size: .85rem; font-weight: 800; color: #141414;
+    background: linear-gradient(135deg, var(--c1), var(--c2));
+}
+.mcrew__who { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.mcrew__who b { font-size: 1rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mcrew__job { display: flex; align-items: center; gap: 6px; font-size: .82rem; color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mcrew__job svg { width: 15px; height: 15px; flex-shrink: 0; }
+.mcrew__idle { font-size: .82rem; color: var(--text-muted); }
+.mcrew__pill {
+    flex-shrink: 0; padding: 4px 11px; border-radius: 999px;
+    font-size: .7rem; font-weight: 800; letter-spacing: .6px;
+    color: var(--text-muted); background: rgba(255, 255, 255, .06);
+}
+.mcrew__pill--in { color: #4ade80; background: rgba(34, 197, 94, .15); }
+.mcrew__timer { flex-shrink: 0; font-size: .9rem; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+.mcrew__empty { padding: 30px 0; text-align: center; color: var(--text-muted); }
