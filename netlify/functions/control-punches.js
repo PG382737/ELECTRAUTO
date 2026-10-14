@@ -157,6 +157,18 @@ exports.handler = async (event) => {
         // POST - punch IN / punch OUT, from the terminal or by hand from the admin
         if (event.httpMethod === 'POST') {
             const body = JSON.parse(event.body || '{}');
+
+            // The terminal records what it refused, so the history explains itself.
+            // The type is checked against a list: this endpoint cannot write anything else.
+            if (body.action === 'log') {
+                const ALLOWED = ['refus_job', 'refus_out', 'inconnu'];
+                if (ALLOWED.indexOf(body.type) < 0) {
+                    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Unknown event type' }) };
+                }
+                await logEvent(body.type, body.employee_id || null, body.vehicle_id || null, body.detail || null, 'terminal');
+                return { statusCode: 201, headers, body: JSON.stringify({ logged: true }) };
+            }
+
             const employeeId = body.employee_id;
             const action = body.action;
 

@@ -2339,6 +2339,7 @@
         }
 
         if (!emp && !veh) {
+            scLog('inconnu', null, null, 'Carte ' + tagId);
             scFlash({ kind: 'unknown', title: 'Carte inconnue' });
             return;
         }
@@ -2358,14 +2359,25 @@
 
         // --- Une carte de vehicule ---
         if (!scannerEmployee) {
+            scLog('refus_job', null, veh.id, 'V\u00e9hicule pass\u00e9 sans badge');
             scFlash({ kind: 'block', title: 'Badge d\u2019abord' });
             return;
         }
         if (!scannerEmployee.is_in) {
+            scLog('refus_job', scannerEmployee.id, veh.id, 'Pas punch\u00e9 IN');
             scFlash({ kind: 'block', kicker: escHtml(scName(scannerEmployee)), title: 'Punch IN d\u2019abord' });
             return;
         }
         await scJobOnVehicle(veh, scannerEmployee);
+    }
+
+    // Un refus affiche a l'ecran doit aussi laisser une trace : sinon on ne peut
+    // rien diagnostiquer apres coup, il faut etre devant le terminal pour comprendre.
+    function scLog(type, employeeId, vehicleId, detail) {
+        api('POST', '/api/control-punches', {
+            action: 'log', type: type, employee_id: employeeId || null,
+            vehicle_id: vehicleId || null, detail: detail || null
+        }).catch(function () { /* journaliser ne doit jamais gener l'employe */ });
     }
 
     function scPulseReader() {
@@ -2380,6 +2392,7 @@
         var action = emp.is_in ? 'out' : 'in';
         if (action === 'out' && (emp.open_jobs || []).length) {
             var j = emp.open_jobs[0];
+            scLog('refus_out', emp.id, j.vehicle_id, 'Job ouverte sur ' + scVehName(j.vehicle));
             scFlash({ kind: 'block', kicker: escHtml(scName(emp)), title: 'Termine ta job', sub: escHtml(scVehName(j.vehicle)) });
             scannerEmployee = emp;
             return;
@@ -2400,6 +2413,7 @@
         var open = (emp.open_jobs || [])[0] || null;
 
         if (open && open.vehicle_id !== veh.id) {
+            scLog('refus_job', emp.id, veh.id, 'D\u00e9j\u00e0 sur ' + scVehName(open.vehicle));
             scFlash({ kind: 'block', kicker: escHtml(scName(emp)), title: 'Un v\u00e9hicule \u00e0 la fois', sub: 'Termine le ' + escHtml(scVehName(open.vehicle)) });
             return;
         }

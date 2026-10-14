@@ -112,6 +112,25 @@ async function supaFetch(endpoint, options = {}) {
     return null;
 }
 
+// Every open and close is recorded, so the Presences history shows the jobs and
+// not just the punches. A failed log must never fail the work order itself.
+async function logEvent(type, employeeId, vehicleId, detail) {
+    try {
+        await supaFetch('control_punch_events', {
+            method: 'POST',
+            prefer: 'return=minimal',
+            body: {
+                occurred_at: new Date().toISOString(),
+                type,
+                employee_id: employeeId || null,
+                vehicle_id: vehicleId || null,
+                detail: detail || null,
+                source: 'terminal'
+            }
+        });
+    } catch (e) { /* ignored on purpose */ }
+}
+
 exports.handler = async (event) => {
     if (event.httpMethod === 'OPTIONS') {
         return { statusCode: 200, headers, body: '' };
@@ -209,6 +228,7 @@ exports.handler = async (event) => {
             };
 
             const data = await supaFetch('control_work_orders', { method: 'POST', body: order });
+            await logEvent('job_start', order.employee_id, order.vehicle_id, null);
             return { statusCode: 201, headers, body: JSON.stringify(data[0]) };
         }
 
@@ -275,6 +295,7 @@ exports.handler = async (event) => {
                     }
                 });
 
+                await logEvent('job_end', order.employee_id, order.vehicle_id, Math.max(0, durationSeconds) + ' s');
                 return { statusCode: 200, headers, body: JSON.stringify(updated[0]) };
             }
 
@@ -302,6 +323,7 @@ exports.handler = async (event) => {
                     }
                 });
 
+                await logEvent('job_end', order.employee_id, order.vehicle_id, Math.max(0, durationSeconds) + ' s');
                 return { statusCode: 200, headers, body: JSON.stringify(updated[0]) };
             }
 
