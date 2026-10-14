@@ -9,9 +9,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="stylesheet" href="css/admin.css?v=20261014b">
-    <link rel="stylesheet" href="css/scanner.css?v=20261014b">
-    <link rel="stylesheet" href="css/presences.css?v=20261014b">
+    <link rel="stylesheet" href="css/admin.css?v=20261014c">
+    <link rel="stylesheet" href="css/scanner.css?v=20261014c">
+    <link rel="stylesheet" href="css/presences.css?v=20261014c">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 </head>
 <body>
@@ -1018,6 +1018,25 @@
     <div class="toast-container" id="toast-container"></div>
 
     <!-- ===== NFC SCANNER FULLSCREEN ===== -->
+    <!-- Fiche d'un employe, mobile uniquement -->
+    <div class="msheet" id="msheet" hidden>
+        <div class="msheet__fond" data-msheet-close></div>
+        <div class="msheet__panneau" role="dialog" aria-modal="true" aria-labelledby="msheet-nom">
+            <div class="msheet__poignee"></div>
+            <div class="msheet__tete">
+                <div class="msheet__av" id="msheet-av"></div>
+                <div class="msheet__qui">
+                    <b id="msheet-nom"></b>
+                    <span id="msheet-etat"></span>
+                </div>
+                <button type="button" class="msheet__x" data-msheet-close aria-label="Fermer">&times;</button>
+            </div>
+            <div class="msheet__stats" id="msheet-stats"></div>
+            <div class="msheet__actions" id="msheet-actions"></div>
+            <div class="msheet__erreur" id="msheet-erreur"></div>
+        </div>
+    </div>
+
     <!-- Barre fixe du bas, mobile uniquement -->
     <nav class="mnav" id="mnav">
         <button type="button" class="mnav__btn active" data-mtab="crew">
@@ -1267,9 +1286,9 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
-    <script src="js/admin-i18n.js?v=20261014b"></script>
-    <script src="js/admin.js?v=20261014b"></script>
-    <script src="js/control.js?v=20261014b"></script>
+    <script src="js/admin-i18n.js?v=20261014c"></script>
+    <script src="js/admin.js?v=20261014c"></script>
+    <script src="js/control.js?v=20261014c"></script>
     <script src="js/todos.js"></script>
 </body>
 </html>

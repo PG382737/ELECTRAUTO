@@ -490,6 +490,7 @@ function renderCrew(rows) {
         return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
     var name = function (r) { return ((r.first_name || '') + ' ' + (r.last_name || '')).trim(); };
 
+    crewRows = rows;
     var sorted = rows.slice().sort(function (a, b) {
         return (!!b.is_in - !!a.is_in) || name(a).localeCompare(name(b), 'fr');
     });
@@ -502,7 +503,7 @@ function renderCrew(rows) {
             var job = (r.open_jobs || [])[0];
             var h = crewHue(r.id);
             var ini = ((r.first_name || '?').charAt(0) + (r.last_name || '?').charAt(0)).toUpperCase();
-            return '<div class="mcrew__row' + (r.is_in ? ' is-in' : '') + '">' +
+            return '<button type="button" class="mcrew__row' + (r.is_in ? ' is-in' : '') + '" data-emp="' + r.id + '">' +
                 '<div class="mcrew__av" style="--c1:hsl(' + h + ',62%,62%);--c2:hsl(' + ((h + 38) % 360) + ',62%,48%)">' + esc(ini) + '</div>' +
                 '<div class="mcrew__who"><b>' + esc(name(r)) + '</b>' +
                     (job
@@ -514,8 +515,147 @@ function renderCrew(rows) {
                         ? '<span class="mcrew__timer">' + crewSince(job.started_at) + '</span>'
                         : '<span class="mcrew__pill mcrew__pill--in">IN</span>')
                     : '<span class="mcrew__pill">OUT</span>') +
-            '</div>';
+            '</button>';
         }).join('') : '<div class="mcrew__empty">Aucun employ\u00e9.</div>');
+}
+
+/* ===== Fiche d'un employe : quelques chiffres et les actions de base ===== */
+
+var crewRows = [];          // la derniere liste chargee
+var sheetEmp = null;        // l'employe ouvert
+
+function crewDur(ms) {
+    if (!ms || ms < 60000) return '0 min';
+    var min = Math.round(ms / 60000), h = Math.floor(min / 60);
+    return h > 0 ? h + ' h ' + String(min % 60).padStart(2, '0') : min + ' min';
+}
+
+function crewJourDebut() {
+    var et = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Toronto' }));
+    return Date.now() - (et.getHours() * 3600000 + et.getMinutes() * 60000 + et.getSeconds() * 1000);
+}
+
+// Travaille aujourd'hui : chaque punch borne a la journee en cours
+function crewTravaille(punches) {
+    var now = Date.now(), debut = crewJourDebut();
+    return (punches || []).reduce(function (t, p) {
+        var a = Math.max(new Date(p.punch_in).getTime(), debut);
+        var b = Math.min(p.punch_out ? new Date(p.punch_out).getTime() : now, now);
+        return t + Math.max(0, b - a);
+    }, 0);
+}
+
+// Break : les intervalles entre un punch OUT et le punch IN suivant
+function crewBreak(punches) {
+    var l = (punches || []).slice().sort(function (a, b) { return new Date(a.punch_in) - new Date(b.punch_in); });
+    var t = 0;
+    for (var i = 0; i < l.length - 1; i++) {
+        if (!l[i].punch_out) continue;
+        var e = new Date(l[i + 1].punch_in).getTime() - new Date(l[i].punch_out).getTime();
+        if (e > 0) t += e;
+    }
+    return t;
+}
+
+function openSheet(id) {
+    var r = crewRows.find(function (x) { return x.id === id; });
+    if (!r) return;
+    sheetEmp = r;
+
+    var h = crewHue(r.id);
+    var nom = ((r.first_name || '') + ' ' + (r.last_name || '')).trim();
+    var ini = ((r.first_name || '?').charAt(0) + (r.last_name || '?').charAt(0)).toUpperCase();
+    var job = (r.open_jobs || [])[0];
+    var hm = function (iso) { return iso ? new Date(iso).toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', hour12: false }) : '--:--'; };
+
+    var av = document.getElementById('msheet-av');
+    av.style.setProperty('--c1', 'hsl(' + h + ',62%,62%)');
+    av.style.setProperty('--c2', 'hsl(' + ((h + 38) % 360) + ',62%,48%)');
+    av.textContent = ini;
+    document.getElementById('msheet-nom').textContent = nom;
+    document.getElementById('msheet-etat').textContent = r.is_in
+        ? 'IN depuis ' + hm(r.open_punch && r.open_punch.punch_in)
+        : 'Pas au travail';
+    document.getElementById('msheet-erreur').textContent = '';
+
+    var punches = r.punches || [];
+    var premier = punches.slice().sort(function (a, b) { return new Date(a.punch_in) - new Date(b.punch_in); })[0];
+    document.getElementById('msheet-stats').innerHTML =
+        stat('Arriv\u00e9e', premier ? hm(premier.punch_in) : '\u2014') +
+        stat('Travaill\u00e9', crewDur(crewTravaille(punches))) +
+        stat('Break', crewBreak(punches) ? crewDur(crewBreak(punches)) : '\u2014') +
+        stat('Job en cours', job ? ((job.vehicle && job.vehicle.make) || 'V\u00e9hicule') : '\u2014');
+
+    var actions = '';
+    if (job) {
+        actions += bouton('fermer-job', 'job', 'Fermer la job' + (job.vehicle && job.vehicle.make ? ' \u00b7 ' + esc(job.vehicle.make) : ''));
+    }
+    actions += r.is_in
+        ? bouton('punch-out', 'out', 'Puncher OUT')
+        : bouton('punch-in', 'in', 'Puncher IN');
+    document.getElementById('msheet-actions').innerHTML = actions;
+
+    document.getElementById('msheet').hidden = false;
+    document.body.classList.add('modal-open');
+}
+
+function stat(libelle, valeur) {
+    return '<div class="msheet__stat"><small>' + libelle + '</small><b>' + esc(String(valeur)) + '</b></div>';
+}
+function bouton(action, ton, libelle) {
+    return '<button type="button" class="msheet__btn msheet__btn--' + ton + '" data-msheet-action="' + action + '">' + esc(libelle) + '</button>';
+}
+function esc(x) {
+    return String(x == null ? '' : x).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+}
+
+function closeSheet() {
+    document.getElementById('msheet').hidden = true;
+    document.body.classList.remove('modal-open');
+    sheetEmp = null;
+}
+
+// Une action se confirme par une 2e touche sur le meme bouton : pas de fenetre de plus
+async function sheetAction(btn) {
+    if (!sheetEmp) return;
+    var action = btn.dataset.msheetAction;
+    if (!btn.classList.contains('is-sur')) {
+        document.querySelectorAll('#msheet-actions .msheet__btn').forEach(function (b) {
+            b.classList.remove('is-sur');
+            if (b.dataset.libelle) { b.textContent = b.dataset.libelle; delete b.dataset.libelle; }
+        });
+        btn.dataset.libelle = btn.textContent;
+        btn.textContent = 'Confirmer ?';
+        btn.classList.add('is-sur');
+        return;
+    }
+
+    var err = document.getElementById('msheet-erreur');
+    err.textContent = '';
+    document.querySelectorAll('#msheet-actions .msheet__btn').forEach(function (b) { b.disabled = true; });
+    var RAISON = 'Depuis le tableau de bord mobile';
+    try {
+        if (action === 'fermer-job') {
+            var job = (sheetEmp.open_jobs || [])[0];
+            await api('PATCH', '/api/control-work-orders', { vehicle_id: job.vehicle_id, employee_id: sheetEmp.id });
+        } else {
+            await api('POST', '/api/control-punches', {
+                employee_id: sheetEmp.id, action: action === 'punch-in' ? 'in' : 'out',
+                source: 'admin', reason: RAISON
+            });
+        }
+        closeSheet();
+        await loadCrew();
+    } catch (e) {
+        err.textContent = e.message;
+        document.querySelectorAll('#msheet-actions .msheet__btn').forEach(function (b) {
+            b.disabled = false;
+            b.classList.remove('is-sur');
+            if (b.dataset.libelle) { b.textContent = b.dataset.libelle; delete b.dataset.libelle; }
+        });
+    }
 }
 
 document.querySelectorAll('.sidebar__link[data-tab]').forEach(function(link) {
@@ -528,6 +668,14 @@ document.querySelectorAll('.mnav__btn[data-mtab]').forEach(function(btn) {
     btn.addEventListener('click', function() {
         switchToTab(btn.dataset.mtab);
     });
+});
+
+document.addEventListener('click', function(ev) {
+    var ligne = ev.target.closest && ev.target.closest('.mcrew__row[data-emp]');
+    if (ligne) return openSheet(ligne.dataset.emp);
+    if (ev.target.closest && ev.target.closest('[data-msheet-close]')) return closeSheet();
+    var act = ev.target.closest && ev.target.closest('[data-msheet-action]');
+    if (act) return sheetAction(act);
 });
 
 // ============================================
