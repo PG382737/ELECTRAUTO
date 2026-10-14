@@ -2091,8 +2091,7 @@
             return (!!b.is_in - !!a.is_in) || scName(a).localeCompare(scName(b), 'fr');
         });
         var inNow = rows.filter(function (r) { return r.is_in; }).length;
-        var MAX = 9;
-        var shown = rows.slice(0, MAX), more = rows.length - shown.length;
+        var shown = rows, more = 0;
 
         el.innerHTML =
             '<div class="crew__head"><b>' + inNow + '</b> au travail <span>/ ' + rows.length + '</span></div>' +
@@ -2113,8 +2112,44 @@
                             : '<span class="crew__pill">OUT</span>') +
                     '</div>';
                 }).join('') : '<div class="crew__empty">Aucun employ\u00e9</div>') +
-                (more > 0 ? '<div class="crew__more">+' + more + ' autre' + (more > 1 ? 's' : '') + '</div>' : '') +
             '</div>';
+
+        scTrimCrew(rows.length);
+    }
+
+    // On affiche tout le monde, puis on retire ce qui depasse vraiment du panneau.
+    // Mesurer vaut mieux que deviner : la hauteur d'une ligne change selon qu'un
+    // vehicule est affiche ou non, et l'ecran est mis a l'echelle de la fenetre.
+    function scTrimCrew(total) {
+        var panel = scEl('scanner-crew');
+        var list = panel && panel.querySelector('.crew__list');
+        if (!list) return;
+        var fits = function (el) {
+            return el.getBoundingClientRect().bottom <= list.getBoundingClientRect().bottom + 1;
+        };
+        var rows = [].slice.call(list.querySelectorAll('.crew__row'));
+        var removed = 0;
+        // on garde une ligne de libre pour le « +N autres »
+        while (rows.length > 1 && (!fits(rows[rows.length - 1]) || (removed > 0 && !fits(rows[rows.length - 2] || rows[rows.length - 1])))) {
+            list.removeChild(rows.pop());
+            removed++;
+            if (removed > total) break;
+        }
+        var old = list.querySelector('.crew__more');
+        if (old) list.removeChild(old);
+        if (removed > 0) {
+            var more = document.createElement('div');
+            more.className = 'crew__more';
+            more.textContent = '+' + removed + ' autre' + (removed > 1 ? 's' : '');
+            list.appendChild(more);
+            // le « +N » peut a son tour depasser : on libere une ligne de plus
+            if (more.getBoundingClientRect().bottom > list.getBoundingClientRect().bottom + 1 && rows.length > 1) {
+                list.removeChild(rows.pop());
+                removed++;
+                more.textContent = '+' + removed + ' autre' + (removed > 1 ? 's' : '');
+                list.appendChild(more);
+            }
+        }
     }
 
     /* ----- Confirmation plein ecran ----- */

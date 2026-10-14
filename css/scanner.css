@@ -242,7 +242,8 @@
 /* ===== Accueil v2 : « passe ton badge » a gauche, l'equipe a droite ===== */
 #nfc-scanner-overlay .home {
     position: absolute; inset: 0 72px;
-    display: grid; grid-template-columns: minmax(0, 1fr) 620px; gap: 56px; align-items: center;
+    display: grid; grid-template-columns: minmax(0, 1fr) 620px; grid-template-rows: minmax(0, 1fr);
+    gap: 56px; align-items: center;
 }
 #nfc-scanner-overlay .home__tap { display: flex; flex-direction: column; align-items: center; text-align: center; }
 #nfc-scanner-overlay .home__title {
@@ -258,26 +259,26 @@
 
 /* L'equipe : qui est au travail, et sur quel vehicule */
 #nfc-scanner-overlay .crew {
-    align-self: center; max-height: 830px; text-align: left;
+    align-self: stretch; margin: 26px 0; min-height: 0; text-align: left;
     display: flex; flex-direction: column;
     padding: 26px 28px; border-radius: 28px;
     background: var(--panel); border: 1px solid var(--panel-border);
 }
-#nfc-scanner-overlay .crew__head { font-size: 26px; font-weight: 600; color: var(--muted); margin-bottom: 18px; }
+#nfc-scanner-overlay .crew__head { font-size: 25px; font-weight: 600; color: var(--muted); margin-bottom: 14px; }
 #nfc-scanner-overlay .crew__head b { font-size: 34px; font-weight: 800; color: var(--text); }
 #nfc-scanner-overlay .crew__head span { color: var(--faint); }
-#nfc-scanner-overlay .crew__list { display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+#nfc-scanner-overlay .crew__list { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; overflow: hidden; }
 #nfc-scanner-overlay .crew__row {
     display: flex; align-items: center; gap: 16px;
-    padding: 11px 14px; border-radius: 16px;
+    padding: 9px 14px; border-radius: 15px;
     background: rgba(255,255,255,.02); border: 1px solid transparent;
 }
 #nfc-scanner-overlay .crew__row.is-in { background: rgba(34,197,94,.07); border-color: rgba(34,197,94,.18); }
 #nfc-scanner-overlay .crew__who { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
-#nfc-scanner-overlay .crew__who b { font-size: 25px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#nfc-scanner-overlay .crew__job { display: flex; align-items: center; gap: 7px; font-size: 18px; color: var(--accent-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#nfc-scanner-overlay .crew__who b { font-size: 23px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#nfc-scanner-overlay .crew__job { display: flex; align-items: center; gap: 7px; font-size: 17px; color: var(--accent-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #nfc-scanner-overlay .crew__job svg { width: 19px; height: 19px; flex-shrink: 0; }
-#nfc-scanner-overlay .crew__idle { font-size: 18px; color: var(--faint); }
+#nfc-scanner-overlay .crew__idle { font-size: 17px; color: var(--faint); }
 #nfc-scanner-overlay .crew__timer { flex-shrink: 0; font-size: 24px; font-weight: 700; color: var(--accent-2); font-variant-numeric: tabular-nums; }
 #nfc-scanner-overlay .crew__pill {
     flex-shrink: 0; padding: 5px 13px; border-radius: 999px;
