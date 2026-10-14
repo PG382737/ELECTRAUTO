@@ -6,10 +6,6 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const PASSWORD_HASH = 'be50e4db19df4d208d3a3440926126de8806191de1818f9e251a80cab62fbb75';
 
-// A badge left on the reader gets re-read: refuse a punch OUT that follows its own
-// punch IN too closely, the same way the terminal refuses to close a fresh job.
-const MIN_SHIFT_MS = 60000;
-
 // An open punch IN older than this is almost certainly a forgotten punch OUT.
 // Same rule as the prototype, so the alert shows the same evening rather than
 // waiting for midnight to pass.
@@ -210,16 +206,10 @@ exports.handler = async (event) => {
                 return { statusCode: 400, headers, body: JSON.stringify({ error: 'punch_out must be after punch_in' }) };
             }
 
+            // No minimum shift length any more: the reader de-duplicates card reads
+            // itself, so making someone wait only produced "I badged and nothing
+            // happened". Mistakes are undone straight away instead.
             if (!byAdmin) {
-                // A badge re-read moments after the punch IN must not close the shift
-                const sinceIn = Date.now() - new Date(open.punch_in).getTime();
-                if (sinceIn < MIN_SHIFT_MS) {
-                    return {
-                        statusCode: 409, headers,
-                        body: JSON.stringify({ error: 'Just punched IN', code: 'too_soon', retry_in_seconds: Math.ceil((MIN_SHIFT_MS - sinceIn) / 1000), punch: open })
-                    };
-                }
-
                 // Cannot punch OUT from the terminal while a job is still open
                 const jobs = await supaFetch(`control_work_orders?employee_id=eq.${employeeId}&ended_at=is.null&select=id,vehicle_id,started_at,vehicle:control_vehicles(id,make,year,plate)`);
                 if (jobs && jobs.length > 0) {

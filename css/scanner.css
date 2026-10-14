@@ -238,3 +238,55 @@
     opacity: .5; transition: opacity .2s, color .2s, border-color .2s;
 }
 #nfc-scanner-overlay .nfc-scanner__close:hover { opacity: 1; color: rgba(255, 255, 255, .8); border-color: rgba(255, 255, 255, .3); }
+
+/* ===== Accueil v2 : « passe ton badge » a gauche, l'equipe a droite ===== */
+#nfc-scanner-overlay .home {
+    position: absolute; inset: 0 72px;
+    display: grid; grid-template-columns: minmax(0, 1fr) 620px; gap: 56px; align-items: center;
+}
+#nfc-scanner-overlay .home__tap { display: flex; flex-direction: column; align-items: center; text-align: center; }
+#nfc-scanner-overlay .home__title {
+    margin-top: 40px; margin-bottom: -.18em; padding: 0 .05em .2em;
+    font-size: 104px; font-weight: 800; letter-spacing: -3px; line-height: 1;
+    background: linear-gradient(180deg, #fff 35%, #c7c7cf);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+#nfc-scanner-overlay .home__sub { margin-top: 10px; font-size: 30px; color: var(--muted); }
+#nfc-scanner-overlay .tapper--md { width: 230px; height: 230px; }
+#nfc-scanner-overlay .tapper--md .tapper__core { width: 156px; height: 156px; }
+#nfc-scanner-overlay .tapper--md .tapper__core svg { width: 80px; height: 80px; }
+
+/* L'equipe : qui est au travail, et sur quel vehicule */
+#nfc-scanner-overlay .crew {
+    align-self: center; max-height: 830px; text-align: left;
+    display: flex; flex-direction: column;
+    padding: 26px 28px; border-radius: 28px;
+    background: var(--panel); border: 1px solid var(--panel-border);
+}
+#nfc-scanner-overlay .crew__head { font-size: 26px; font-weight: 600; color: var(--muted); margin-bottom: 18px; }
+#nfc-scanner-overlay .crew__head b { font-size: 34px; font-weight: 800; color: var(--text); }
+#nfc-scanner-overlay .crew__head span { color: var(--faint); }
+#nfc-scanner-overlay .crew__list { display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+#nfc-scanner-overlay .crew__row {
+    display: flex; align-items: center; gap: 16px;
+    padding: 11px 14px; border-radius: 16px;
+    background: rgba(255,255,255,.02); border: 1px solid transparent;
+}
+#nfc-scanner-overlay .crew__row.is-in { background: rgba(34,197,94,.07); border-color: rgba(34,197,94,.18); }
+#nfc-scanner-overlay .crew__who { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+#nfc-scanner-overlay .crew__who b { font-size: 25px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#nfc-scanner-overlay .crew__job { display: flex; align-items: center; gap: 7px; font-size: 18px; color: var(--accent-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#nfc-scanner-overlay .crew__job svg { width: 19px; height: 19px; flex-shrink: 0; }
+#nfc-scanner-overlay .crew__idle { font-size: 18px; color: var(--faint); }
+#nfc-scanner-overlay .crew__timer { flex-shrink: 0; font-size: 24px; font-weight: 700; color: var(--accent-2); font-variant-numeric: tabular-nums; }
+#nfc-scanner-overlay .crew__pill {
+    flex-shrink: 0; padding: 5px 13px; border-radius: 999px;
+    font-size: 16px; font-weight: 800; letter-spacing: 1px;
+    color: var(--faint); background: rgba(255,255,255,.06);
+}
+#nfc-scanner-overlay .crew__pill--in { color: var(--green-2); background: rgba(34,197,94,.14); }
+#nfc-scanner-overlay .crew__more, #nfc-scanner-overlay .crew__empty { padding: 8px 4px; font-size: 19px; color: var(--faint); text-align: center; }
+
+/* Le lecteur tombe : la carte bipe mais rien n'arrive au navigateur, ca doit se voir */
+#nfc-scanner-overlay .reader.is-down { background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.35); color: var(--red-2); }
+#nfc-scanner-overlay .reader.is-down .reader__dot { background: var(--red); animation: none; }

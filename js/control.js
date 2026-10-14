@@ -14,10 +14,7 @@
     var scannerInterval = null;
     var scannerTimeout = null;
     var scannerState = null;
-    var scannerVehicleOrders = [];
     var scannerEmployee = null;     // employe dont le profil est affiche
-    var scannerArmed = false;       // son badge repasse une 2e fois change son statut IN/OUT
-    var scannerActiveOrder = null;
     var scannerVehicle = null;
     var nfcReader = null;
     var nfcAssignCallback = null;
@@ -1923,9 +1920,14 @@
         }
     }
 
-    // ---- NFC SCANNER (FULLSCREEN) ----
-    // Le design vient du prototype valide avec le client (preview-terminal.html) :
-    // ecran 1920x1080 mis a l'echelle, aucune liste, une seule action a la fois.
+    // ---- NFC SCANNER (PLEIN ECRAN) ----
+    // Regles, decidees avec le garage :
+    //   - le badge employe passe TOUJOURS en premier ; un vehicule seul est refuse ;
+    //   - une fois identifie : repasser son badge = punch IN/OUT, passer un vehicule =
+    //     ouvrir ou fermer sa job ;
+    //   - un employe ne peut pas avoir deux vehicules en meme temps ;
+    //   - aucun delai entre deux scans : le lecteur dedoublonne lui-meme ;
+    //   - chaque scan donne toujours une reponse a l'ecran, jamais rien.
 
     var SC_ICONS = {
         nfc: '<path d="M6 8.32a7.43 7.43 0 0 1 0 7.36"/><path d="M9.46 6.21a11.76 11.76 0 0 1 0 11.58"/><path d="M12.91 4.1a15.91 15.91 0 0 1 .01 15.8"/><path d="M16.37 2a20.16 20.16 0 0 1 0 20"/>',
@@ -1952,24 +1954,23 @@
         return '<div class="tapper ' + (cls || '') + '"><span></span><span></span><span></span><div class="tapper__core">' + scSvg('nfc') + '</div></div>';
     }
 
-    var SC_SESSION_MS = 10000;   // retour a l'accueil sans nouveau scan
-    var SC_FLASH_MS = 5000;      // duree de chaque confirmation plein ecran
-    var SC_LOCK_MS = 2000;       // blocage apres chaque scan
-    var SC_READY_MS = 900;       // « tu peux repasser ta carte »
-    var SC_RING = 785;
-    var SC_MIN_JOB_MS = 120000;   // une job ne peut pas se fermer dans ses 2 premieres minutes
+    var SC_SESSION_MS = 12000;   // retour a l'accueil sans nouveau scan
+    var SC_FLASH_MS = 4000;      // duree d'une confirmation plein ecran
+    var SC_DEDUPE_MS = 300;      // deux trames identiques du lecteur : la 2e est un doublon
+    var SC_CREW_MS = 20000;      // rafraichissement du tableau de bord
     var SC_FLASH_ICON = { in: 'login', out: 'logout', jobStart: 'play', jobEnd: 'check', block: 'lock', unknown: 'help' };
 
-    var scLockUntil = 0, scLockTimers = [], scSessionTimer = 0, scSessionEnd = 0, scFlashTimer = 0, scFlashOn = false, scClockTimer = 0, scRaf = 0;
+    var scSessionTimer = 0, scSessionEnd = 0, scFlashTimer = 0, scFlashOn = false;
+    var scClockTimer = 0, scRaf = 0, scCrewTimer = 0, scVersionTimer = 0;
+    var scLastUid = '', scLastUidAt = 0;
+    var scCrew = [];
 
     function scEl(id) { return document.getElementById(id); }
-    function scLockLeft() { return Math.max(0, scLockUntil - Date.now()); }
 
-    function scName(e) { return ((e && e.first_name) || '') + ' ' + ((e && e.last_name) || ''); }
-    function scInitials(e) {
-        return (((e && e.first_name) || '?').charAt(0) + ((e && e.last_name) || '?').charAt(0)).toUpperCase();
-    }
-    function scVehName(v) { return ((v && v.make) || 'V\u00e9hicule'); }
+    function scName(e) { return (((e && e.first_name) || '') + ' ' + ((e && e.last_name) || '')).trim(); }
+    function scShort(e) { return (((e && e.first_name) || '') + ' ' + ((e && e.last_name) || '').charAt(0) + '.').trim(); }
+    function scInitials(e) { return (((e && e.first_name) || '?').charAt(0) + ((e && e.last_name) || '?').charAt(0)).toUpperCase(); }
+    function scVehName(v) { return (v && v.make) || 'V\u00e9hicule'; }
     function scVehLine(v) {
         var parts = [scVehName(v) + (v && v.year ? ' ' + v.year : '')];
         if (v && v.plate) parts.push(v.plate);
@@ -1977,14 +1978,13 @@
     }
     function scHM(iso) {
         if (!iso) return '--:--';
-        return new Date(iso).toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Toronto' });
+        return new Date(iso).toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', hour12: false });
     }
     function scTimerText(sinceIso) {
         var ms = Math.max(0, Date.now() - new Date(sinceIso).getTime());
         var min = Math.floor(ms / 60000), h = Math.floor(min / 60);
-        return h > 0 ? h + ':' + String(min % 60).padStart(2, '0') : min + ' min';
+        return h > 0 ? h + ' h ' + String(min % 60).padStart(2, '0') : min + ' min';
     }
-    // Une couleur stable par employe, tiree de son identifiant
     function scHue(id) {
         var n = 0, str = String(id || '');
         for (var i = 0; i < str.length; i++) n = (n * 31 + str.charCodeAt(i)) % 997;
@@ -2018,12 +2018,12 @@
     }
 
     function scSetView(name) {
-        ['idle', 'employee', 'vehicle'].forEach(function (v) {
+        ['idle', 'employee'].forEach(function (v) {
             var el = scEl('scanner-view-' + v);
             if (el) el.classList.toggle('is-active', v === name);
         });
         var screen = scEl('scanner-screen');
-        if (screen) screen.setAttribute('data-mood', name === 'idle' ? 'idle' : name === 'vehicle' ? 'vehicle' : (scannerEmployee && scannerEmployee.is_in ? 'in' : 'out'));
+        if (screen) screen.setAttribute('data-mood', name === 'idle' ? 'idle' : (scannerEmployee && scannerEmployee.is_in ? 'in' : 'out'));
     }
 
     function scTick() {
@@ -2035,11 +2035,22 @@
             el.textContent = scTimerText(el.getAttribute('data-since'));
         });
         var left = scEl('scanner-session-left');
-        if (left && scSessionEnd) left.textContent = 'Retour \u00e0 l\u2019accueil dans ' + Math.max(0, Math.ceil(Math.min(SC_SESSION_MS, scSessionEnd - Date.now()) / 1000)) + ' s';
+        if (left && scSessionEnd) left.textContent = 'Retour \u00e0 l\u2019accueil dans ' + Math.max(0, Math.ceil((scSessionEnd - Date.now()) / 1000)) + ' s';
+        scUpdateReaderChip();
+    }
+
+    // Le bandeau du haut dit la verite sur le lecteur : si le pont est tombe,
+    // la carte bipe mais rien n'arrive au navigateur. Il faut le voir.
+    function scUpdateReaderChip() {
+        var chip = scEl('scanner-reader');
+        if (!chip) return;
+        var ok = (typeof nfcWsConnected === 'undefined' || nfcWsConnected) && (typeof nfcReaderReady === 'undefined' || nfcReaderReady);
+        chip.classList.toggle('is-down', !ok);
+        chip.lastChild.textContent = ok ? 'Lecteur NFC pr\u00eat' : 'Lecteur NFC d\u00e9connect\u00e9';
     }
 
     function scFrame() {
-        var on = scannerState && scannerState !== 'WAITING_VEHICLE' && !scFlashOn && scSessionEnd > 0;
+        var on = scannerState === 'EMPLOYEE' && !scFlashOn && scSessionEnd > 0;
         var sess = scEl('scanner-session');
         if (sess) sess.classList.toggle('is-on', !!on);
         var fill = scEl('scanner-session-fill');
@@ -2049,56 +2060,65 @@
 
     function scStartSession() {
         clearTimeout(scSessionTimer);
-        var span = SC_SESSION_MS + scLockLeft();   // le decompte part quand l'ecran se debloque
-        scSessionEnd = Date.now() + span;
-        scSessionTimer = setTimeout(function () { setScannerState('WAITING_VEHICLE'); }, span);
+        scSessionEnd = Date.now() + SC_SESSION_MS;
+        scSessionTimer = setTimeout(function () { scGoIdle(); }, SC_SESSION_MS);
         scTick();
     }
 
-    function scClearLock() {
-        scLockTimers.forEach(function (x) { clearTimeout(x); clearInterval(x); });
-        scLockTimers = [];
-        scLockUntil = 0;
-        var el = scEl('scanner-lock');
-        if (el) el.className = 'lock';
-        var r = scEl('scanner-reader');
-        if (r) r.classList.remove('is-busy');
+    function scGoIdle() {
+        clearTimeout(scSessionTimer);
+        scSessionEnd = 0;
+        scannerEmployee = null;
+        scannerState = 'IDLE';
+        scSetView('idle');
+        scRenderCrew();
     }
 
-    function startScannerLock() {
-        var el = scEl('scanner-lock');
+    /* ----- Tableau de bord des employes, visible en permanence sur l'accueil ----- */
+
+    async function scLoadCrew() {
+        try {
+            var rows = await api('GET', '/api/control-punches?today=true');
+            scCrew = rows || [];
+            scRenderCrew();
+        } catch (e) { /* on garde la derniere liste connue */ }
+    }
+
+    function scRenderCrew() {
+        var el = scEl('scanner-crew');
         if (!el) return;
-        scLockTimers.forEach(function (x) { clearTimeout(x); clearInterval(x); });
-        scLockTimers = [];
+        var rows = scCrew.slice().sort(function (a, b) {
+            return (!!b.is_in - !!a.is_in) || scName(a).localeCompare(scName(b), 'fr');
+        });
+        var inNow = rows.filter(function (r) { return r.is_in; }).length;
+        var MAX = 9;
+        var shown = rows.slice(0, MAX), more = rows.length - shown.length;
 
-        var startedAt = Date.now();
-        scLockUntil = startedAt + SC_LOCK_MS + SC_READY_MS;
-        el.className = 'lock is-on';
-        scEl('scanner-lock-title').textContent = 'Un instant\u2026';
-        scEl('scanner-lock-sub').textContent = 'Ne repasse pas ta carte tout de suite';
-        var reader = scEl('scanner-reader');
-        if (reader) reader.classList.add('is-busy');
-
-        function paint() {
-            var left = Math.max(0, SC_LOCK_MS - (Date.now() - startedAt));
-            var c = scEl('scanner-lock-count');
-            if (c) c.textContent = Math.ceil(left / 1000);
-            var f = scEl('scanner-lock-fill');
-            if (f) f.style.strokeDashoffset = SC_RING * (1 - left / SC_LOCK_MS);
-        }
-        paint();
-        scLockTimers.push(setInterval(paint, 100));
-
-        scLockTimers.push(setTimeout(function () {
-            el.className = 'lock is-on is-ready';
-            scEl('scanner-lock-title').textContent = 'Tu peux repasser ta carte';
-            scEl('scanner-lock-sub').textContent = '';
-            if (reader) reader.classList.remove('is-busy');
-            scLockTimers.push(setTimeout(function () { el.className = 'lock'; }, SC_READY_MS));
-        }, SC_LOCK_MS));
+        el.innerHTML =
+            '<div class="crew__head"><b>' + inNow + '</b> au travail <span>/ ' + rows.length + '</span></div>' +
+            '<div class="crew__list">' +
+                (shown.length ? shown.map(function (r) {
+                    var job = (r.open_jobs || [])[0];
+                    return '<div class="crew__row' + (r.is_in ? ' is-in' : '') + '">' +
+                        scAvatar(r, 'avatar--sm', r.is_in) +
+                        '<div class="crew__who"><b>' + escHtml(scShort(r)) + '</b>' +
+                            (job
+                                ? '<span class="crew__job">' + scSvg('car') + escHtml(scVehName(job.vehicle)) + '</span>'
+                                : '<span class="crew__idle">' + (r.is_in ? 'aucune job' : '\u2014') + '</span>') +
+                        '</div>' +
+                        (r.is_in
+                            ? (job
+                                ? '<span class="crew__timer" data-since="' + job.started_at + '">' + scTimerText(job.started_at) + '</span>'
+                                : '<span class="crew__pill crew__pill--in">IN</span>')
+                            : '<span class="crew__pill">OUT</span>') +
+                    '</div>';
+                }).join('') : '<div class="crew__empty">Aucun employ\u00e9</div>') +
+                (more > 0 ? '<div class="crew__more">+' + more + ' autre' + (more > 1 ? 's' : '') + '</div>' : '') +
+            '</div>';
     }
 
-    // Confirmation plein ecran : la barre ne part qu'une fois l'ecran debloque
+    /* ----- Confirmation plein ecran ----- */
+
     function scFlash(f) {
         clearTimeout(scSessionTimer);
         clearTimeout(scFlashTimer);
@@ -2106,9 +2126,8 @@
         scFlashOn = true;
         var el = scEl('scanner-flash');
         el.className = 'flash flash--' + f.kind;
-        var wait = scLockLeft();
         el.style.setProperty('--dur', SC_FLASH_MS + 'ms');
-        el.style.setProperty('--delay', wait + 'ms');
+        el.style.setProperty('--delay', '0ms');
         el.innerHTML =
             '<div class="flash__box">' +
                 '<div class="flash__icon">' + scSvgDraw(SC_FLASH_ICON[f.kind]) + '</div>' +
@@ -2121,18 +2140,20 @@
             '<div class="flash__bar"></div>';
         void el.offsetWidth;
         el.classList.add('is-on');
-        scFlashTimer = setTimeout(scEndFlash, SC_FLASH_MS + wait);
+        scFlashTimer = setTimeout(function () { scEndFlash(); }, SC_FLASH_MS);
     }
 
-    function scEndFlash(goIdle) {
+    function scEndFlash(keepSession) {
         clearTimeout(scFlashTimer);
         if (!scFlashOn) return;
         scFlashOn = false;
         var el = scEl('scanner-flash');
         if (el) el.classList.remove('is-on');
-        if (goIdle === true || !scannerEmployee) setScannerState('WAITING_VEHICLE');
-        else scStartSession();
+        if (keepSession === true && scannerEmployee) { scSetView('employee'); scStartSession(); }
+        else scGoIdle();
     }
+
+    /* ----- Ouverture et fermeture ----- */
 
     function openScanner() {
         var overlay = document.getElementById('nfc-scanner-overlay');
@@ -2140,12 +2161,16 @@
         document.body.style.overflow = 'hidden';
         fitScannerScreen();
         window.addEventListener('resize', fitScannerScreen);
-        setScannerState('WAITING_VEHICLE');
+        scGoIdle();
         scTick();
         clearInterval(scClockTimer);
         scClockTimer = setInterval(scTick, 1000);
         cancelAnimationFrame(scRaf);
         scRaf = requestAnimationFrame(scFrame);
+        scLoadCrew();
+        clearInterval(scCrewTimer);
+        scCrewTimer = setInterval(scLoadCrew, SC_CREW_MS);
+        scWatchVersion();
         startNfcListener();
     }
 
@@ -2155,87 +2180,68 @@
         document.body.style.overflow = '';
         window.removeEventListener('resize', fitScannerScreen);
         stopNfcListener();
-        clearScannerTimers();
-        scClearLock();
+        clearTimeout(scSessionTimer);
+        clearTimeout(scFlashTimer);
         clearInterval(scClockTimer);
+        clearInterval(scCrewTimer);
+        clearInterval(scVersionTimer);
         cancelAnimationFrame(scRaf);
         scRaf = 0;
-        scEndFlash(true);
         scFlashOn = false;
+        var fl = scEl('scanner-flash');
+        if (fl) fl.classList.remove('is-on');
         scannerState = null;
-        scannerVehicle = null;
-        scannerActiveOrder = null;
         scannerEmployee = null;
-        scannerArmed = false;
-    }
-
-    function clearScannerTimers() {
-        if (scannerInterval) { clearInterval(scannerInterval); scannerInterval = null; }
-        if (scannerTimeout) { clearTimeout(scannerTimeout); scannerTimeout = null; }
-        clearTimeout(scSessionTimer);
         scSessionEnd = 0;
     }
 
-    function setScannerState(state) {
-        clearScannerTimers();
-        scannerState = state;
+    function startNfcListener() { /* le WebSocket ecoute globalement */ }
+    function stopNfcListener() { /* le WebSocket ecoute globalement */ }
 
-        if (state === 'WAITING_VEHICLE') {
-            scannerVehicle = null;
-            scannerEmployee = null;
-            scannerArmed = false;
-            scSessionEnd = 0;
-            scSetView('idle');
-
-        } else if (state === 'EMPLOYEE_PROFILE') {
-            scRenderEmployee();
-            scSetView('employee');
-            scStartSession();
-
-        } else if (state === 'WAITING_EMPLOYEE') {
-            scRenderVehicle();
-            scSetView('vehicle');
-            scStartSession();
-        }
+    // La page du terminal reste ouverte des jours : sans ca, elle continue de faire
+    // tourner l'ancien code apres un deploiement. On recharge quand la version change
+    // et que personne n'est en train de s'en servir.
+    function scWatchVersion() {
+        var seen = null;
+        clearInterval(scVersionTimer);
+        scVersionTimer = setInterval(async function () {
+            try {
+                var res = await fetch('/js/control.js', { method: 'HEAD', cache: 'no-store' });
+                var tag = res.headers.get('etag') || res.headers.get('last-modified');
+                if (!tag) return;
+                if (seen === null) { seen = tag; return; }
+                if (tag !== seen && scannerState === 'IDLE' && !scFlashOn) location.reload();
+            } catch (e) { /* hors ligne : on reessaiera */ }
+        }, 120000);
     }
 
-    // Profil employe : une seule tuile s'il est OUT, deux s'il est IN
+    /* ----- Ecran du profil employe ----- */
+
     function scRenderEmployee() {
         var e = scannerEmployee;
-        var open = e.open_jobs || [];
-        var vehTile = '', badgeTile;
+        var job = (e.open_jobs || [])[0] || null;
+        var vehTile, badgeTile;
 
         if (!e.is_in) {
+            // Pas punche : une seule action possible, on ne montre que celle-la
+            vehTile = '';
             badgeTile = scTile({ primary: true, tone: 'green', icon: 'badge', step: 'Repasse ton badge', action: 'Punch IN', desc: 'pour commencer ta journ\u00e9e.' });
+        } else if (job) {
+            vehTile = scTile({ primary: true, tone: 'orange', icon: 'car', step: 'Passe ' + escHtml(scVehName(job.vehicle)), action: 'Terminer la job', desc: 'Le chrono s\u2019arr\u00eate d\u00e8s que tu le scannes.' });
+            badgeTile = scTile({ locked: true, icon: 'badge', step: 'Repasse ton badge', action: 'Punch OUT', lock: 'Termine ta job d\u2019abord' });
         } else {
-            vehTile = scTile({ primary: true, tone: 'orange', icon: 'car', step: 'Passe un v\u00e9hicule',
-                action: open.length ? 'Ouvrir ou fermer' : 'Commencer une job',
-                desc: open.length ? 'Ou passe un de tes v\u00e9hicules en cours pour terminer sa job.' : 'Le chrono part d\u00e8s que le v\u00e9hicule est scann\u00e9.' });
-            badgeTile = open.length
-                ? scTile({ locked: true, icon: 'badge', step: 'Repasse ton badge', action: 'Punch OUT',
-                    lock: open.length === 1 ? 'Ferme ta job d\u2019abord' : 'Ferme tes ' + open.length + ' jobs d\u2019abord' })
-                : scTile({ primary: true, tone: 'blue', icon: 'badge', step: 'Repasse ton badge', action: 'Punch OUT', desc: 'pour terminer ta journ\u00e9e.' });
+            vehTile = scTile({ primary: true, tone: 'orange', icon: 'car', step: 'Passe un v\u00e9hicule', action: 'Commencer une job', desc: 'Le chrono part d\u00e8s que le v\u00e9hicule est scann\u00e9.' });
+            badgeTile = scTile({ primary: true, tone: 'blue', icon: 'badge', step: 'Repasse ton badge', action: 'Punch OUT', desc: 'pour terminer ta journ\u00e9e.' });
         }
 
-        var jobsHtml = '';
-        if (open.length) {
-            var shown = open.slice(0, 4), more = open.length - shown.length;
-            var cards = shown.map(function (j) {
-                var v = j.vehicle || {};
-                var sub = [v.plate, 'depuis ' + scHM(j.started_at)].filter(Boolean).join(' \u00b7 ');
-                return '<div class="ejob">' +
-                    '<div class="job__icon">' + scSvg('car') + '</div>' +
-                    '<div class="ejob__info"><div class="ejob__veh">' + escHtml(scVehName(v)) + (v.year ? ' <span>' + v.year + '</span>' : '') + '</div>' +
-                    '<div class="ejob__sub">' + escHtml(sub) + '</div></div>' +
-                    '<span class="ejob__timer" data-since="' + j.started_at + '">' + scTimerText(j.started_at) + '</span>' +
-                '</div>';
-            }).join('');
-            var moreCard = more > 0 ? '<div class="ejob ejob--more">+' + more + ' autre' + (more > 1 ? 's' : '') + ' job' + (more > 1 ? 's' : '') + ' ouverte' + (more > 1 ? 's' : '') + '</div>' : '';
-            jobsHtml = '<div class="emp__jobs">' +
-                '<div class="section-title">Tes jobs ouvertes <span class="pill">' + open.length + '</span></div>' +
-                '<div class="ejobs">' + cards + moreCard + '</div>' +
-            '</div>';
-        }
+        var jobHtml = job
+            ? '<div class="emp__jobs"><div class="section-title">Ta job en cours</div><div class="ejobs">' +
+                '<div class="ejob"><div class="job__icon">' + scSvg('car') + '</div>' +
+                '<div class="ejob__info"><div class="ejob__veh">' + escHtml(scVehName(job.vehicle)) + (job.vehicle && job.vehicle.year ? ' <span>' + job.vehicle.year + '</span>' : '') + '</div>' +
+                '<div class="ejob__sub">' + escHtml([job.vehicle && job.vehicle.plate, 'depuis ' + scHM(job.started_at)].filter(Boolean).join(' \u00b7 ')) + '</div></div>' +
+                '<span class="ejob__timer" data-since="' + job.started_at + '">' + scTimerText(job.started_at) + '</span></div>' +
+              '</div></div>'
+            : '';
 
         scEl('scanner-view-employee').innerHTML =
             '<div class="emp">' +
@@ -2244,65 +2250,33 @@
                         '<div class="emp__name">' + escHtml(scName(e)) + '</div>' +
                         '<div class="emp__status">' + (e.is_in
                             ? '<span class="status status--in"><i></i>IN</span><span>depuis ' + scHM(e.open_punch && e.open_punch.punch_in) + '</span>'
-                            : '<span class="status status--out"><i></i>OUT</span><span>Pas encore de punch aujourd\u2019hui</span>') + '</div>' +
+                            : '<span class="status status--out"><i></i>OUT</span><span>Pas encore punch\u00e9 aujourd\u2019hui</span>') + '</div>' +
                     '</div>' +
                 '</div>' +
                 '<div class="tiles ' + (e.is_in ? 'tiles--in' : 'tiles--single') + '">' + vehTile + badgeTile + '</div>' +
-                jobsHtml +
+                jobHtml +
             '</div>';
     }
 
-    // Vehicule scanne en premier
-    function scRenderVehicle() {
-        var v = scannerVehicle;
-        var open = scannerVehicleOrders || [];
-        var shown = open.slice(0, 3), more = open.length - shown.length;
-        var working = open.length
-            ? '<span>En ce moment :</span>' + shown.map(function (o) {
-                var e = o.employee || {};
-                return '<span class="who">' + scAvatar(e, 'avatar--sm', true) + escHtml(((e.first_name || '') + ' ' + (e.last_name || '').charAt(0) + '.').trim()) +
-                    '<b data-since="' + o.started_at + '">' + scTimerText(o.started_at) + '</b></span>';
-            }).join('') + (more > 0 ? '<span class="who who--more">+' + more + ' autre' + (more > 1 ? 's' : '') + '</span>' : '')
-            : '<span>Personne ne travaille sur ce v\u00e9hicule en ce moment.</span>';
-
-        var plateChip = v.plate ? '<span class="chip chip--plate">' + scSvg('plate') + '<b>' + escHtml(v.plate) + '</b></span>' : '';
-        var ownerChip = v.owner_name ? '<span class="chip">' + scSvg('user') + escHtml(v.owner_name) + '</span>' : '';
-
-        scEl('scanner-view-vehicle').innerHTML =
-            '<div class="veh">' +
-                '<div class="vcard">' +
-                    '<div class="vcard__art" style="--swatch:hsl(' + scHue(v.id) + ',38%,32%)">' + scSvg('carFront') + '</div>' +
-                    '<div class="vcard__body">' +
-                        '<div class="vcard__name">' + escHtml(scVehName(v)) + (v.year ? ' <small>' + v.year + '</small>' : '') + '</div>' +
-                        '<div class="vcard__chips">' + plateChip + ownerChip + '</div>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="veh__now">' + working + '</div>' +
-                '<div class="veh__cta">' + scTapper('tapper--sm') +
-                    '<div class="veh__title">Passe ton badge</div>' +
-                    '<div class="veh__sub">' + (open.length ? 'pour commencer une job, ou terminer la tienne si tu es d\u00e9j\u00e0 dessus' : 'pour commencer une job sur ce v\u00e9hicule') + '</div>' +
-                '</div>' +
-            '</div>';
+    function scShowEmployee() {
+        scannerState = 'EMPLOYEE';
+        scRenderEmployee();
+        scSetView('employee');
+        scStartSession();
     }
 
-    function startNfcListener() {
-        // Le WebSocket ecoute globalement : rien a faire ici
-    }
+    /* ----- Donnees ----- */
 
-    function stopNfcListener() {
-        // Le WebSocket ecoute globalement : rien a faire ici
-    }
-
-    // Le badge d'un employe, enrichi de son statut de punch et de ses jobs ouvertes
     async function loadEmployeeState(employee) {
         var rows = await api('GET', '/api/control-punches?today=true');
-        var mine = (rows || []).find(function (r) { return r.id === employee.id; });
-        var jobs = [];
-        if (mine && mine.open_jobs && mine.open_jobs.length) {
+        scCrew = rows || [];
+        var mine = scCrew.find(function (r) { return r.id === employee.id; });
+        var jobs = (mine && mine.open_jobs) || [];
+        if (jobs.length) {
             try {
                 var active = await api('GET', '/api/control-work-orders?active=true');
                 jobs = (active || []).filter(function (o) { return o.employee_id === employee.id; });
-            } catch (e) { jobs = mine.open_jobs; }
+            } catch (e) { /* on garde ce qu'on a */ }
         }
         return Object.assign({}, employee, {
             is_in: mine ? mine.is_in : false,
@@ -2311,130 +2285,114 @@
         });
     }
 
-    async function togglePunch(emp) {
-        var action = emp.is_in ? 'out' : 'in';
-        try {
-            await api('POST', '/api/control-punches', { employee_id: emp.id, action: action });
-            scFlash(action === 'in'
-                ? { kind: 'in', kicker: escHtml(scName(emp)), title: 'Punch IN', sub: 'Bonne journ\u00e9e !', meta: ['Arriv\u00e9e \u00e0 ' + scHM(new Date().toISOString())] }
-                : { kind: 'out', kicker: escHtml(scName(emp)), title: 'Punch OUT', sub: 'Bonne fin de journ\u00e9e !', meta: ['D\u00e9part \u00e0 ' + scHM(new Date().toISOString())] });
-            scannerEmployee = null;
-        } catch (err) {
-            if (/open_jobs|Open work orders/.test(err.message)) {
-                scFlash({ kind: 'block', title: 'Punch OUT bloqu\u00e9', sub: 'Tu as encore une job ouverte.', next: 'Passe le v\u00e9hicule pour la fermer, puis repasse ton badge.' });
-            } else if (/too_soon|Just punched IN/.test(err.message)) {
-                scFlash({ kind: 'block', title: 'Tu viens de puncher IN', sub: 'Attends une minute avant de puncher OUT.' });
-            } else {
-                scFlash({ kind: 'block', title: 'Impossible', sub: escHtml(err.message) });
-            }
-        }
-    }
+    /* ----- Le coeur : un passage de carte ----- */
 
     async function handleNfcScan(tagId) {
         if (!scannerState) return;
 
-        // Carte laissee sur le lecteur ou repassee trop vite : on ignore
-        if (scLockLeft() > 0) return;
-        startScannerLock();
+        // Deux trames identiques coup sur coup : c'est un doublon du pont, pas un 2e passage
+        var now = Date.now();
+        if (tagId === scLastUid && now - scLastUidAt < SC_DEDUPE_MS) return;
+        scLastUid = tagId; scLastUidAt = now;
 
-        var reader = scEl('scanner-reader');
-        if (reader) { reader.classList.remove('is-reading'); void reader.offsetWidth; reader.classList.add('is-reading'); }
+        scPulseReader();
 
-        // Une confirmation en cours est coupee par un nouveau scan
-        if (scFlashOn) { scFlashOn = false; var fl = scEl('scanner-flash'); if (fl) fl.classList.remove('is-on'); clearTimeout(scFlashTimer); }
-
-        if (scannerState === 'WAITING_VEHICLE') {
-            await handleNfcScanFromIdle(tagId);
-
-        } else if (scannerState === 'EMPLOYEE_PROFILE' && scannerEmployee) {
-            var again = null;
-            try { again = await api('GET', '/api/control-employees?nfc=' + encodeURIComponent(tagId)); } catch (e) { again = null; }
-
-            // Le meme badge une 2e fois : on change son statut IN/OUT
-            if (again && scannerArmed && again.id === scannerEmployee.id) { await togglePunch(scannerEmployee); return; }
-            if (again) { scannerEmployee = await loadEmployeeState(again); scannerArmed = true; setScannerState('EMPLOYEE_PROFILE'); return; }
-
-            var veh = null;
-            try { veh = await api('GET', '/api/control-vehicles?nfc=' + encodeURIComponent(tagId)); } catch (e) { veh = null; }
-            if (!veh) { scFlash({ kind: 'unknown', title: 'Badge inconnu', sub: 'Cette carte n\u2019est associ\u00e9e \u00e0 personne ni \u00e0 aucun v\u00e9hicule.' }); return; }
-
-            if (!scannerEmployee.is_in) {
-                scFlash({ kind: 'block', title: 'Punch IN d\u2019abord', sub: 'Tu dois commencer ta journ\u00e9e avant d\u2019ouvrir une job.', next: 'Repasse ton badge pour puncher IN.' });
-                return;
-            }
-            await scJobOnVehicle(veh, scannerEmployee);
-
-        } else if (scannerState === 'WAITING_EMPLOYEE' && scannerVehicle) {
-            var employee = null;
-            try { employee = await api('GET', '/api/control-employees?nfc=' + encodeURIComponent(tagId)); } catch (e) { employee = null; }
-            if (!employee) { scFlash({ kind: 'unknown', title: 'Badge inconnu', sub: 'Cette carte n\u2019est associ\u00e9e \u00e0 personne.' }); return; }
-
-            var st = await loadEmployeeState(employee);
-            var mineOpen = (scannerVehicleOrders || []).some(function (o) { return o.employee_id === employee.id; });
-            if (!mineOpen && !st.is_in) {
-                scFlash({ kind: 'block', title: 'Punch IN d\u2019abord', sub: 'Tu dois commencer ta journ\u00e9e avant d\u2019ouvrir une job.', next: 'Passe ton badge seul pour puncher IN.' });
-                return;
-            }
-            await scJobOnVehicle(scannerVehicle, st);
-
-        } else {
-            // Session deja retombee (une confirmation venait de s'afficher) : on repart de l'accueil
-            scannerState = 'WAITING_VEHICLE';
-            scannerEmployee = null;
-            scannerVehicle = null;
-            scannerArmed = false;
-            await handleNfcScanFromIdle(tagId);
+        // Une confirmation a l'ecran ne bloque jamais : le nouveau scan la remplace
+        if (scFlashOn) {
+            scFlashOn = false;
+            clearTimeout(scFlashTimer);
+            var fl = scEl('scanner-flash');
+            if (fl) fl.classList.remove('is-on');
         }
-    }
 
-    // Traitement d'un scan quand aucune session n'est ouverte
-    async function handleNfcScanFromIdle(tagId) {
-        var vehicle = null;
-        try { vehicle = await api('GET', '/api/control-vehicles?nfc=' + encodeURIComponent(tagId)); } catch (e) { vehicle = null; }
+        var emp = null, veh = null;
+        try { emp = await api('GET', '/api/control-employees?nfc=' + encodeURIComponent(tagId)); } catch (e) { emp = null; }
+        if (!emp) {
+            try { veh = await api('GET', '/api/control-vehicles?nfc=' + encodeURIComponent(tagId)); } catch (e) { veh = null; }
+        }
 
-        if (vehicle) {
-            scannerVehicle = vehicle;
-            try { scannerVehicleOrders = await api('GET', '/api/control-work-orders?vehicle_id=' + vehicle.id); } catch (e) { scannerVehicleOrders = []; }
-            setScannerState('WAITING_EMPLOYEE');
+        if (!emp && !veh) {
+            scFlash({ kind: 'unknown', title: 'Carte inconnue', sub: 'Cette carte n\u2019est associ\u00e9e \u00e0 personne ni \u00e0 aucun v\u00e9hicule.' });
             return;
         }
 
-        var emp = null;
-        try { emp = await api('GET', '/api/control-employees?nfc=' + encodeURIComponent(tagId)); } catch (e) { emp = null; }
-        if (!emp) { scFlash({ kind: 'unknown', title: 'Badge inconnu', sub: 'Cette carte n\u2019est associ\u00e9e \u00e0 personne ni \u00e0 aucun v\u00e9hicule.' }); return; }
+        // --- Un badge d'employe ---
+        if (emp) {
+            // Personne d'identifie, ou quelqu'un d'autre : on affiche son profil
+            if (!scannerEmployee || scannerEmployee.id !== emp.id) {
+                scannerEmployee = await loadEmployeeState(emp);
+                scShowEmployee();
+                return;
+            }
+            // Le meme badge une 2e fois : on change son statut
+            await scTogglePunch(scannerEmployee);
+            return;
+        }
 
-        scannerEmployee = await loadEmployeeState(emp);
-        scannerArmed = true;
-        setScannerState('EMPLOYEE_PROFILE');
+        // --- Une carte de vehicule ---
+        if (!scannerEmployee) {
+            scFlash({ kind: 'block', title: 'Passe ton badge d\u2019abord', sub: 'Le badge de l\u2019employ\u00e9 vient toujours en premier.', next: 'Passe ton badge, puis le v\u00e9hicule.' });
+            return;
+        }
+        if (!scannerEmployee.is_in) {
+            scFlash({ kind: 'block', kicker: escHtml(scName(scannerEmployee)), title: 'Punch IN d\u2019abord', sub: 'Tu dois commencer ta journ\u00e9e avant d\u2019ouvrir une job.', next: 'Repasse ton badge pour puncher IN.' });
+            return;
+        }
+        await scJobOnVehicle(veh, scannerEmployee);
     }
 
-    // Ouvre ou ferme la job de cet employe sur ce vehicule
-    async function scJobOnVehicle(veh, emp) {
+    function scPulseReader() {
+        var r = scEl('scanner-reader');
+        if (!r) return;
+        r.classList.remove('is-reading');
+        void r.offsetWidth;
+        r.classList.add('is-reading');
+    }
+
+    async function scTogglePunch(emp) {
+        var action = emp.is_in ? 'out' : 'in';
+        if (action === 'out' && (emp.open_jobs || []).length) {
+            var j = emp.open_jobs[0];
+            scFlash({ kind: 'block', kicker: escHtml(scName(emp)), title: 'Termine ta job d\u2019abord',
+                sub: 'Tu travailles encore sur le ' + escHtml(scVehName(j.vehicle)) + '.',
+                next: 'Passe ce v\u00e9hicule, puis repasse ton badge.' });
+            scannerEmployee = emp;
+            return;
+        }
         try {
-            var orders = await api('GET', '/api/control-work-orders?vehicle_id=' + veh.id);
-            var mineOrder = orders && orders.length ? orders.find(function (o) { return o.employee_id === emp.id; }) : null;
+            await api('POST', '/api/control-punches', { employee_id: emp.id, action: action });
+            scFlash(action === 'in'
+                ? { kind: 'in', kicker: escHtml(scName(emp)), title: 'Punch IN', sub: 'Bonne journ\u00e9e\u00a0!', meta: ['Arriv\u00e9e \u00e0 ' + scHM(new Date().toISOString())] }
+                : { kind: 'out', kicker: escHtml(scName(emp)), title: 'Punch OUT', sub: 'Bonne fin de journ\u00e9e\u00a0!', meta: ['D\u00e9part \u00e0 ' + scHM(new Date().toISOString())] });
+            scannerEmployee = null;
+            scLoadCrew();
+        } catch (e) {
+            scFlash({ kind: 'block', title: 'Impossible', sub: escHtml(e.message) });
+        }
+    }
 
-            // Relecture de la meme carte juste apres l'ouverture : on refuse de fermer
-            if (mineOrder) {
-                var age = Date.now() - new Date(mineOrder.started_at).getTime();
-                if (age < SC_MIN_JOB_MS) {
-                    var left = Math.ceil((SC_MIN_JOB_MS - age) / 1000);
-                    scFlash({ kind: 'block', kicker: escHtml(scName(emp)), title: 'Job d\u00e9j\u00e0 commenc\u00e9e',
-                        sub: 'Tu viens de commencer cette job \u00e0 ' + scHM(mineOrder.started_at) + ' sur le ' + escHtml(scVehLine(veh)) + '.',
-                        next: 'Pour la fermer, repasse le v\u00e9hicule dans ' + left + ' secondes.' });
-                    scannerEmployee = null;
-                    return;
-                }
-            }
+    // Ouvre ou ferme la job. Un employe ne peut avoir qu'un vehicule a la fois.
+    async function scJobOnVehicle(veh, emp) {
+        var open = (emp.open_jobs || [])[0] || null;
 
-            if (mineOrder) {
+        if (open && open.vehicle_id !== veh.id) {
+            scFlash({ kind: 'block', kicker: escHtml(scName(emp)), title: 'Un v\u00e9hicule \u00e0 la fois',
+                sub: 'Tu travailles d\u00e9j\u00e0 sur le ' + escHtml(scVehName(open.vehicle)) + '.',
+                next: 'Passe ce v\u00e9hicule pour fermer la job, puis prends l\u2019autre.' });
+            return;
+        }
+
+        try {
+            if (open) {
                 await api('PATCH', '/api/control-work-orders', { vehicle_id: veh.id, employee_id: emp.id });
-                scFlash({ kind: 'jobEnd', kicker: escHtml(scName(emp)), title: 'Job termin\u00e9e', sub: escHtml(scVehLine(veh)), meta: ['Commenc\u00e9e \u00e0 ' + scHM(mineOrder.started_at)] });
+                scFlash({ kind: 'jobEnd', kicker: escHtml(scName(emp)), title: 'Job termin\u00e9e', sub: escHtml(scVehLine(veh)),
+                    meta: ['Commenc\u00e9e \u00e0 ' + scHM(open.started_at), 'Dur\u00e9e ' + scTimerText(open.started_at)] });
             } else {
                 await api('POST', '/api/control-work-orders', { vehicle_id: veh.id, employee_id: emp.id, started_at: new Date().toISOString() });
                 scFlash({ kind: 'jobStart', kicker: escHtml(scName(emp)), title: 'Job commenc\u00e9e', sub: escHtml(scVehLine(veh)), meta: ['D\u00e9but \u00e0 ' + scHM(new Date().toISOString())] });
             }
             scannerEmployee = null;
+            scLoadCrew();
         } catch (e) {
             scFlash({ kind: 'block', title: 'Impossible', sub: escHtml(e.message) });
         }
