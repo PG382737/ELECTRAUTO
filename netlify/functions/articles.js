@@ -77,6 +77,11 @@ exports.handler = async (event) => {
                 if (!data || data.length === 0) {
                     return { statusCode: 404, headers, body: JSON.stringify({ error: 'Article not found' }) };
                 }
+                // An unpublished article is a draft: pulling it out of the blog
+                // listing means nothing if its own address still serves it.
+                if (!data[0].published && !(await verifyAuth(event.headers.authorization))) {
+                    return { statusCode: 404, headers, body: JSON.stringify({ error: 'Article not found' }) };
+                }
                 return { statusCode: 200, headers, body: JSON.stringify(data[0]) };
             }
 
