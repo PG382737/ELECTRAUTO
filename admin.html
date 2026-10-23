@@ -9,9 +9,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="stylesheet" href="css/admin.css?v=20261014c">
-    <link rel="stylesheet" href="css/scanner.css?v=20261014c">
-    <link rel="stylesheet" href="css/presences.css?v=20261014c">
+    <link rel="stylesheet" href="css/admin.css?v=20261023a">
+    <link rel="stylesheet" href="css/scanner.css?v=20261023a">
+    <link rel="stylesheet" href="css/presences.css?v=20261023a">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 </head>
 <body>
@@ -315,6 +315,15 @@
                     <span class="mcrew__live"><span class="monitoring-live-dot"></span>En direct</span>
                 </div>
                 <div id="mcrew-list"></div>
+            </div>
+
+            <!-- Voitures : seulement celles qui ont une carte NFC -->
+            <div class="tab" id="tab-cars">
+                <div class="mcrew__head">
+                    <h1>Voitures</h1>
+                    <span class="mcrew__live"><span class="monitoring-live-dot"></span>En direct</span>
+                </div>
+                <div id="mcars-list"></div>
             </div>
 
             <div class="tab" id="tab-todos">
@@ -1037,11 +1046,32 @@
         </div>
     </div>
 
+    <!-- Fiche d'un vehicule, mobile uniquement -->
+    <div class="msheet" id="mcar" hidden>
+        <div class="msheet__fond" data-mcar-close></div>
+        <div class="msheet__panneau" role="dialog" aria-modal="true" aria-labelledby="mcar-nom">
+            <div class="msheet__poignee"></div>
+            <div class="msheet__tete">
+                <div class="msheet__av mcar__av" id="mcar-av"></div>
+                <div class="msheet__qui">
+                    <b id="mcar-nom"></b>
+                    <span id="mcar-sous"></span>
+                </div>
+                <button type="button" class="msheet__x" data-mcar-close aria-label="Fermer">&times;</button>
+            </div>
+            <div id="mcar-corps"></div>
+        </div>
+    </div>
+
     <!-- Barre fixe du bas, mobile uniquement -->
     <nav class="mnav" id="mnav">
         <button type="button" class="mnav__btn active" data-mtab="crew">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             <span>Équipe</span>
+        </button>
+        <button type="button" class="mnav__btn" data-mtab="cars">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/></svg>
+            <span>Voitures</span>
         </button>
         <button type="button" class="mnav__btn" data-mtab="todos">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
@@ -1286,9 +1316,9 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
-    <script src="js/admin-i18n.js?v=20261014c"></script>
-    <script src="js/admin.js?v=20261014c"></script>
-    <script src="js/control.js?v=20261014c"></script>
+    <script src="js/admin-i18n.js?v=20261023a"></script>
+    <script src="js/admin.js?v=20261023a"></script>
+    <script src="js/control.js?v=20261023a"></script>
     <script src="js/todos.js"></script>
 </body>
 </html>

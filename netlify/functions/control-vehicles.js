@@ -121,6 +121,23 @@ exports.handler = async (event) => {
                 };
             }
 
+            // Only the vehicles carrying an NFC tag, with whoever is on them.
+            // The full list is 800+ rows with media counts, far too heavy for a phone.
+            if (params.tagged === 'true') {
+                const [tagged, open] = await Promise.all([
+                    supaFetch('control_vehicles?nfc_tag_id=not.is.null&select=id,make,model,year,plate,owner_name,photo_url,nfc_tag_id&order=make.asc'),
+                    supaFetch('control_work_orders?ended_at=is.null&select=id,vehicle_id,employee_id,started_at,paused,employee:control_employees(id,first_name,last_name)')
+                ]);
+                const parVehicule = {};
+                (open || []).forEach(o => { (parVehicule[o.vehicle_id] = parVehicule[o.vehicle_id] || []).push(o); });
+                return {
+                    statusCode: 200, headers,
+                    body: JSON.stringify((tagged || [])
+                        .filter(v => String(v.nfc_tag_id || '').trim())
+                        .map(v => ({ ...v, open_orders: parVehicule[v.id] || [] })))
+                };
+            }
+
             // List all vehicles
             const [data, activeOrders, mediaRows] = await Promise.all([
                 supaFetch('control_vehicles?order=created_at.desc'),

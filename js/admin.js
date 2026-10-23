@@ -444,7 +444,9 @@ function switchToTab(tabName) {
         b.classList.toggle('active', b.dataset.mtab === tabName);
     });
     document.body.classList.toggle('m-crew', tabName === 'crew');
+    document.body.classList.toggle('m-cars', tabName === 'cars');
     if (tabName === 'crew') startCrewPolling(); else stopCrewPolling();
+    if (tabName === 'cars') startCarsPolling(); else stopCarsPolling();
 }
 
 /* ===== Tableau de bord mobile : qui travaille, et sur quoi. Lecture seule. ===== */
@@ -658,6 +660,141 @@ async function sheetAction(btn) {
     }
 }
 
+/* ===== Voitures : celles qui portent une carte NFC ===== */
+
+var carsTimer = null;
+var carsRows = [];
+
+function startCarsPolling() {
+    loadCars();
+    clearInterval(carsTimer);
+    carsTimer = setInterval(loadCars, 20000);
+}
+function stopCarsPolling() {
+    clearInterval(carsTimer);
+    carsTimer = null;
+}
+
+var SVG_AUTO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M5 17H3v-6l2-5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0H9"/></svg>';
+var SVG_PERS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+
+function carNom(v) {
+    return [v.make, v.model, v.year].filter(Boolean).join(' ') || 'V\u00e9hicule';
+}
+
+async function loadCars() {
+    var el = document.getElementById('mcars-list');
+    if (!el) return;
+    try {
+        carsRows = await api('GET', '/api/control-vehicles?tagged=true') || [];
+        renderCars();
+    } catch (e) {
+        if (!el.children.length) el.innerHTML = '<div class="mcrew__empty">Impossible de charger les voitures.</div>';
+    }
+}
+
+function renderCars() {
+    var el = document.getElementById('mcars-list');
+    if (!el) return;
+    var actifs = carsRows.filter(function (v) { return (v.open_orders || []).length; }).length;
+    var tri = carsRows.slice().sort(function (a, b) {
+        return ((b.open_orders || []).length > 0) - ((a.open_orders || []).length > 0)
+            || carNom(a).localeCompare(carNom(b), 'fr');
+    });
+
+    el.innerHTML =
+        '<div class="mcrew__count"><b>' + actifs + '</b> en cours sur ' + tri.length + '</div>' +
+        (tri.length ? tri.map(function (v) {
+            var o = (v.open_orders || [])[0];
+            var qui = o && o.employee ? (o.employee.first_name + ' ' + (o.employee.last_name || '').charAt(0) + '.') : null;
+            return '<button type="button" class="mcar__row' + (o ? ' is-actif' : '') + '" data-car="' + v.id + '">' +
+                '<span class="mcar__ic">' + SVG_AUTO + '</span>' +
+                '<span class="mcar__qui"><b>' + esc(carNom(v)) + '</b>' +
+                    (qui
+                        ? '<span class="mcar__sur">' + SVG_PERS + esc(qui) + '</span>'
+                        : '<span>' + esc(v.owner_name || '\u2014') + '</span>') +
+                '</span>' +
+                (o
+                    ? '<span class="mcar__timer">' + crewSince(o.started_at) + '</span>'
+                    : (v.plate ? '<span class="mcar__plaque">' + esc(v.plate) + '</span>' : '')) +
+            '</button>';
+        }).join('') : '<div class="mcrew__empty">Aucune voiture avec une carte NFC.</div>');
+}
+
+/* ===== Fiche d'un vehicule : la job en cours et l'historique ===== */
+
+async function openCarSheet(id) {
+    var base = carsRows.find(function (v) { return v.id === id; });
+    document.getElementById('mcar-av').innerHTML = SVG_AUTO;
+    document.getElementById('mcar-nom').textContent = base ? carNom(base) : 'V\u00e9hicule';
+    document.getElementById('mcar-sous').textContent = base ? [base.plate, base.owner_name].filter(Boolean).join(' \u00b7 ') : '';
+    document.getElementById('mcar-corps').innerHTML = '<div class="mcar__vide">Chargement\u2026</div>';
+    document.getElementById('mcar').hidden = false;
+    document.body.classList.add('modal-open');
+
+    try {
+        var d = await api('GET', '/api/control-vehicles?id=' + encodeURIComponent(id));
+        renderCarSheet(d);
+    } catch (e) {
+        document.getElementById('mcar-corps').innerHTML = '<div class="mcar__vide">' + esc(e.message) + '</div>';
+    }
+}
+
+function renderCarSheet(d) {
+    var v = d.vehicle || {};
+    var ouverts = d.active_orders || [];
+    var st = d.stats || {};
+    var fermes = (d.orders || []).filter(function (o) { return o.ended_at; });
+
+    document.getElementById('mcar-nom').textContent = carNom(v);
+    document.getElementById('mcar-sous').textContent = [v.plate, v.owner_name].filter(Boolean).join(' \u00b7 ');
+
+    var dur = function (sec) {
+        if (!sec) return '\u2014';
+        var m = Math.round(sec / 60), h = Math.floor(m / 60);
+        return h > 0 ? h + ' h ' + String(m % 60).padStart(2, '0') : m + ' min';
+    };
+    var jour = function (iso) {
+        return new Date(iso).toLocaleDateString('fr-CA', { day: 'numeric', month: 'short' });
+    };
+
+    var html = '';
+
+    if (ouverts.length) {
+        html += '<div class="mcar__bloc"><div class="mcar__titre">En cours</div>' +
+            ouverts.map(function (o) {
+                var e = o.employee || {};
+                return '<div class="mcar__encours">' + SVG_PERS +
+                    '<b>' + esc(((e.first_name || '') + ' ' + (e.last_name || '')).trim() || 'Employ\u00e9') + '</b>' +
+                    '<span class="mcar__timer">' + crewSince(o.started_at) + '</span></div>';
+            }).join('') + '</div>';
+    }
+
+    html += '<div class="msheet__stats">' +
+        stat('R\u00e9parations', st.total_repairs != null ? st.total_repairs : fermes.length) +
+        stat('Temps total', dur(st.total_seconds)) +
+    '</div>';
+
+    html += '<div class="mcar__bloc"><div class="mcar__titre">Historique</div>' +
+        (fermes.length
+            ? '<div class="mcar__hist">' + fermes.slice(0, 40).map(function (o) {
+                var e = o.employee || {};
+                return '<div class="mcar__ligne">' +
+                    '<small>' + jour(o.started_at) + '</small>' +
+                    '<span>' + esc(((e.first_name || '') + ' ' + (e.last_name || '')).trim() || 'Inconnu') + '</span>' +
+                    '<b>' + dur(o.duration_seconds) + '</b></div>';
+              }).join('') + '</div>'
+            : '<div class="mcar__vide">Aucune job termin\u00e9e.</div>') +
+    '</div>';
+
+    document.getElementById('mcar-corps').innerHTML = html;
+}
+
+function closeCarSheet() {
+    document.getElementById('mcar').hidden = true;
+    document.body.classList.remove('modal-open');
+}
+
 document.querySelectorAll('.sidebar__link[data-tab]').forEach(function(link) {
     link.addEventListener('click', function() {
         switchToTab(link.dataset.tab);
@@ -676,6 +813,9 @@ document.addEventListener('click', function(ev) {
     if (ev.target.closest && ev.target.closest('[data-msheet-close]')) return closeSheet();
     var act = ev.target.closest && ev.target.closest('[data-msheet-action]');
     if (act) return sheetAction(act);
+    var auto = ev.target.closest && ev.target.closest('.mcar__row[data-car]');
+    if (auto) return openCarSheet(auto.dataset.car);
+    if (ev.target.closest && ev.target.closest('[data-mcar-close]')) return closeCarSheet();
 });
 
 // ============================================

@@ -3268,7 +3268,7 @@ body.mobile-mode.detail-open .mobile-header__back:active {
 body.mobile-mode.detail-open .mobile-header__logout { display: none; }
 
 /* Hide all tabs except todos on mobile */
-body.mobile-mode .tab:not(#tab-todos):not(#tab-crew) { display: none !important; }
+body.mobile-mode .tab:not(#tab-todos):not(#tab-crew):not(#tab-cars) { display: none !important; }
 
 /* Tâches tab mobile layout */
 body.mobile-mode #tab-todos { padding: 16px; }
@@ -3527,7 +3527,7 @@ body.mobile-mode .search-select__dropdown {
 
 /* Ensure all hidden tabs are truly out of flow on mobile - stops them from
    contributing to layout / horizontal overflow if they contain wide desktop tables. */
-body.mobile-mode .tab:not(#tab-todos):not(#tab-crew) {
+body.mobile-mode .tab:not(#tab-todos):not(#tab-crew):not(#tab-cars) {
     display: none !important;
     visibility: hidden;
 }
@@ -3556,7 +3556,7 @@ body.mobile-mode .toast {
 .mnav { display: none; }
 
 body.mobile-mode .mnav {
-    display: grid; grid-template-columns: 1fr 1fr;
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 900;
     background: rgba(18, 18, 20, .96);
     -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
@@ -3578,9 +3578,9 @@ body.mobile-mode .mnav__badge {
 }
 
 /* De la place au-dessus de la barre, et le bouton flottant au-dessus d'elle */
-body.mobile-mode #tab-todos, body.mobile-mode #tab-crew { padding-bottom: 86px; }
+body.mobile-mode #tab-todos, body.mobile-mode #tab-crew, body.mobile-mode #tab-cars { padding-bottom: 86px; }
 body.mobile-mode .mobile-fab { bottom: 84px; }
-body.mobile-mode.m-crew .mobile-fab { display: none; }
+body.mobile-mode.m-crew .mobile-fab, body.mobile-mode.m-cars .mobile-fab { display: none; }
 
 /* L'equipe */
 body.mobile-mode #tab-crew { padding: 16px 16px 86px; }
@@ -3687,3 +3687,59 @@ body.mobile-mode button.mcrew__row {
     -webkit-tap-highlight-color: transparent;
 }
 body.mobile-mode button.mcrew__row:active { transform: scale(.995); }
+
+
+/* ================================================
+   MOBILE : section Voitures
+   ================================================ */
+body.mobile-mode #tab-cars { padding: 16px 16px 86px; }
+body.mobile-mode .mcar__av { background: rgba(207, 138, 46, .16); color: var(--accent); }
+body.mobile-mode .mcar__av svg { width: 22px; height: 22px; }
+
+.mcar__row {
+    display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+    padding: 12px 14px; margin-bottom: 8px; border-radius: 14px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    font-family: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.mcar__row.is-actif { background: rgba(207, 138, 46, .07); border-color: rgba(207, 138, 46, .25); }
+.mcar__row:active { transform: scale(.995); }
+.mcar__ic {
+    flex-shrink: 0; width: 40px; height: 40px; border-radius: 11px;
+    display: grid; place-items: center; color: var(--accent);
+    background: rgba(207, 138, 46, .14);
+}
+.mcar__ic svg { width: 21px; height: 21px; }
+.mcar__qui { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.mcar__qui b { font-size: 1rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mcar__qui span { font-size: .82rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mcar__sur { display: flex; align-items: center; gap: 5px; font-size: .82rem; color: var(--accent); }
+.mcar__sur svg { width: 14px; height: 14px; flex-shrink: 0; }
+.mcar__timer { flex-shrink: 0; font-size: .9rem; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+.mcar__plaque {
+    flex-shrink: 0; padding: 4px 9px; border-radius: 7px;
+    font-size: .72rem; font-weight: 800; letter-spacing: .5px;
+    color: var(--text-muted); background: var(--bg-input); border: 1px solid var(--border);
+}
+
+/* Fiche d'un vehicule */
+body.mobile-mode .mcar__bloc { margin-bottom: 16px; }
+body.mobile-mode .mcar__titre {
+    font-size: .68rem; font-weight: 800; letter-spacing: .5px; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 8px;
+}
+body.mobile-mode .mcar__encours {
+    display: flex; align-items: center; gap: 10px; padding: 12px 13px; border-radius: 12px;
+    background: rgba(207, 138, 46, .1); border: 1px solid rgba(207, 138, 46, .3); margin-bottom: 7px;
+}
+body.mobile-mode .mcar__encours svg { flex-shrink: 0; width: 18px; height: 18px; color: var(--accent); }
+body.mobile-mode .mcar__encours b { flex: 1; min-width: 0; font-size: .95rem; }
+body.mobile-mode .mcar__hist { display: flex; flex-direction: column; gap: 6px; max-height: 44vh; overflow-y: auto; }
+body.mobile-mode .mcar__ligne {
+    display: flex; align-items: baseline; gap: 10px;
+    padding: 10px 12px; border-radius: 10px; background: var(--bg-input);
+}
+body.mobile-mode .mcar__ligne small { flex-shrink: 0; width: 74px; font-size: .76rem; color: var(--text-muted); }
+body.mobile-mode .mcar__ligne span { flex: 1; min-width: 0; font-size: .88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body.mobile-mode .mcar__ligne b { flex-shrink: 0; font-size: .88rem; font-variant-numeric: tabular-nums; }
+body.mobile-mode .mcar__vide { padding: 22px 0; text-align: center; color: var(--text-muted); font-size: .9rem; }
