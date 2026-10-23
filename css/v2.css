@@ -647,30 +647,47 @@ img { max-width:100%; height:auto; display:block; }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Bloc d'appel a l'action au bas des details d'un service */
+/* Bloc d'appel a l'action au bas des details d'un service.
+   Pose sur sa propre surface plutot que colle sous la liste. */
 .scard__cta {
-    margin-top: 22px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
+    margin-top: 28px;
+    padding: 22px 24px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 18px;
+    gap: 24px;
     flex-wrap: wrap;
 }
 
 .scard__cta p {
-    flex: 1 1 260px;
+    flex: 1 1 280px;
     min-width: 0;
-    font-size: 0.92rem;
+    font-size: 0.94rem;
+    line-height: 1.6;
     color: var(--text-muted);
     margin: 0;
 }
 
 .scard__cta .btn { flex-shrink: 0; }
 
+[data-theme="light"] .scard__cta {
+    background: var(--bg-light-alt);
+    border-color: var(--border-light);
+}
+
 @media (max-width: 600px) {
-    .scard__cta { flex-direction: column; align-items: stretch; }
+    .scard__cta {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+        padding: 20px;
+    }
+    /* En colonne, flex-basis porte sur la hauteur : sans ce reset le
+       paragraphe reclame 280px de haut et creuse un trou avant le bouton. */
+    .scard__cta p { flex: 0 1 auto; }
     .scard__cta .btn { justify-content: center; }
 }
 

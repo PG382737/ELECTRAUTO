@@ -207,11 +207,10 @@
 }
 .metier__bloc p { font-size: 0.94rem; color: var(--text-dark-muted); line-height: 1.7; }
 
-/* ---- Appel a l'action, calque sur celui des pages de service ---- */
+/* ---- Appel a l'action : pleine largeur, comme les autres blocs du site.
+   Seule la longueur de ligne du paragraphe est bridee, pour rester lisible. ---- */
 .outil__cta {
-    max-width: 780px;
-    margin: 0 auto;
-    padding: 32px;
+    padding: 36px 40px;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -219,9 +218,9 @@
     flex-direction: column;
     gap: 16px;
 }
-.outil__cta h2 { font-size: 1.2rem; font-weight: 700; }
-.outil__cta p { color: var(--text-muted); line-height: 1.7; }
-.outil__cta-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.outil__cta h2 { font-size: 1.35rem; font-weight: 700; }
+.outil__cta p { color: var(--text-muted); line-height: 1.7; max-width: 68ch; }
+.outil__cta-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
 
 [data-theme="light"] .outil__cta {
     background: var(--bg-light-alt);
@@ -239,7 +238,8 @@
     .outil__verdict { font-size: 1.08rem; }
     .outil__details { padding: 16px; }
     .metier__bloc { padding: 24px 22px; }
-    .outil__cta { padding: 24px 22px; }
+    .outil__cta { padding: 26px 22px; }
+    .outil__cta h2 { font-size: 1.15rem; }
     .outil__cta-actions .btn { width: 100%; justify-content: center; }
 }
     </style>
