@@ -647,6 +647,33 @@ img { max-width:100%; height:auto; display:block; }
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* Bloc d'appel a l'action au bas des details d'un service */
+.scard__cta {
+    margin-top: 22px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.scard__cta p {
+    flex: 1 1 260px;
+    min-width: 0;
+    font-size: 0.92rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.scard__cta .btn { flex-shrink: 0; }
+
+@media (max-width: 600px) {
+    .scard__cta { flex-direction: column; align-items: stretch; }
+    .scard__cta .btn { justify-content: center; }
+}
+
 /* Fullwidth expand: card spans entire grid */
 .scard.expanded {
     position: relative;
