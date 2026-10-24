@@ -238,30 +238,66 @@
     border-color: var(--border-light);
 }
 
-/* ---- Foire aux questions ---- */
-.faq__groupe {
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin: 36px 0 14px;
-}
-.faq__groupe:first-child { margin-top: 0; }
-.faq__item {
+/* ---- Foire aux questions : deux niveaux. Le groupe se deplie, puis la
+   question. Tout est ferme au depart pour que la section reste courte. ---- */
+.faq__bloc {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    transition: border-color .2s;
+}
+.faq__bloc:hover, .faq__bloc[open] { border-color: rgba(207,138,46,0.35); }
+.faq__bloc > summary {
+    cursor: pointer;
+    list-style: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 56px 20px 24px;
+}
+.faq__bloc > summary::-webkit-details-marker { display: none; }
+.faq__bloc > summary::after {
+    content: '';
+    position: absolute;
+    right: 24px;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    margin-top: -7px;
+    border-right: 2px solid var(--accent);
+    border-bottom: 2px solid var(--accent);
+    transform: rotate(45deg);
+    transition: transform .2s;
+}
+.faq__bloc[open] > summary::after { transform: rotate(-135deg); margin-top: -2px; }
+.faq__bloc[open] > summary { border-bottom: 1px solid var(--border); }
+.faq__nom { flex: 1; font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; }
+.faq__compte {
+    flex-shrink: 0;
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+.faq__compte b { color: var(--accent); font-weight: 800; }
+.faq__corps { padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+
+.faq__item {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
     transition: border-color .2s;
 }
 .faq__item[open], .faq__item:hover { border-color: rgba(207,138,46,0.35); }
 .faq__item summary {
     cursor: pointer;
     list-style: none;
-    padding: 18px 52px 18px 22px;
+    padding: 15px 48px 15px 18px;
     position: relative;
-    font-size: 1rem;
+    font-size: 0.97rem;
     font-weight: 600;
     line-height: 1.5;
 }
@@ -269,7 +305,7 @@
 .faq__item summary::after {
     content: '';
     position: absolute;
-    right: 22px;
+    right: 18px;
     top: 50%;
     width: 9px;
     height: 9px;
@@ -281,17 +317,21 @@
 }
 .faq__item[open] summary::after { transform: rotate(-135deg); margin-top: -2px; }
 .faq__item p {
-    padding: 0 22px 20px;
+    padding: 0 18px 17px;
     color: var(--text-muted);
     line-height: 1.75;
-    font-size: 0.96rem;
+    font-size: 0.95rem;
 }
 
 @media (max-width: 768px) {
-    .faq__item summary { padding: 16px 44px 16px 18px; font-size: 0.95rem; }
-    .faq__item summary::after { right: 18px; }
-    .faq__item p { padding: 0 18px 18px; font-size: 0.92rem; }
-    .faq__groupe { margin: 28px 0 12px; }
+    .faq__bloc > summary { padding: 17px 44px 17px 18px; gap: 12px; }
+    .faq__bloc > summary::after { right: 18px; }
+    .faq__nom { font-size: 1rem; }
+    .faq__compte { font-size: 0.7rem; }
+    .faq__corps { padding: 12px; }
+    .faq__item summary { padding: 14px 40px 14px 15px; font-size: 0.93rem; }
+    .faq__item summary::after { right: 15px; }
+    .faq__item p { padding: 0 15px 15px; font-size: 0.9rem; }
     .outil { padding: 44px 0 64px; }
     .outil > .wrap { gap: 20px; }
     .outil__boite { padding: 22px 18px; }
@@ -3469,161 +3509,217 @@
             </div>
 
             <div class="faq">
-                <h3 class="faq__groupe" data-fr="BMW" data-en="BMW">BMW</h3>
-                <details class="faq__item">
-                    <summary data-fr="Où faire cloner un ECM Bosch MEVD17.2 à Québec?" data-en="Where can I get a Bosch MEVD17.2 ECU cloned in Quebec City?">Où faire cloner un ECM Bosch MEVD17.2 à Québec?</summary>
-                    <p data-fr="Chez Électr&#x27;auto. Le MEVD17.2 équipe plusieurs BMW (N20, N55, B38) et doit être adapté à votre véhicule après remplacement. On clone votre calculateur pour que votre BMW le reconnaisse comme le sien. Appelez-nous au 1.418.666.9769." data-en="At Électr&#x27;auto. The MEVD17.2 is fitted to several BMWs (N20, N55, B38) and has to be adapted to your vehicle after replacement. We clone your ECU so your BMW recognizes it as its own. Call us at 1.418.666.9769.">Chez Électr&#x27;auto. Le MEVD17.2 équipe plusieurs BMW (N20, N55, B38) et doit être adapté à votre véhicule après remplacement. On clone votre calculateur pour que votre BMW le reconnaisse comme le sien. Appelez-nous au 1.418.666.9769.</p>
+                <details class="faq__bloc">
+                    <summary>
+                        <span class="faq__nom" data-fr="BMW" data-en="BMW">BMW</span>
+                        <span class="faq__compte"><b>6</b> <span data-fr="questions" data-en="questions">questions</span></span>
+                    </summary>
+                    <div class="faq__corps">
+                        <details class="faq__item">
+                            <summary data-fr="Où faire cloner un ECM Bosch MEVD17.2 à Québec?" data-en="Where can I get a Bosch MEVD17.2 ECU cloned in Quebec City?">Où faire cloner un ECM Bosch MEVD17.2 à Québec?</summary>
+                            <p data-fr="Chez Électr&#x27;auto. Le MEVD17.2 équipe plusieurs BMW (N20, N55, B38) et doit être adapté à votre véhicule après remplacement. On clone votre calculateur pour que votre BMW le reconnaisse comme le sien. Appelez-nous au 1.418.666.9769." data-en="At Électr&#x27;auto. The MEVD17.2 is fitted to several BMWs (N20, N55, B38) and has to be adapted to your vehicle after replacement. We clone your ECU so your BMW recognizes it as its own. Call us at 1.418.666.9769.">Chez Électr&#x27;auto. Le MEVD17.2 équipe plusieurs BMW (N20, N55, B38) et doit être adapté à votre véhicule après remplacement. On clone votre calculateur pour que votre BMW le reconnaisse comme le sien. Appelez-nous au 1.418.666.9769.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Mon BMW N54 a besoin d&#x27;un calculateur MSD80 ou MSD81, où aller à Québec?" data-en="My BMW N54 needs an MSD80 or MSD81 ECU, where do I go in Quebec City?">Mon BMW N54 a besoin d&#x27;un calculateur MSD80 ou MSD81, où aller à Québec?</summary>
+                            <p data-fr="Chez Électr&#x27;auto, au 2485, boul. Wilfrid-Hamel. On s&#x27;occupe des calculateurs MSD80 et MSD81 du N54 : clonage et adaptation après remplacement, sans passer par le concessionnaire." data-en="At Électr&#x27;auto, 2485, boul. Wilfrid-Hamel. We handle the N54&#x27;s MSD80 and MSD81 ECUs: cloning and adaptation after replacement, without going through the dealership.">Chez Électr&#x27;auto, au 2485, boul. Wilfrid-Hamel. On s&#x27;occupe des calculateurs MSD80 et MSD81 du N54 : clonage et adaptation après remplacement, sans passer par le concessionnaire.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Où faire programmer un calculateur MSV80 de BMW?" data-en="Where can I get a BMW MSV80 ECU programmed?">Où faire programmer un calculateur MSV80 de BMW?</summary>
+                            <p data-fr="Chez Électr&#x27;auto à Québec. Le MSV80 (moteurs N52 et apparentés) exige une adaptation au véhicule. On le fait ici même, appelez au 1.418.666.9769." data-en="At Électr&#x27;auto in Quebec City. The MSV80 (N52 and related engines) has to be adapted to the vehicle. We do it right here, call 1.418.666.9769.">Chez Électr&#x27;auto à Québec. Le MSV80 (moteurs N52 et apparentés) exige une adaptation au véhicule. On le fait ici même, appelez au 1.418.666.9769.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Clonage d&#x27;ECM Bosch MED17.2 pour BMW à Québec?" data-en="Bosch MED17.2 ECU cloning for BMW in Quebec City?">Clonage d&#x27;ECM Bosch MED17.2 pour BMW à Québec?</summary>
+                            <p data-fr="Oui, on le fait chez Électr&#x27;auto. Votre calculateur MED17.2 de remplacement est cloné à partir de votre module d&#x27;origine pour un redémarrage sans tracas." data-en="Yes, we do it at Électr&#x27;auto. Your replacement MED17.2 ECU is cloned from your original module so the car starts again without any fuss.">Oui, on le fait chez Électr&#x27;auto. Votre calculateur MED17.2 de remplacement est cloné à partir de votre module d&#x27;origine pour un redémarrage sans tracas.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Calculateur diesel BMW EDC17 à remplacer?" data-en="BMW EDC17 diesel ECU to replace?">Calculateur diesel BMW EDC17 à remplacer?</summary>
+                            <p data-fr="Électr&#x27;auto à Québec clone et adapte les calculateurs diesel Bosch EDC17 de BMW. Évitez le prix du neuf au concessionnaire : 1.418.666.9769." data-en="Électr&#x27;auto in Quebec City clones and adapts BMW&#x27;s Bosch EDC17 diesel ECUs. Skip the dealership&#x27;s price for a new one: 1.418.666.9769.">Électr&#x27;auto à Québec clone et adapte les calculateurs diesel Bosch EDC17 de BMW. Évitez le prix du neuf au concessionnaire : 1.418.666.9769.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Où faire cloner un vieux calculateur BMW ME7.2 ou ME9.2?" data-en="Where can I get an older BMW ME7.2 or ME9.2 ECU cloned?">Où faire cloner un vieux calculateur BMW ME7.2 ou ME9.2?</summary>
+                            <p data-fr="Chez Électr&#x27;auto. Même les générations plus anciennes (ME7.2, ME9.2) se clonent, parfait quand la pièce neuve n&#x27;existe plus ou coûte trop cher." data-en="At Électr&#x27;auto. Even the older generations (ME7.2, ME9.2) can be cloned, which is ideal when the new part is discontinued or simply costs too much.">Chez Électr&#x27;auto. Même les générations plus anciennes (ME7.2, ME9.2) se clonent, parfait quand la pièce neuve n&#x27;existe plus ou coûte trop cher.</p>
+                        </details>
+                    </div>
                 </details>
-                <details class="faq__item">
-                    <summary data-fr="Mon BMW N54 a besoin d&#x27;un calculateur MSD80 ou MSD81, où aller à Québec?" data-en="My BMW N54 needs an MSD80 or MSD81 ECU, where do I go in Quebec City?">Mon BMW N54 a besoin d&#x27;un calculateur MSD80 ou MSD81, où aller à Québec?</summary>
-                    <p data-fr="Chez Électr&#x27;auto, au 2485, boul. Wilfrid-Hamel. On s&#x27;occupe des calculateurs MSD80 et MSD81 du N54 : clonage et adaptation après remplacement, sans passer par le concessionnaire." data-en="At Électr&#x27;auto, 2485, boul. Wilfrid-Hamel. We handle the N54&#x27;s MSD80 and MSD81 ECUs: cloning and adaptation after replacement, without going through the dealership.">Chez Électr&#x27;auto, au 2485, boul. Wilfrid-Hamel. On s&#x27;occupe des calculateurs MSD80 et MSD81 du N54 : clonage et adaptation après remplacement, sans passer par le concessionnaire.</p>
+                <details class="faq__bloc">
+                    <summary>
+                        <span class="faq__nom" data-fr="Audi et Volkswagen" data-en="Audi and Volkswagen">Audi et Volkswagen</span>
+                        <span class="faq__compte"><b>6</b> <span data-fr="questions" data-en="questions">questions</span></span>
+                    </summary>
+                    <div class="faq__corps">
+                        <details class="faq__item">
+                            <summary data-fr="Où faire cloner un ECM Bosch MED17.1 (Audi ou VW) à Québec?" data-en="Where can I get a Bosch MED17.1 ECU (Audi or VW) cloned in Quebec City?">Où faire cloner un ECM Bosch MED17.1 (Audi ou VW) à Québec?</summary>
+                            <p data-fr="Chez Électr&#x27;auto. Le MED17.1 est très répandu chez Audi et Volkswagen; on clone votre calculateur de remplacement pour qu&#x27;il soit reconnu par votre véhicule. 1.418.666.9769." data-en="At Électr&#x27;auto. The MED17.1 is very common on Audi and Volkswagen; we clone your replacement ECU so your vehicle recognizes it. 1.418.666.9769.">Chez Électr&#x27;auto. Le MED17.1 est très répandu chez Audi et Volkswagen; on clone votre calculateur de remplacement pour qu&#x27;il soit reconnu par votre véhicule. 1.418.666.9769.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Clonage de calculateur MED17.5 Audi à Québec?" data-en="Audi MED17.5 ECU cloning in Quebec City?">Clonage de calculateur MED17.5 Audi à Québec?</summary>
+                            <p data-fr="Oui. Électr&#x27;auto clone les ECM Bosch MED17.5 des Audi et VW. Un module usagé bien cloné vous évite le prix du concessionnaire." data-en="Yes. Électr&#x27;auto clones the Bosch MED17.5 ECUs of Audi and VW. A used module, properly cloned, saves you the dealership price.">Oui. Électr&#x27;auto clone les ECM Bosch MED17.5 des Audi et VW. Un module usagé bien cloné vous évite le prix du concessionnaire.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Mon Audi a un calculateur SIMOS18.1, où le faire cloner?" data-en="My Audi has a SIMOS18.1 ECU, where can I get it cloned?">Mon Audi a un calculateur SIMOS18.1, où le faire cloner?</summary>
+                            <p data-fr="Chez Électr&#x27;auto à Québec, au 2485, boul. Wilfrid-Hamel. On s&#x27;occupe du SIMOS18.1 (Continental) : clonage et remise en route." data-en="At Électr&#x27;auto in Quebec City, 2485, boul. Wilfrid-Hamel. We handle the SIMOS18.1 (Continental): cloning and getting you back on the road.">Chez Électr&#x27;auto à Québec, au 2485, boul. Wilfrid-Hamel. On s&#x27;occupe du SIMOS18.1 (Continental) : clonage et remise en route.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Calculateur TDI EDC17CP14 à remplacer (Audi ou VW)?" data-en="TDI EDC17CP14 ECU to replace (Audi or VW)?">Calculateur TDI EDC17CP14 à remplacer (Audi ou VW)?</summary>
+                            <p data-fr="Électr&#x27;auto clone les calculateurs diesel EDC17CP14 des TDI Audi et Volkswagen. Appelez-nous avant de commander au concessionnaire : 1.418.666.9769." data-en="Électr&#x27;auto clones the EDC17CP14 diesel ECUs of Audi and Volkswagen TDIs. Call us before ordering from the dealership: 1.418.666.9769.">Électr&#x27;auto clone les calculateurs diesel EDC17CP14 des TDI Audi et Volkswagen. Appelez-nous avant de commander au concessionnaire : 1.418.666.9769.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Où cloner un calculateur SIMOS 8.x d&#x27;Audi?" data-en="Where can I clone an Audi SIMOS 8.x ECU?">Où cloner un calculateur SIMOS 8.x d&#x27;Audi?</summary>
+                            <p data-fr="Chez Électr&#x27;auto à Québec. Les SIMOS 8.x se clonent, on adapte votre module de remplacement à votre véhicule." data-en="At Électr&#x27;auto in Quebec City. SIMOS 8.x units can be cloned, and we adapt your replacement module to your vehicle.">Chez Électr&#x27;auto à Québec. Les SIMOS 8.x se clonent, on adapte votre module de remplacement à votre véhicule.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Vieux 1.8T avec calculateur ME7.5, ça se clone?" data-en="Older 1.8T with an ME7.5 ECU, can it be cloned?">Vieux 1.8T avec calculateur ME7.5, ça se clone?</summary>
+                            <p data-fr="Oui. Chez Électr&#x27;auto, on clone aussi les générations précédentes comme le Bosch ME7.5, idéal quand la pièce neuve est discontinuée." data-en="Yes. At Électr&#x27;auto we also clone earlier generations such as the Bosch ME7.5, which is ideal when the new part is discontinued.">Oui. Chez Électr&#x27;auto, on clone aussi les générations précédentes comme le Bosch ME7.5, idéal quand la pièce neuve est discontinuée.</p>
+                        </details>
+                    </div>
                 </details>
-                <details class="faq__item">
-                    <summary data-fr="Où faire programmer un calculateur MSV80 de BMW?" data-en="Where can I get a BMW MSV80 ECU programmed?">Où faire programmer un calculateur MSV80 de BMW?</summary>
-                    <p data-fr="Chez Électr&#x27;auto à Québec. Le MSV80 (moteurs N52 et apparentés) exige une adaptation au véhicule. On le fait ici même, appelez au 1.418.666.9769." data-en="At Électr&#x27;auto in Quebec City. The MSV80 (N52 and related engines) has to be adapted to the vehicle. We do it right here, call 1.418.666.9769.">Chez Électr&#x27;auto à Québec. Le MSV80 (moteurs N52 et apparentés) exige une adaptation au véhicule. On le fait ici même, appelez au 1.418.666.9769.</p>
+                <details class="faq__bloc">
+                    <summary>
+                        <span class="faq__nom" data-fr="Mercedes-Benz" data-en="Mercedes-Benz">Mercedes-Benz</span>
+                        <span class="faq__compte"><b>3</b> <span data-fr="questions" data-en="questions">questions</span></span>
+                    </summary>
+                    <div class="faq__corps">
+                        <details class="faq__item">
+                            <summary data-fr="Où faire cloner un ECM Bosch MED17.7 de Mercedes à Québec?" data-en="Where can I get a Mercedes Bosch MED17.7 ECU cloned in Quebec City?">Où faire cloner un ECM Bosch MED17.7 de Mercedes à Québec?</summary>
+                            <p data-fr="Chez Électr&#x27;auto. La famille MED17.7.x équipe de nombreuses Mercedes; on clone votre calculateur de remplacement pour votre véhicule. 1.418.666.9769." data-en="At Électr&#x27;auto. The MED17.7.x family is fitted to many Mercedes vehicles; we clone your replacement ECU for your vehicle. 1.418.666.9769.">Chez Électr&#x27;auto. La famille MED17.7.x équipe de nombreuses Mercedes; on clone votre calculateur de remplacement pour votre véhicule. 1.418.666.9769.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Calculateur diesel Mercedes (EDC17CP, Delphi CRD3) à remplacer?" data-en="Mercedes diesel ECU (EDC17CP, Delphi CRD3) to replace?">Calculateur diesel Mercedes (EDC17CP, Delphi CRD3) à remplacer?</summary>
+                            <p data-fr="Électr&#x27;auto à Québec s&#x27;occupe des calculateurs diesel Mercedes, Bosch comme Delphi : clonage et adaptation, sans le prix du concessionnaire." data-en="Électr&#x27;auto in Quebec City handles Mercedes diesel ECUs, Bosch and Delphi alike: cloning and adaptation, without the dealership price.">Électr&#x27;auto à Québec s&#x27;occupe des calculateurs diesel Mercedes, Bosch comme Delphi : clonage et adaptation, sans le prix du concessionnaire.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Clonage de calculateur ME9.7 Mercedes?" data-en="Mercedes ME9.7 ECU cloning?">Clonage de calculateur ME9.7 Mercedes?</summary>
+                            <p data-fr="Oui, on le fait chez Électr&#x27;auto au 2485, boul. Wilfrid-Hamel à Québec." data-en="Yes, we do it at Électr&#x27;auto, 2485, boul. Wilfrid-Hamel in Quebec City.">Oui, on le fait chez Électr&#x27;auto au 2485, boul. Wilfrid-Hamel à Québec.</p>
+                        </details>
+                    </div>
                 </details>
-                <details class="faq__item">
-                    <summary data-fr="Clonage d&#x27;ECM Bosch MED17.2 pour BMW à Québec?" data-en="Bosch MED17.2 ECU cloning for BMW in Quebec City?">Clonage d&#x27;ECM Bosch MED17.2 pour BMW à Québec?</summary>
-                    <p data-fr="Oui, on le fait chez Électr&#x27;auto. Votre calculateur MED17.2 de remplacement est cloné à partir de votre module d&#x27;origine pour un redémarrage sans tracas." data-en="Yes, we do it at Électr&#x27;auto. Your replacement MED17.2 ECU is cloned from your original module so the car starts again without any fuss.">Oui, on le fait chez Électr&#x27;auto. Votre calculateur MED17.2 de remplacement est cloné à partir de votre module d&#x27;origine pour un redémarrage sans tracas.</p>
+                <details class="faq__bloc">
+                    <summary>
+                        <span class="faq__nom" data-fr="Mini et Porsche" data-en="Mini and Porsche">Mini et Porsche</span>
+                        <span class="faq__compte"><b>2</b> <span data-fr="questions" data-en="questions">questions</span></span>
+                    </summary>
+                    <div class="faq__corps">
+                        <details class="faq__item">
+                            <summary data-fr="Où cloner le calculateur d&#x27;une Mini (MED17.2, MEVD17.2.2)?" data-en="Where can I clone a Mini ECU (MED17.2, MEVD17.2.2)?">Où cloner le calculateur d&#x27;une Mini (MED17.2, MEVD17.2.2)?</summary>
+                            <p data-fr="Chez Électr&#x27;auto à Québec. Les Mini partagent leur électronique avec BMW, c&#x27;est notre spécialité. 1.418.666.9769." data-en="At Électr&#x27;auto in Quebec City. Minis share their electronics with BMW, which is our specialty. 1.418.666.9769.">Chez Électr&#x27;auto à Québec. Les Mini partagent leur électronique avec BMW, c&#x27;est notre spécialité. 1.418.666.9769.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Clonage de calculateur Porsche MED17.1 à Québec?" data-en="Porsche MED17.1 ECU cloning in Quebec City?">Clonage de calculateur Porsche MED17.1 à Québec?</summary>
+                            <p data-fr="Oui. Électr&#x27;auto clone les ECM Bosch MED17.1 des Porsche. Appelez-nous au 1.418.666.9769." data-en="Yes. Électr&#x27;auto clones the Bosch MED17.1 ECUs of Porsche. Call us at 1.418.666.9769.">Oui. Électr&#x27;auto clone les ECM Bosch MED17.1 des Porsche. Appelez-nous au 1.418.666.9769.</p>
+                        </details>
+                    </div>
                 </details>
-                <details class="faq__item">
-                    <summary data-fr="Calculateur diesel BMW EDC17 à remplacer?" data-en="BMW EDC17 diesel ECU to replace?">Calculateur diesel BMW EDC17 à remplacer?</summary>
-                    <p data-fr="Électr&#x27;auto à Québec clone et adapte les calculateurs diesel Bosch EDC17 de BMW. Évitez le prix du neuf au concessionnaire : 1.418.666.9769." data-en="Électr&#x27;auto in Quebec City clones and adapts BMW&#x27;s Bosch EDC17 diesel ECUs. Skip the dealership&#x27;s price for a new one: 1.418.666.9769.">Électr&#x27;auto à Québec clone et adapte les calculateurs diesel Bosch EDC17 de BMW. Évitez le prix du neuf au concessionnaire : 1.418.666.9769.</p>
+                <details class="faq__bloc">
+                    <summary>
+                        <span class="faq__nom" data-fr="Clés et antidémarrage" data-en="Keys and immobilizer">Clés et antidémarrage</span>
+                        <span class="faq__compte"><b>4</b> <span data-fr="questions" data-en="questions">questions</span></span>
+                    </summary>
+                    <div class="faq__corps">
+                        <details class="faq__item">
+                            <summary data-fr="J&#x27;ai perdu toutes mes clés, pouvez-vous m&#x27;en refaire?" data-en="I lost all my keys, can you make new ones?">J&#x27;ai perdu toutes mes clés, pouvez-vous m&#x27;en refaire?</summary>
+                            <p data-fr="Oui. Chez Électr&#x27;auto, on programme des clés de remplacement même quand toutes les clés sont perdues, pour la plupart des marques. Présentez-vous avec une preuve de propriété et on s&#x27;occupe du reste : 1.418.666.9769." data-en="Yes. At Électr&#x27;auto we program replacement keys even when every key is lost, for most makes. Come in with proof of ownership and we take care of the rest: 1.418.666.9769.">Oui. Chez Électr&#x27;auto, on programme des clés de remplacement même quand toutes les clés sont perdues, pour la plupart des marques. Présentez-vous avec une preuve de propriété et on s&#x27;occupe du reste : 1.418.666.9769.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Ma clé intelligente ou à proximité ne fonctionne plus?" data-en="My smart or proximity key stopped working?">Ma clé intelligente ou à proximité ne fonctionne plus?</summary>
+                            <p data-fr="On diagnostique et on programme les clés intelligentes (smart key, proximité) : pile, synchronisation ou clé de remplacement, on règle ça à l&#x27;atelier, sans rendez-vous au concessionnaire." data-en="We diagnose and program smart and proximity keys: battery, synchronization or a replacement key, we sort it out in the shop, with no dealership appointment.">On diagnostique et on programme les clés intelligentes (smart key, proximité) : pile, synchronisation ou clé de remplacement, on règle ça à l&#x27;atelier, sans rendez-vous au concessionnaire.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Mon véhicule ne démarre plus à cause de l&#x27;antidémarrage?" data-en="My vehicle will not start because of the immobilizer?">Mon véhicule ne démarre plus à cause de l&#x27;antidémarrage?</summary>
+                            <p data-fr="C&#x27;est notre spécialité. On diagnostique le système d&#x27;antidémarrage, on réadapte vos clés et on remet votre véhicule en route." data-en="That is our specialty. We diagnose the immobilizer system, re-adapt your keys and get your vehicle running again.">C&#x27;est notre spécialité. On diagnostique le système d&#x27;antidémarrage, on réadapte vos clés et on remet votre véhicule en route.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Suppression de l&#x27;antidémarrage (immo delete), vous le faites?" data-en="Immobilizer removal (immo delete), do you do it?">Suppression de l&#x27;antidémarrage (immo delete), vous le faites?</summary>
+                            <p data-fr="Oui. Chez Électr&#x27;auto, on peut supprimer la fonction antidémarrage du calculateur, utile notamment pour les projets de conversion moteur ou les modules de remplacement. Appelez-nous au 1.418.666.9769." data-en="Yes. At Électr&#x27;auto we can remove the immobilizer function from the ECU, which is useful for engine conversion projects and replacement modules. Call us at 1.418.666.9769.">Oui. Chez Électr&#x27;auto, on peut supprimer la fonction antidémarrage du calculateur, utile notamment pour les projets de conversion moteur ou les modules de remplacement. Appelez-nous au 1.418.666.9769.</p>
+                        </details>
+                    </div>
                 </details>
-                <details class="faq__item">
-                    <summary data-fr="Où faire cloner un vieux calculateur BMW ME7.2 ou ME9.2?" data-en="Where can I get an older BMW ME7.2 or ME9.2 ECU cloned?">Où faire cloner un vieux calculateur BMW ME7.2 ou ME9.2?</summary>
-                    <p data-fr="Chez Électr&#x27;auto. Même les générations plus anciennes (ME7.2, ME9.2) se clonent, parfait quand la pièce neuve n&#x27;existe plus ou coûte trop cher." data-en="At Électr&#x27;auto. Even the older generations (ME7.2, ME9.2) can be cloned, which is ideal when the new part is discontinued or simply costs too much.">Chez Électr&#x27;auto. Même les générations plus anciennes (ME7.2, ME9.2) se clonent, parfait quand la pièce neuve n&#x27;existe plus ou coûte trop cher.</p>
+                <details class="faq__bloc">
+                    <summary>
+                        <span class="faq__nom" data-fr="Programmation de modules" data-en="Module programming">Programmation de modules</span>
+                        <span class="faq__compte"><b>4</b> <span data-fr="questions" data-en="questions">questions</span></span>
+                    </summary>
+                    <div class="faq__corps">
+                        <details class="faq__item">
+                            <summary data-fr="Où faire programmer un FRM de BMW à Québec?" data-en="Where can I get a BMW FRM programmed in Quebec City?">Où faire programmer un FRM de BMW à Québec?</summary>
+                            <p data-fr="Chez Électr&#x27;auto. Quand le module de plancher (FRM) lâche et que vos vitres, phares ou clignotants ne répondent plus, on programme le module de remplacement pour votre BMW." data-en="At Électr&#x27;auto. When the footwell module (FRM) fails and your windows, headlights or turn signals stop responding, we program the replacement module for your BMW.">Chez Électr&#x27;auto. Quand le module de plancher (FRM) lâche et que vos vitres, phares ou clignotants ne répondent plus, on programme le module de remplacement pour votre BMW.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Où faire programmer un CAS3 de BMW?" data-en="Where can I get a BMW CAS3 programmed?">Où faire programmer un CAS3 de BMW?</summary>
+                            <p data-fr="Chez Électr&#x27;auto, au 2485, boul. Wilfrid-Hamel. Le CAS3 gère l&#x27;accès et l&#x27;antidémarrage : on le programme et on l&#x27;adapte à votre véhicule, clés comprises." data-en="At Électr&#x27;auto, 2485, boul. Wilfrid-Hamel. The CAS3 manages access and the immobilizer: we program it and adapt it to your vehicle, keys included.">Chez Électr&#x27;auto, au 2485, boul. Wilfrid-Hamel. Le CAS3 gère l&#x27;accès et l&#x27;antidémarrage : on le programme et on l&#x27;adapte à votre véhicule, clés comprises.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Suppression du verrou de direction électronique (steering lock delete)?" data-en="Electronic steering lock removal (steering lock delete)?">Suppression du verrou de direction électronique (steering lock delete)?</summary>
+                            <p data-fr="Oui, on le fait. Le verrou de direction (ELV) est une panne classique sur plusieurs BMW : on le supprime pour que vous puissiez redémarrer sans payer le système complet au concessionnaire." data-en="Yes, we do it. The steering lock (ELV) is a classic failure on several BMWs: we remove it so you can start again without paying for the complete system at the dealership.">Oui, on le fait. Le verrou de direction (ELV) est une panne classique sur plusieurs BMW : on le supprime pour que vous puissiez redémarrer sans payer le système complet au concessionnaire.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Mon garagiste a remplacé un module et l&#x27;auto ne démarre plus?" data-en="My mechanic replaced a module and now the car will not start?">Mon garagiste a remplacé un module et l&#x27;auto ne démarre plus?</summary>
+                            <p data-fr="C&#x27;est normal : la plupart des modules modernes doivent être programmés ou codés après leur remplacement (ordinateur moteur, module de transmission, module d&#x27;habitacle, etc.). Amenez-nous le véhicule, on s&#x27;occupe de la programmation." data-en="That is normal: most modern modules have to be programmed or coded after replacement (engine computer, transmission module, body module, and so on). Bring us the vehicle and we handle the programming.">C&#x27;est normal : la plupart des modules modernes doivent être programmés ou codés après leur remplacement (ordinateur moteur, module de transmission, module d&#x27;habitacle, etc.). Amenez-nous le véhicule, on s&#x27;occupe de la programmation.</p>
+                        </details>
+                    </div>
                 </details>
-                <h3 class="faq__groupe" data-fr="Audi et Volkswagen" data-en="Audi and Volkswagen">Audi et Volkswagen</h3>
-                <details class="faq__item">
-                    <summary data-fr="Où faire cloner un ECM Bosch MED17.1 (Audi ou VW) à Québec?" data-en="Where can I get a Bosch MED17.1 ECU (Audi or VW) cloned in Quebec City?">Où faire cloner un ECM Bosch MED17.1 (Audi ou VW) à Québec?</summary>
-                    <p data-fr="Chez Électr&#x27;auto. Le MED17.1 est très répandu chez Audi et Volkswagen; on clone votre calculateur de remplacement pour qu&#x27;il soit reconnu par votre véhicule. 1.418.666.9769." data-en="At Électr&#x27;auto. The MED17.1 is very common on Audi and Volkswagen; we clone your replacement ECU so your vehicle recognizes it. 1.418.666.9769.">Chez Électr&#x27;auto. Le MED17.1 est très répandu chez Audi et Volkswagen; on clone votre calculateur de remplacement pour qu&#x27;il soit reconnu par votre véhicule. 1.418.666.9769.</p>
+                <details class="faq__bloc">
+                    <summary>
+                        <span class="faq__nom" data-fr="Transmission et carrosserie" data-en="Transmission and body">Transmission et carrosserie</span>
+                        <span class="faq__compte"><b>8</b> <span data-fr="questions" data-en="questions">questions</span></span>
+                    </summary>
+                    <div class="faq__corps">
+                        <details class="faq__item">
+                            <summary data-fr="Où faire cloner un TCM (module de transmission) à Québec?" data-en="Where can I get a TCM (transmission module) cloned in Quebec City?">Où faire cloner un TCM (module de transmission) à Québec?</summary>
+                            <p data-fr="Chez Électr&#x27;auto. Quand le module de transmission est défectueux, on prépare votre TCM de remplacement pour qu&#x27;il fonctionne avec votre véhicule. 1.418.666.9769." data-en="At Électr&#x27;auto. When the transmission module is faulty, we prepare your replacement TCM so it works with your vehicle. 1.418.666.9769.">Chez Électr&#x27;auto. Quand le module de transmission est défectueux, on prépare votre TCM de remplacement pour qu&#x27;il fonctionne avec votre véhicule. 1.418.666.9769.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Boîte ZF 8HP (BMW, Audi, Chrysler), le module de transmission se clone?" data-en="ZF 8HP gearbox (BMW, Audi, Chrysler), can the transmission module be cloned?">Boîte ZF 8HP (BMW, Audi, Chrysler), le module de transmission se clone?</summary>
+                            <p data-fr="Oui. Chez Électr&#x27;auto à Québec, on s&#x27;occupe des TCM ZF 8HP (8HP45, 8HP55, 8HP65, 8HP70, 8HP90 et variantes) : clonage et remise en route." data-en="Yes. At Électr&#x27;auto in Quebec City we handle ZF 8HP TCMs (8HP45, 8HP55, 8HP65, 8HP70, 8HP90 and variants): cloning and getting you back on the road.">Oui. Chez Électr&#x27;auto à Québec, on s&#x27;occupe des TCM ZF 8HP (8HP45, 8HP55, 8HP65, 8HP70, 8HP90 et variantes) : clonage et remise en route.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Boîte DSG DQ200 ou DQ250 (Volkswagen, Audi), où faire cloner le module?" data-en="DSG DQ200 or DQ250 gearbox (Volkswagen, Audi), where can the module be cloned?">Boîte DSG DQ200 ou DQ250 (Volkswagen, Audi), où faire cloner le module?</summary>
+                            <p data-fr="Chez Électr&#x27;auto. Les modules de boîte DSG (DQ200, DQ250, DQ500) se clonent, une alternative au remplacement complet au concessionnaire. 1.418.666.9769." data-en="At Électr&#x27;auto. DSG gearbox modules (DQ200, DQ250, DQ500) can be cloned, which is an alternative to a full replacement at the dealership. 1.418.666.9769.">Chez Électr&#x27;auto. Les modules de boîte DSG (DQ200, DQ250, DQ500) se clonent, une alternative au remplacement complet au concessionnaire. 1.418.666.9769.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Module S-tronic DL501 d&#x27;Audi?" data-en="Audi S-tronic DL501 module?">Module S-tronic DL501 d&#x27;Audi?</summary>
+                            <p data-fr="Oui, on le fait chez Électr&#x27;auto au 2485, boul. Wilfrid-Hamel à Québec." data-en="Yes, we do it at Électr&#x27;auto, 2485, boul. Wilfrid-Hamel in Quebec City.">Oui, on le fait chez Électr&#x27;auto au 2485, boul. Wilfrid-Hamel à Québec.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Mercedes 7G-Tronic ou 9G-Tronic, clonage du module de transmission?" data-en="Mercedes 7G-Tronic or 9G-Tronic, transmission module cloning?">Mercedes 7G-Tronic ou 9G-Tronic, clonage du module de transmission?</summary>
+                            <p data-fr="Oui. On s&#x27;occupe des modules VGS des boîtes 7G-Tronic et 9G-Tronic de Mercedes-Benz. Appelez-nous au 1.418.666.9769." data-en="Yes. We handle the VGS modules of Mercedes-Benz 7G-Tronic and 9G-Tronic gearboxes. Call us at 1.418.666.9769.">Oui. On s&#x27;occupe des modules VGS des boîtes 7G-Tronic et 9G-Tronic de Mercedes-Benz. Appelez-nous au 1.418.666.9769.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="TCM GM 6T70, 6T75 ou 6L80 à remplacer?" data-en="GM 6T70, 6T75 or 6L80 TCM to replace?">TCM GM 6T70, 6T75 ou 6L80 à remplacer?</summary>
+                            <p data-fr="Électr&#x27;auto à Québec clone les modules de transmission GM les plus courants (6T70, 6T75, 6L80, 6L50 et autres)." data-en="Électr&#x27;auto in Quebec City clones the most common GM transmission modules (6T70, 6T75, 6L80, 6L50 and others).">Électr&#x27;auto à Québec clone les modules de transmission GM les plus courants (6T70, 6T75, 6L80, 6L50 et autres).</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Ford Powershift (MPS6), le module se clone?" data-en="Ford Powershift (MPS6), can the module be cloned?">Ford Powershift (MPS6), le module se clone?</summary>
+                            <p data-fr="Oui. Chez Électr&#x27;auto, on s&#x27;occupe aussi du module de la boîte Powershift de Ford." data-en="Yes. At Électr&#x27;auto we also handle the module of Ford&#x27;s Powershift gearbox.">Oui. Chez Électr&#x27;auto, on s&#x27;occupe aussi du module de la boîte Powershift de Ford.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Clonage de BCM (module de carrosserie)?" data-en="BCM (body control module) cloning?">Clonage de BCM (module de carrosserie)?</summary>
+                            <p data-fr="Oui. Les modules de carrosserie (BCM, BSI et équivalents) se traitent aussi chez Électr&#x27;auto : vitres, éclairage, verrouillage qui ne répondent plus après un remplacement de module." data-en="Yes. Body modules (BCM, BSI and equivalents) are handled at Électr&#x27;auto too: windows, lighting and locking that stop responding after a module is replaced.">Oui. Les modules de carrosserie (BCM, BSI et équivalents) se traitent aussi chez Électr&#x27;auto : vitres, éclairage, verrouillage qui ne répondent plus après un remplacement de module.</p>
+                        </details>
+                    </div>
                 </details>
-                <details class="faq__item">
-                    <summary data-fr="Clonage de calculateur MED17.5 Audi à Québec?" data-en="Audi MED17.5 ECU cloning in Quebec City?">Clonage de calculateur MED17.5 Audi à Québec?</summary>
-                    <p data-fr="Oui. Électr&#x27;auto clone les ECM Bosch MED17.5 des Audi et VW. Un module usagé bien cloné vous évite le prix du concessionnaire." data-en="Yes. Électr&#x27;auto clones the Bosch MED17.5 ECUs of Audi and VW. A used module, properly cloned, saves you the dealership price.">Oui. Électr&#x27;auto clone les ECM Bosch MED17.5 des Audi et VW. Un module usagé bien cloné vous évite le prix du concessionnaire.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Mon Audi a un calculateur SIMOS18.1, où le faire cloner?" data-en="My Audi has a SIMOS18.1 ECU, where can I get it cloned?">Mon Audi a un calculateur SIMOS18.1, où le faire cloner?</summary>
-                    <p data-fr="Chez Électr&#x27;auto à Québec, au 2485, boul. Wilfrid-Hamel. On s&#x27;occupe du SIMOS18.1 (Continental) : clonage et remise en route." data-en="At Électr&#x27;auto in Quebec City, 2485, boul. Wilfrid-Hamel. We handle the SIMOS18.1 (Continental): cloning and getting you back on the road.">Chez Électr&#x27;auto à Québec, au 2485, boul. Wilfrid-Hamel. On s&#x27;occupe du SIMOS18.1 (Continental) : clonage et remise en route.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Calculateur TDI EDC17CP14 à remplacer (Audi ou VW)?" data-en="TDI EDC17CP14 ECU to replace (Audi or VW)?">Calculateur TDI EDC17CP14 à remplacer (Audi ou VW)?</summary>
-                    <p data-fr="Électr&#x27;auto clone les calculateurs diesel EDC17CP14 des TDI Audi et Volkswagen. Appelez-nous avant de commander au concessionnaire : 1.418.666.9769." data-en="Électr&#x27;auto clones the EDC17CP14 diesel ECUs of Audi and Volkswagen TDIs. Call us before ordering from the dealership: 1.418.666.9769.">Électr&#x27;auto clone les calculateurs diesel EDC17CP14 des TDI Audi et Volkswagen. Appelez-nous avant de commander au concessionnaire : 1.418.666.9769.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Où cloner un calculateur SIMOS 8.x d&#x27;Audi?" data-en="Where can I clone an Audi SIMOS 8.x ECU?">Où cloner un calculateur SIMOS 8.x d&#x27;Audi?</summary>
-                    <p data-fr="Chez Électr&#x27;auto à Québec. Les SIMOS 8.x se clonent, on adapte votre module de remplacement à votre véhicule." data-en="At Électr&#x27;auto in Quebec City. SIMOS 8.x units can be cloned, and we adapt your replacement module to your vehicle.">Chez Électr&#x27;auto à Québec. Les SIMOS 8.x se clonent, on adapte votre module de remplacement à votre véhicule.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Vieux 1.8T avec calculateur ME7.5, ça se clone?" data-en="Older 1.8T with an ME7.5 ECU, can it be cloned?">Vieux 1.8T avec calculateur ME7.5, ça se clone?</summary>
-                    <p data-fr="Oui. Chez Électr&#x27;auto, on clone aussi les générations précédentes comme le Bosch ME7.5, idéal quand la pièce neuve est discontinuée." data-en="Yes. At Électr&#x27;auto we also clone earlier generations such as the Bosch ME7.5, which is ideal when the new part is discontinued.">Oui. Chez Électr&#x27;auto, on clone aussi les générations précédentes comme le Bosch ME7.5, idéal quand la pièce neuve est discontinuée.</p>
-                </details>
-                <h3 class="faq__groupe" data-fr="Mercedes-Benz" data-en="Mercedes-Benz">Mercedes-Benz</h3>
-                <details class="faq__item">
-                    <summary data-fr="Où faire cloner un ECM Bosch MED17.7 de Mercedes à Québec?" data-en="Where can I get a Mercedes Bosch MED17.7 ECU cloned in Quebec City?">Où faire cloner un ECM Bosch MED17.7 de Mercedes à Québec?</summary>
-                    <p data-fr="Chez Électr&#x27;auto. La famille MED17.7.x équipe de nombreuses Mercedes; on clone votre calculateur de remplacement pour votre véhicule. 1.418.666.9769." data-en="At Électr&#x27;auto. The MED17.7.x family is fitted to many Mercedes vehicles; we clone your replacement ECU for your vehicle. 1.418.666.9769.">Chez Électr&#x27;auto. La famille MED17.7.x équipe de nombreuses Mercedes; on clone votre calculateur de remplacement pour votre véhicule. 1.418.666.9769.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Calculateur diesel Mercedes (EDC17CP, Delphi CRD3) à remplacer?" data-en="Mercedes diesel ECU (EDC17CP, Delphi CRD3) to replace?">Calculateur diesel Mercedes (EDC17CP, Delphi CRD3) à remplacer?</summary>
-                    <p data-fr="Électr&#x27;auto à Québec s&#x27;occupe des calculateurs diesel Mercedes, Bosch comme Delphi : clonage et adaptation, sans le prix du concessionnaire." data-en="Électr&#x27;auto in Quebec City handles Mercedes diesel ECUs, Bosch and Delphi alike: cloning and adaptation, without the dealership price.">Électr&#x27;auto à Québec s&#x27;occupe des calculateurs diesel Mercedes, Bosch comme Delphi : clonage et adaptation, sans le prix du concessionnaire.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Clonage de calculateur ME9.7 Mercedes?" data-en="Mercedes ME9.7 ECU cloning?">Clonage de calculateur ME9.7 Mercedes?</summary>
-                    <p data-fr="Oui, on le fait chez Électr&#x27;auto au 2485, boul. Wilfrid-Hamel à Québec." data-en="Yes, we do it at Électr&#x27;auto, 2485, boul. Wilfrid-Hamel in Quebec City.">Oui, on le fait chez Électr&#x27;auto au 2485, boul. Wilfrid-Hamel à Québec.</p>
-                </details>
-                <h3 class="faq__groupe" data-fr="Mini et Porsche" data-en="Mini and Porsche">Mini et Porsche</h3>
-                <details class="faq__item">
-                    <summary data-fr="Où cloner le calculateur d&#x27;une Mini (MED17.2, MEVD17.2.2)?" data-en="Where can I clone a Mini ECU (MED17.2, MEVD17.2.2)?">Où cloner le calculateur d&#x27;une Mini (MED17.2, MEVD17.2.2)?</summary>
-                    <p data-fr="Chez Électr&#x27;auto à Québec. Les Mini partagent leur électronique avec BMW, c&#x27;est notre spécialité. 1.418.666.9769." data-en="At Électr&#x27;auto in Quebec City. Minis share their electronics with BMW, which is our specialty. 1.418.666.9769.">Chez Électr&#x27;auto à Québec. Les Mini partagent leur électronique avec BMW, c&#x27;est notre spécialité. 1.418.666.9769.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Clonage de calculateur Porsche MED17.1 à Québec?" data-en="Porsche MED17.1 ECU cloning in Quebec City?">Clonage de calculateur Porsche MED17.1 à Québec?</summary>
-                    <p data-fr="Oui. Électr&#x27;auto clone les ECM Bosch MED17.1 des Porsche. Appelez-nous au 1.418.666.9769." data-en="Yes. Électr&#x27;auto clones the Bosch MED17.1 ECUs of Porsche. Call us at 1.418.666.9769.">Oui. Électr&#x27;auto clone les ECM Bosch MED17.1 des Porsche. Appelez-nous au 1.418.666.9769.</p>
-                </details>
-                <h3 class="faq__groupe" data-fr="Clés et antidémarrage" data-en="Keys and immobilizer">Clés et antidémarrage</h3>
-                <details class="faq__item">
-                    <summary data-fr="J&#x27;ai perdu toutes mes clés, pouvez-vous m&#x27;en refaire?" data-en="I lost all my keys, can you make new ones?">J&#x27;ai perdu toutes mes clés, pouvez-vous m&#x27;en refaire?</summary>
-                    <p data-fr="Oui. Chez Électr&#x27;auto, on programme des clés de remplacement même quand toutes les clés sont perdues, pour la plupart des marques. Présentez-vous avec une preuve de propriété et on s&#x27;occupe du reste : 1.418.666.9769." data-en="Yes. At Électr&#x27;auto we program replacement keys even when every key is lost, for most makes. Come in with proof of ownership and we take care of the rest: 1.418.666.9769.">Oui. Chez Électr&#x27;auto, on programme des clés de remplacement même quand toutes les clés sont perdues, pour la plupart des marques. Présentez-vous avec une preuve de propriété et on s&#x27;occupe du reste : 1.418.666.9769.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Ma clé intelligente ou à proximité ne fonctionne plus?" data-en="My smart or proximity key stopped working?">Ma clé intelligente ou à proximité ne fonctionne plus?</summary>
-                    <p data-fr="On diagnostique et on programme les clés intelligentes (smart key, proximité) : pile, synchronisation ou clé de remplacement, on règle ça à l&#x27;atelier, sans rendez-vous au concessionnaire." data-en="We diagnose and program smart and proximity keys: battery, synchronization or a replacement key, we sort it out in the shop, with no dealership appointment.">On diagnostique et on programme les clés intelligentes (smart key, proximité) : pile, synchronisation ou clé de remplacement, on règle ça à l&#x27;atelier, sans rendez-vous au concessionnaire.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Mon véhicule ne démarre plus à cause de l&#x27;antidémarrage?" data-en="My vehicle will not start because of the immobilizer?">Mon véhicule ne démarre plus à cause de l&#x27;antidémarrage?</summary>
-                    <p data-fr="C&#x27;est notre spécialité. On diagnostique le système d&#x27;antidémarrage, on réadapte vos clés et on remet votre véhicule en route." data-en="That is our specialty. We diagnose the immobilizer system, re-adapt your keys and get your vehicle running again.">C&#x27;est notre spécialité. On diagnostique le système d&#x27;antidémarrage, on réadapte vos clés et on remet votre véhicule en route.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Suppression de l&#x27;antidémarrage (immo delete), vous le faites?" data-en="Immobilizer removal (immo delete), do you do it?">Suppression de l&#x27;antidémarrage (immo delete), vous le faites?</summary>
-                    <p data-fr="Oui. Chez Électr&#x27;auto, on peut supprimer la fonction antidémarrage du calculateur, utile notamment pour les projets de conversion moteur ou les modules de remplacement. Appelez-nous au 1.418.666.9769." data-en="Yes. At Électr&#x27;auto we can remove the immobilizer function from the ECU, which is useful for engine conversion projects and replacement modules. Call us at 1.418.666.9769.">Oui. Chez Électr&#x27;auto, on peut supprimer la fonction antidémarrage du calculateur, utile notamment pour les projets de conversion moteur ou les modules de remplacement. Appelez-nous au 1.418.666.9769.</p>
-                </details>
-                <h3 class="faq__groupe" data-fr="Programmation de modules" data-en="Module programming">Programmation de modules</h3>
-                <details class="faq__item">
-                    <summary data-fr="Où faire programmer un FRM de BMW à Québec?" data-en="Where can I get a BMW FRM programmed in Quebec City?">Où faire programmer un FRM de BMW à Québec?</summary>
-                    <p data-fr="Chez Électr&#x27;auto. Quand le module de plancher (FRM) lâche et que vos vitres, phares ou clignotants ne répondent plus, on programme le module de remplacement pour votre BMW." data-en="At Électr&#x27;auto. When the footwell module (FRM) fails and your windows, headlights or turn signals stop responding, we program the replacement module for your BMW.">Chez Électr&#x27;auto. Quand le module de plancher (FRM) lâche et que vos vitres, phares ou clignotants ne répondent plus, on programme le module de remplacement pour votre BMW.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Où faire programmer un CAS3 de BMW?" data-en="Where can I get a BMW CAS3 programmed?">Où faire programmer un CAS3 de BMW?</summary>
-                    <p data-fr="Chez Électr&#x27;auto, au 2485, boul. Wilfrid-Hamel. Le CAS3 gère l&#x27;accès et l&#x27;antidémarrage : on le programme et on l&#x27;adapte à votre véhicule, clés comprises." data-en="At Électr&#x27;auto, 2485, boul. Wilfrid-Hamel. The CAS3 manages access and the immobilizer: we program it and adapt it to your vehicle, keys included.">Chez Électr&#x27;auto, au 2485, boul. Wilfrid-Hamel. Le CAS3 gère l&#x27;accès et l&#x27;antidémarrage : on le programme et on l&#x27;adapte à votre véhicule, clés comprises.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Suppression du verrou de direction électronique (steering lock delete)?" data-en="Electronic steering lock removal (steering lock delete)?">Suppression du verrou de direction électronique (steering lock delete)?</summary>
-                    <p data-fr="Oui, on le fait. Le verrou de direction (ELV) est une panne classique sur plusieurs BMW : on le supprime pour que vous puissiez redémarrer sans payer le système complet au concessionnaire." data-en="Yes, we do it. The steering lock (ELV) is a classic failure on several BMWs: we remove it so you can start again without paying for the complete system at the dealership.">Oui, on le fait. Le verrou de direction (ELV) est une panne classique sur plusieurs BMW : on le supprime pour que vous puissiez redémarrer sans payer le système complet au concessionnaire.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Mon garagiste a remplacé un module et l&#x27;auto ne démarre plus?" data-en="My mechanic replaced a module and now the car will not start?">Mon garagiste a remplacé un module et l&#x27;auto ne démarre plus?</summary>
-                    <p data-fr="C&#x27;est normal : la plupart des modules modernes doivent être programmés ou codés après leur remplacement (ordinateur moteur, module de transmission, module d&#x27;habitacle, etc.). Amenez-nous le véhicule, on s&#x27;occupe de la programmation." data-en="That is normal: most modern modules have to be programmed or coded after replacement (engine computer, transmission module, body module, and so on). Bring us the vehicle and we handle the programming.">C&#x27;est normal : la plupart des modules modernes doivent être programmés ou codés après leur remplacement (ordinateur moteur, module de transmission, module d&#x27;habitacle, etc.). Amenez-nous le véhicule, on s&#x27;occupe de la programmation.</p>
-                </details>
-                <h3 class="faq__groupe" data-fr="Transmission et carrosserie" data-en="Transmission and body">Transmission et carrosserie</h3>
-                <details class="faq__item">
-                    <summary data-fr="Où faire cloner un TCM (module de transmission) à Québec?" data-en="Where can I get a TCM (transmission module) cloned in Quebec City?">Où faire cloner un TCM (module de transmission) à Québec?</summary>
-                    <p data-fr="Chez Électr&#x27;auto. Quand le module de transmission est défectueux, on prépare votre TCM de remplacement pour qu&#x27;il fonctionne avec votre véhicule. 1.418.666.9769." data-en="At Électr&#x27;auto. When the transmission module is faulty, we prepare your replacement TCM so it works with your vehicle. 1.418.666.9769.">Chez Électr&#x27;auto. Quand le module de transmission est défectueux, on prépare votre TCM de remplacement pour qu&#x27;il fonctionne avec votre véhicule. 1.418.666.9769.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Boîte ZF 8HP (BMW, Audi, Chrysler), le module de transmission se clone?" data-en="ZF 8HP gearbox (BMW, Audi, Chrysler), can the transmission module be cloned?">Boîte ZF 8HP (BMW, Audi, Chrysler), le module de transmission se clone?</summary>
-                    <p data-fr="Oui. Chez Électr&#x27;auto à Québec, on s&#x27;occupe des TCM ZF 8HP (8HP45, 8HP55, 8HP65, 8HP70, 8HP90 et variantes) : clonage et remise en route." data-en="Yes. At Électr&#x27;auto in Quebec City we handle ZF 8HP TCMs (8HP45, 8HP55, 8HP65, 8HP70, 8HP90 and variants): cloning and getting you back on the road.">Oui. Chez Électr&#x27;auto à Québec, on s&#x27;occupe des TCM ZF 8HP (8HP45, 8HP55, 8HP65, 8HP70, 8HP90 et variantes) : clonage et remise en route.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Boîte DSG DQ200 ou DQ250 (Volkswagen, Audi), où faire cloner le module?" data-en="DSG DQ200 or DQ250 gearbox (Volkswagen, Audi), where can the module be cloned?">Boîte DSG DQ200 ou DQ250 (Volkswagen, Audi), où faire cloner le module?</summary>
-                    <p data-fr="Chez Électr&#x27;auto. Les modules de boîte DSG (DQ200, DQ250, DQ500) se clonent, une alternative au remplacement complet au concessionnaire. 1.418.666.9769." data-en="At Électr&#x27;auto. DSG gearbox modules (DQ200, DQ250, DQ500) can be cloned, which is an alternative to a full replacement at the dealership. 1.418.666.9769.">Chez Électr&#x27;auto. Les modules de boîte DSG (DQ200, DQ250, DQ500) se clonent, une alternative au remplacement complet au concessionnaire. 1.418.666.9769.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Module S-tronic DL501 d&#x27;Audi?" data-en="Audi S-tronic DL501 module?">Module S-tronic DL501 d&#x27;Audi?</summary>
-                    <p data-fr="Oui, on le fait chez Électr&#x27;auto au 2485, boul. Wilfrid-Hamel à Québec." data-en="Yes, we do it at Électr&#x27;auto, 2485, boul. Wilfrid-Hamel in Quebec City.">Oui, on le fait chez Électr&#x27;auto au 2485, boul. Wilfrid-Hamel à Québec.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Mercedes 7G-Tronic ou 9G-Tronic, clonage du module de transmission?" data-en="Mercedes 7G-Tronic or 9G-Tronic, transmission module cloning?">Mercedes 7G-Tronic ou 9G-Tronic, clonage du module de transmission?</summary>
-                    <p data-fr="Oui. On s&#x27;occupe des modules VGS des boîtes 7G-Tronic et 9G-Tronic de Mercedes-Benz. Appelez-nous au 1.418.666.9769." data-en="Yes. We handle the VGS modules of Mercedes-Benz 7G-Tronic and 9G-Tronic gearboxes. Call us at 1.418.666.9769.">Oui. On s&#x27;occupe des modules VGS des boîtes 7G-Tronic et 9G-Tronic de Mercedes-Benz. Appelez-nous au 1.418.666.9769.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="TCM GM 6T70, 6T75 ou 6L80 à remplacer?" data-en="GM 6T70, 6T75 or 6L80 TCM to replace?">TCM GM 6T70, 6T75 ou 6L80 à remplacer?</summary>
-                    <p data-fr="Électr&#x27;auto à Québec clone les modules de transmission GM les plus courants (6T70, 6T75, 6L80, 6L50 et autres)." data-en="Électr&#x27;auto in Quebec City clones the most common GM transmission modules (6T70, 6T75, 6L80, 6L50 and others).">Électr&#x27;auto à Québec clone les modules de transmission GM les plus courants (6T70, 6T75, 6L80, 6L50 et autres).</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Ford Powershift (MPS6), le module se clone?" data-en="Ford Powershift (MPS6), can the module be cloned?">Ford Powershift (MPS6), le module se clone?</summary>
-                    <p data-fr="Oui. Chez Électr&#x27;auto, on s&#x27;occupe aussi du module de la boîte Powershift de Ford." data-en="Yes. At Électr&#x27;auto we also handle the module of Ford&#x27;s Powershift gearbox.">Oui. Chez Électr&#x27;auto, on s&#x27;occupe aussi du module de la boîte Powershift de Ford.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Clonage de BCM (module de carrosserie)?" data-en="BCM (body control module) cloning?">Clonage de BCM (module de carrosserie)?</summary>
-                    <p data-fr="Oui. Les modules de carrosserie (BCM, BSI et équivalents) se traitent aussi chez Électr&#x27;auto : vitres, éclairage, verrouillage qui ne répondent plus après un remplacement de module." data-en="Yes. Body modules (BCM, BSI and equivalents) are handled at Électr&#x27;auto too: windows, lighting and locking that stop responding after a module is replaced.">Oui. Les modules de carrosserie (BCM, BSI et équivalents) se traitent aussi chez Électr&#x27;auto : vitres, éclairage, verrouillage qui ne répondent plus après un remplacement de module.</p>
-                </details>
-                <h3 class="faq__groupe" data-fr="Questions générales" data-en="General questions">Questions générales</h3>
-                <details class="faq__item">
-                    <summary data-fr="Où faire cloner mon ECM Bosch MED17.3.5 à Québec?" data-en="Where can I get my Bosch MED17.3.5 ECU cloned in Quebec City?">Où faire cloner mon ECM Bosch MED17.3.5 à Québec?</summary>
-                    <p data-fr="Chez Électr&#x27;auto, au 2485, boul. Wilfrid-Hamel. On clone votre calculateur MED17.3.5 pour que votre véhicule reparte sans passer par le concessionnaire." data-en="At Électr&#x27;auto, 2485, boul. Wilfrid-Hamel. We clone your MED17.3.5 ECU so your vehicle runs again without going through the dealership.">Chez Électr&#x27;auto, au 2485, boul. Wilfrid-Hamel. On clone votre calculateur MED17.3.5 pour que votre véhicule reparte sans passer par le concessionnaire.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Mon calculateur diesel EDC16 est mort, quelles options?" data-en="My EDC16 diesel ECU is dead, what are my options?">Mon calculateur diesel EDC16 est mort, quelles options?</summary>
-                    <p data-fr="Le faire cloner chez Électr&#x27;auto à Québec. Les Bosch EDC16 (plusieurs marques européennes) se clonent très bien : une fraction du prix du neuf." data-en="Have it cloned at Électr&#x27;auto in Quebec City. Bosch EDC16 units (several European makes) clone very well, for a fraction of the price of a new one.">Le faire cloner chez Électr&#x27;auto à Québec. Les Bosch EDC16 (plusieurs marques européennes) se clonent très bien : une fraction du prix du neuf.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="C&#x27;est quoi le clonage d&#x27;un calculateur, au juste?" data-en="What exactly is ECU cloning?">C&#x27;est quoi le clonage d&#x27;un calculateur, au juste?</summary>
-                    <p data-fr="Quand votre ECM, BCM ou TCM est défectueux, on transfère son identité vers un module de remplacement pour que votre véhicule l&#x27;accepte comme le sien. Résultat : vous évitez le prix du neuf et les délais du concessionnaire. C&#x27;est ce qu&#x27;on fait tous les jours chez Électr&#x27;auto." data-en="When your ECM, BCM or TCM is faulty, we transfer its identity onto a replacement module so your vehicle accepts it as its own. The result: you avoid the price of a new one and the dealership&#x27;s delays. It is what we do every day at Électr&#x27;auto.">Quand votre ECM, BCM ou TCM est défectueux, on transfère son identité vers un module de remplacement pour que votre véhicule l&#x27;accepte comme le sien. Résultat : vous évitez le prix du neuf et les délais du concessionnaire. C&#x27;est ce qu&#x27;on fait tous les jours chez Électr&#x27;auto.</p>
-                </details>
-                <details class="faq__item">
-                    <summary data-fr="Pourquoi aller chez Électr&#x27;auto plutôt qu&#x27;au concessionnaire?" data-en="Why go to Électr&#x27;auto rather than the dealership?">Pourquoi aller chez Électr&#x27;auto plutôt qu&#x27;au concessionnaire?</summary>
-                    <p data-fr="Parce que l&#x27;électricité et l&#x27;électronique automobile sont notre métier depuis 2004, avec une spécialisation BMW et Audi, les marques où l&#x27;électronique est la plus exigeante. On vous dit franchement ce qu&#x27;on peut faire et combien ça coûte : 1.418.666.9769." data-en="Because automotive electrics and electronics have been our trade since 2004, with a focus on BMW and Audi, the makes where electronics are the most demanding. We tell you straight what we can do and what it costs: 1.418.666.9769.">Parce que l&#x27;électricité et l&#x27;électronique automobile sont notre métier depuis 2004, avec une spécialisation BMW et Audi, les marques où l&#x27;électronique est la plus exigeante. On vous dit franchement ce qu&#x27;on peut faire et combien ça coûte : 1.418.666.9769.</p>
+                <details class="faq__bloc">
+                    <summary>
+                        <span class="faq__nom" data-fr="Questions générales" data-en="General questions">Questions générales</span>
+                        <span class="faq__compte"><b>4</b> <span data-fr="questions" data-en="questions">questions</span></span>
+                    </summary>
+                    <div class="faq__corps">
+                        <details class="faq__item">
+                            <summary data-fr="Où faire cloner mon ECM Bosch MED17.3.5 à Québec?" data-en="Where can I get my Bosch MED17.3.5 ECU cloned in Quebec City?">Où faire cloner mon ECM Bosch MED17.3.5 à Québec?</summary>
+                            <p data-fr="Chez Électr&#x27;auto, au 2485, boul. Wilfrid-Hamel. On clone votre calculateur MED17.3.5 pour que votre véhicule reparte sans passer par le concessionnaire." data-en="At Électr&#x27;auto, 2485, boul. Wilfrid-Hamel. We clone your MED17.3.5 ECU so your vehicle runs again without going through the dealership.">Chez Électr&#x27;auto, au 2485, boul. Wilfrid-Hamel. On clone votre calculateur MED17.3.5 pour que votre véhicule reparte sans passer par le concessionnaire.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Mon calculateur diesel EDC16 est mort, quelles options?" data-en="My EDC16 diesel ECU is dead, what are my options?">Mon calculateur diesel EDC16 est mort, quelles options?</summary>
+                            <p data-fr="Le faire cloner chez Électr&#x27;auto à Québec. Les Bosch EDC16 (plusieurs marques européennes) se clonent très bien : une fraction du prix du neuf." data-en="Have it cloned at Électr&#x27;auto in Quebec City. Bosch EDC16 units (several European makes) clone very well, for a fraction of the price of a new one.">Le faire cloner chez Électr&#x27;auto à Québec. Les Bosch EDC16 (plusieurs marques européennes) se clonent très bien : une fraction du prix du neuf.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="C&#x27;est quoi le clonage d&#x27;un calculateur, au juste?" data-en="What exactly is ECU cloning?">C&#x27;est quoi le clonage d&#x27;un calculateur, au juste?</summary>
+                            <p data-fr="Quand votre ECM, BCM ou TCM est défectueux, on transfère son identité vers un module de remplacement pour que votre véhicule l&#x27;accepte comme le sien. Résultat : vous évitez le prix du neuf et les délais du concessionnaire. C&#x27;est ce qu&#x27;on fait tous les jours chez Électr&#x27;auto." data-en="When your ECM, BCM or TCM is faulty, we transfer its identity onto a replacement module so your vehicle accepts it as its own. The result: you avoid the price of a new one and the dealership&#x27;s delays. It is what we do every day at Électr&#x27;auto.">Quand votre ECM, BCM ou TCM est défectueux, on transfère son identité vers un module de remplacement pour que votre véhicule l&#x27;accepte comme le sien. Résultat : vous évitez le prix du neuf et les délais du concessionnaire. C&#x27;est ce qu&#x27;on fait tous les jours chez Électr&#x27;auto.</p>
+                        </details>
+                        <details class="faq__item">
+                            <summary data-fr="Pourquoi aller chez Électr&#x27;auto plutôt qu&#x27;au concessionnaire?" data-en="Why go to Électr&#x27;auto rather than the dealership?">Pourquoi aller chez Électr&#x27;auto plutôt qu&#x27;au concessionnaire?</summary>
+                            <p data-fr="Parce que l&#x27;électricité et l&#x27;électronique automobile sont notre métier depuis 2004, avec une spécialisation BMW et Audi, les marques où l&#x27;électronique est la plus exigeante. On vous dit franchement ce qu&#x27;on peut faire et combien ça coûte : 1.418.666.9769." data-en="Because automotive electrics and electronics have been our trade since 2004, with a focus on BMW and Audi, the makes where electronics are the most demanding. We tell you straight what we can do and what it costs: 1.418.666.9769.">Parce que l&#x27;électricité et l&#x27;électronique automobile sont notre métier depuis 2004, avec une spécialisation BMW et Audi, les marques où l&#x27;électronique est la plus exigeante. On vous dit franchement ce qu&#x27;on peut faire et combien ça coûte : 1.418.666.9769.</p>
+                        </details>
+                    </div>
                 </details>
             </div>
         </div>
@@ -3841,6 +3937,19 @@
         var ph0 = q.getAttribute('data-ph-' + lang);
         if (ph0) q.setAttribute('placeholder', ph0);
         if (lang === 'en') traduireTableau();
+
+        // La FAQ : un seul groupe ouvert a la fois, pour que la section
+        // reste courte. Refermer un groupe remet ses questions a plat.
+        var blocs = [].slice.call(document.querySelectorAll('.faq__bloc'));
+        blocs.forEach(function (bloc) {
+            bloc.addEventListener('toggle', function () {
+                if (bloc.open) {
+                    blocs.forEach(function (autre) { if (autre !== bloc) autre.open = false; });
+                } else {
+                    bloc.querySelectorAll('.faq__item[open]').forEach(function (d) { d.open = false; });
+                }
+            });
+        });
     })();
     </script>
 </body>
