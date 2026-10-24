@@ -207,27 +207,29 @@
 }
 .metier__bloc p { font-size: 0.94rem; color: var(--text-dark-muted); line-height: 1.7; }
 
-/* ---- Appel a l'action : pleine largeur, comme les autres blocs du site.
-   Seule la longueur de ligne du paragraphe est bridee, pour rester lisible. ---- */
+/* ---- Nous joindre : coordonnees a gauche, boutons a droite ---- */
 .outil__cta {
-    padding: 36px 40px;
+    padding: 30px 36px;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-.outil__cta h2 { font-size: 1.35rem; font-weight: 700; }
-.outil__cta p { color: var(--text-muted); line-height: 1.7; }
-.outil__cta-actions {
-    display: flex;
-    gap: 14px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
     flex-wrap: wrap;
-    margin-top: 8px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
 }
+.outil__cta-infos { flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.outil__cta-ligne {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.55;
+}
+.outil__cta-ligne svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px; color: var(--accent); }
+.outil__cta-actions { display: flex; gap: 14px; flex-wrap: wrap; flex-shrink: 0; }
 .outil__cta-actions .btn { padding: 16px 30px; font-size: 0.95rem; }
 .outil__cta-actions .btn svg { width: 19px; height: 19px; }
 
@@ -237,7 +239,6 @@
 }
 
 /* ---- Foire aux questions ---- */
-.faq { max-width: 860px; }
 .faq__groupe {
     font-size: 0.78rem;
     font-weight: 700;
@@ -301,8 +302,9 @@
     .outil__verdict { font-size: 1.08rem; }
     .outil__details { padding: 16px; }
     .metier__bloc { padding: 24px 22px; }
-    .outil__cta { padding: 26px 22px; }
-    .outil__cta h2 { font-size: 1.15rem; }
+    .outil__cta { padding: 24px 20px; gap: 22px; align-items: stretch; }
+    .outil__cta-infos { flex: 0 1 auto; }
+    .outil__cta-actions { width: 100%; }
     .outil__cta-actions .btn { width: 100%; justify-content: center; }
 }
     </style>
@@ -3627,12 +3629,25 @@
         </div>
     </section>
 
-    <!-- ========== APPEL À L'ACTION ========== -->
+    <!-- ========== NOUS JOINDRE ========== -->
     <section class="section section--dark">
         <div class="wrap">
-            <div class="outil__cta">
+            <div class="section__head">
+                <span class="section__tag" data-fr="Nous joindre" data-en="Get in touch">Nous joindre</span>
                 <h2 data-fr="Un module à programmer, un calculateur à cloner?" data-en="A module to program, an ECU to clone?">Un module à programmer, un calculateur à cloner?</h2>
                 <p data-fr="C'est notre métier depuis plus de 22 ans, avec un focus BMW et Audi, les marques où l'électronique est la plus exigeante. On va vous dire franchement ce qu'on peut faire et combien ça coûte." data-en="It has been our trade for over 22 years, with a focus on BMW and Audi, the makes where electronics are the most demanding. We will tell you straight what we can do and what it costs.">C'est notre métier depuis plus de 22 ans, avec un focus BMW et Audi, les marques où l'électronique est la plus exigeante. On va vous dire franchement ce qu'on peut faire et combien ça coûte.</p>
+            </div>
+            <div class="outil__cta">
+                <div class="outil__cta-infos">
+                    <p class="outil__cta-ligne">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span>2485, boul. Wilfrid-Hamel, Québec (QC) G1P 2H9</span>
+                    </p>
+                    <p class="outil__cta-ligne">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        <span data-fr="Lundi au jeudi : 8 h à 12 h et 12 h 30 à 17 h. Vendredi : 8 h à 12 h." data-en="Monday to Thursday: 8 a.m. to noon and 12:30 to 5 p.m. Friday: 8 a.m. to noon.">Lundi au jeudi : 8 h à 12 h et 12 h 30 à 17 h. Vendredi : 8 h à 12 h.</span>
+                    </p>
+                </div>
                 <div class="outil__cta-actions">
                     <a href="rendez-vous.html" class="btn btn--primary">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
