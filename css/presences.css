@@ -200,3 +200,13 @@
     #panel-presences .pr-form-row, #m-punch .pr-form-row, #m-emp .pr-form-row { flex-direction: column; gap: 0; }
     #panel-presences .pr-chips .pr-reason, #m-punch .pr-chips .pr-reason, #m-emp .pr-chips .pr-reason { padding: 7px 12px; font-size: .8rem; }
 }
+/* Fiche employe : une section par semaine, pour la comptabilite */
+#m-emp .modal--wide { max-width: 980px; }
+#panel-presences .pr-week, #m-punch .pr-week, #m-emp .pr-week { margin-bottom: 26px; }
+#panel-presences .pr-week:last-child, #m-punch .pr-week:last-child, #m-emp .pr-week:last-child { margin-bottom: 0; }
+#panel-presences .pr-week__head, #m-punch .pr-week__head, #m-emp .pr-week__head { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+#panel-presences .pr-week__name, #m-punch .pr-week__name, #m-emp .pr-week__name { font-size: .82rem; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: var(--accent); }
+#panel-presences .pr-week__tot, #m-punch .pr-week__tot, #m-emp .pr-week__tot { font-size: .95rem; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--text); }
+#panel-presences .pr-week__vide, #m-punch .pr-week__vide, #m-emp .pr-week__vide { padding: 14px 2px; font-size: .82rem; color: var(--text-muted); }
+#panel-presences .pr-week__total td, #m-punch .pr-week__total td, #m-emp .pr-week__total td { border-top: 1px solid var(--border); font-weight: 700; color: var(--text); }
+#panel-presences .pr-week__total td:first-child, #m-punch .pr-week__total td:first-child, #m-emp .pr-week__total td:first-child { font-size: .8rem; letter-spacing: .3px; text-transform: uppercase; color: var(--text-muted); }

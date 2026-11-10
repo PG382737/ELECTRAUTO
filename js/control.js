@@ -861,11 +861,60 @@
         }
     }
 
-    /* ----- Fiche d'un employe : les 7 derniers jours ----- */
+    /* ----- Fiche d'un employe : les 4 dernieres semaines ----- */
+
+    var PR_SEMAINES = 4;
 
     function prDayKey(iso) {
         var d = new Date(new Date(iso).toLocaleString('en-US', { timeZone: 'America/Toronto' }));
         return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    // Les semaines se comptent en jours calendaires, jamais en millisecondes :
+    // au changement d'heure, un jour ne fait pas 24 h et le lundi deriverait.
+    function prKeyToUTC(key) {
+        var p = key.split('-');
+        return Date.UTC(+p[0], +p[1] - 1, +p[2]);
+    }
+    function prUTCToKey(ms) {
+        var d = new Date(ms);
+        return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0') +
+            '-' + String(d.getUTCDate()).padStart(2, '0');
+    }
+    function prDecaleKey(key, jours) { return prUTCToKey(prKeyToUTC(key) + jours * 86400000); }
+
+    // Lundi de la semaine qui contient cette journee
+    function prLundiKey(key) {
+        var ms = prKeyToUTC(key);
+        return prUTCToKey(ms - ((new Date(ms).getUTCDay() + 6) % 7) * 86400000);
+    }
+    function prKeyLabel(key, opts) {
+        var p = key.split('-'), o = { timeZone: 'UTC' };
+        for (var k in opts) { if (Object.prototype.hasOwnProperty.call(opts, k)) o[k] = opts[k]; }
+        return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2], 12)).toLocaleDateString('fr-CA', o);
+    }
+
+    // Repartit les journees dans les 4 semaines. Une semaine sans aucun punch
+    // reste affichee : pour la paie, un trou doit se voir.
+    function prGroupByWeek(days, premierLundi) {
+        var parJour = {};
+        days.forEach(function (d) { parJour[d.day] = d; });
+        var semaines = [];
+        for (var s = 0; s < PR_SEMAINES; s++) {
+            var lundi = prDecaleKey(premierLundi, s * 7), jours = [];
+            for (var j = 0; j < 7; j++) {
+                var d = parJour[prDecaleKey(lundi, j)];
+                if (d) jours.push(d);
+            }
+            semaines.push({
+                lundi: lundi,
+                dimanche: prDecaleKey(lundi, 6),
+                jours: jours,
+                worked: jours.reduce(function (n, x) { return n + x.worked; }, 0),
+                brk: jours.reduce(function (n, x) { return n + x.brk; }, 0)
+            });
+        }
+        return semaines.reverse();
     }
 
     // Regroupe des punchs par journee, puis calcule arrivee / depart / break / travail
@@ -902,51 +951,87 @@
     async function openEmployeeDetail(employeeId) {
         var row = presData.rows.find(function (r) { return r.id === employeeId; });
         if (!row) return;
-        document.getElementById('m-emp-title').textContent = prName(row) + ' \u00b7 7 derniers jours';
+        document.getElementById('m-emp-title').textContent = prName(row) + ' \u00b7 4 derni\u00e8res semaines';
         document.getElementById('m-emp-body').innerHTML = '<div class="pr-empty">Chargement\u2026</div>';
         document.getElementById('m-emp').classList.add('active');
 
+        var premierLundi = prDecaleKey(prLundiKey(prDayKey(new Date().toISOString())), -(PR_SEMAINES - 1) * 7);
         try {
-            var from = new Date(presDayStart() - 6 * 86400000).toISOString();
+            // Un jour de marge en arriere : la requete filtre sur punch_in, et un
+            // punch en trop est ecarte par le regroupement, un punch manquant non.
+            var from = new Date(prKeyToUTC(premierLundi) - 86400000).toISOString();
             var to = new Date(Date.now() + 86400000).toISOString();
             var punches = await api('GET', '/api/control-punches?employee_id=' + encodeURIComponent(employeeId) +
                 '&from=' + encodeURIComponent(from) + '&to=' + encodeURIComponent(to));
-            renderEmployeeDetail(row, punches || []);
+            renderEmployeeDetail(row, punches || [], premierLundi);
         } catch (e) {
             document.getElementById('m-emp-body').innerHTML =
                 '<div class="pr-empty">Erreur de chargement\u00a0: ' + escHtml(e.message) + '</div>';
         }
     }
 
-    function renderEmployeeDetail(row, punches) {
-        var days = prGroupByDay(punches);
-        var totalWorked = days.reduce(function (n, d) { return n + d.worked; }, 0);
-        var totalBreak = days.reduce(function (n, d) { return n + d.brk; }, 0);
+    function renderEmployeeDetail(row, punches, premierLundi) {
+        var semaines = prGroupByWeek(prGroupByDay(punches), premierLundi);
+        var jours = semaines.reduce(function (n, sem) { return n.concat(sem.jours); }, []);
+        var totalWorked = jours.reduce(function (n, d) { return n + d.worked; }, 0);
+        var totalBreak = jours.reduce(function (n, d) { return n + d.brk; }, 0);
+        var actives = semaines.filter(function (sem) { return sem.worked > 0; }).length;
 
         document.getElementById('m-emp-body').innerHTML =
-            '<div class="pr-kpis" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:18px;">' +
-                prKpi('clock', 'blue', prDur(totalWorked), 'Travaill\u00e9 sur 7 jours') +
-                prKpi('coffee', 'orange', prDur(totalBreak), 'Break sur 7 jours') +
-                prKpi('users', 'green', days.length, days.length > 1 ? 'Jours travaill\u00e9s' : 'Jour travaill\u00e9') +
+            '<div class="pr-kpis" style="margin-bottom:18px;">' +
+                prKpi('clock', 'blue', prDur(totalWorked), 'Travaill\u00e9 sur 4 semaines') +
+                prKpi('clock', 'violet', prDur(actives ? totalWorked / actives : 0), 'Moyenne par semaine') +
+                prKpi('coffee', 'orange', prDur(totalBreak), 'Total des breaks') +
+                prKpi('users', 'green', jours.length, jours.length > 1 ? 'Jours travaill\u00e9s' : 'Jour travaill\u00e9') +
             '</div>' +
-            (days.length
-                ? '<div class="pr-table-wrap"><table class="control-table">' +
-                    '<thead><tr><th>Jour</th><th>Arriv\u00e9e</th><th>D\u00e9part</th><th class="num">Break</th><th class="num">Travaill\u00e9</th><th>Punchs</th></tr></thead>' +
-                    '<tbody>' + days.map(function (d) {
-                        var detail = d.punches.map(function (p) {
-                            return '<span class="pr-chip">' + prHM(p.punch_in) + '\u2009\u2192\u2009' +
-                                (p.punch_out ? prHM(p.punch_out) : '<b>en cours</b>') + '</span>';
-                        }).join('');
-                        return '<tr>' +
-                            '<td>' + prDay(d.firstIn) + (d.edited ? ' <span class="pr-tag">corrig\u00e9</span>' : '') + '</td>' +
-                            '<td>' + prHM(d.firstIn) + '</td>' +
-                            '<td>' + (d.lastOut ? prHM(d.lastOut) : '<span class="pr-muted">en cours</span>') + '</td>' +
-                            '<td class="num">' + (d.brk > 0 ? prDur(d.brk) : '<span class="pr-muted">\u2014</span>') + '</td>' +
-                            '<td class="num pr-strong">' + prDur(d.worked) + '</td>' +
-                            '<td>' + detail + '</td>' +
-                        '</tr>';
-                    }).join('') + '</tbody></table></div>'
-                : '<div class="pr-empty">Aucun punch sur les 7 derniers jours.</div>');
+            (jours.length
+                ? semaines.map(prWeekBlock).join('')
+                : '<div class="pr-empty">Aucun punch sur les 4 derni\u00e8res semaines.</div>');
+    }
+
+    function prWeekBlock(sem) {
+        var memeMois = sem.lundi.slice(0, 7) === sem.dimanche.slice(0, 7);
+        var titre = 'Semaine du ' +
+            prKeyLabel(sem.lundi, memeMois ? { day: 'numeric' } : { day: 'numeric', month: 'long' }) +
+            ' au ' + prKeyLabel(sem.dimanche, { day: 'numeric', month: 'long' });
+
+        return '<section class="pr-week">' +
+            '<header class="pr-week__head">' +
+                '<span class="pr-week__name">' + escHtml(titre) + '</span>' +
+                '<span class="pr-week__tot">' +
+                    (sem.worked ? prDur(sem.worked) : '<span class="pr-muted">aucune heure</span>') +
+                '</span>' +
+            '</header>' +
+            (sem.jours.length ? prWeekTable(sem)
+                : '<div class="pr-week__vide">Aucun punch cette semaine.</div>') +
+        '</section>';
+    }
+
+    function prWeekTable(sem) {
+        return '<div class="pr-table-wrap"><table class="control-table">' +
+            '<thead><tr><th>Jour</th><th>Arriv\u00e9e</th><th>D\u00e9part</th>' +
+            '<th class="num">Break</th><th class="num">Travaill\u00e9</th><th>Punchs</th></tr></thead>' +
+            '<tbody>' + sem.jours.map(function (d) {
+                var detail = d.punches.map(function (p) {
+                    return '<span class="pr-chip">' + prHM(p.punch_in) + '\u2009\u2192\u2009' +
+                        (p.punch_out ? prHM(p.punch_out) : '<b>en cours</b>') + '</span>';
+                }).join('');
+                return '<tr>' +
+                    '<td>' + prCap1(prKeyLabel(d.day, { weekday: 'short', day: 'numeric', month: 'short' })) +
+                        (d.edited ? ' <span class="pr-tag">corrig\u00e9</span>' : '') + '</td>' +
+                    '<td>' + prHM(d.firstIn) + '</td>' +
+                    '<td>' + (d.lastOut ? prHM(d.lastOut) : '<span class="pr-muted">en cours</span>') + '</td>' +
+                    '<td class="num">' + (d.brk > 0 ? prDur(d.brk) : '<span class="pr-muted">\u2014</span>') + '</td>' +
+                    '<td class="num pr-strong">' + prDur(d.worked) + '</td>' +
+                    '<td>' + detail + '</td>' +
+                '</tr>';
+            }).join('') +
+            '<tr class="pr-week__total">' +
+                '<td colspan="3">Total de la semaine</td>' +
+                '<td class="num">' + (sem.brk > 0 ? prDur(sem.brk) : '\u2014') + '</td>' +
+                '<td class="num pr-strong">' + prDur(sem.worked) + '</td>' +
+                '<td></td>' +
+            '</tr></tbody></table></div>';
     }
 
     function closeEmployeeDetail() {
