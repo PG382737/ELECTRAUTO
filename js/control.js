@@ -560,7 +560,12 @@
         });
 
         document.getElementById('m-emp').addEventListener('click', function (ev) {
-            if (ev.target.closest('[data-emp-close]') || ev.target.id === 'm-emp') closeEmployeeDetail();
+            if (ev.target.closest('[data-emp-close]') || ev.target.id === 'm-emp') return closeEmployeeDetail();
+            var sem = ev.target.closest('[data-prweek]');
+            if (sem) {
+                prFiche.index = parseInt(sem.getAttribute('data-prweek'), 10) || 0;
+                renderFicheSemaine();
+            }
         });
 
         document.getElementById('m-punch').addEventListener('click', function (ev) {
@@ -970,41 +975,52 @@
         }
     }
 
-    function renderEmployeeDetail(row, punches, premierLundi) {
-        var semaines = prGroupByWeek(prGroupByDay(punches), premierLundi);
-        var jours = semaines.reduce(function (n, sem) { return n.concat(sem.jours); }, []);
-        var totalWorked = jours.reduce(function (n, d) { return n + d.worked; }, 0);
-        var totalBreak = jours.reduce(function (n, d) { return n + d.brk; }, 0);
-        var actives = semaines.filter(function (sem) { return sem.worked > 0; }).length;
+    var prFiche = { row: null, semaines: [], index: 0 };
 
+    function renderEmployeeDetail(row, punches, premierLundi) {
+        prFiche.row = row;
+        prFiche.semaines = prGroupByWeek(prGroupByDay(punches), premierLundi);
+        prFiche.index = 0;   // la semaine en cours
         document.getElementById('m-emp-body').innerHTML =
-            '<div class="pr-kpis" style="margin-bottom:18px;">' +
-                prKpi('clock', 'blue', prDur(totalWorked), 'Travaill\u00e9 sur 4 semaines') +
-                prKpi('clock', 'violet', prDur(actives ? totalWorked / actives : 0), 'Moyenne par semaine') +
-                prKpi('coffee', 'orange', prDur(totalBreak), 'Total des breaks') +
-                prKpi('users', 'green', jours.length, jours.length > 1 ? 'Jours travaill\u00e9s' : 'Jour travaill\u00e9') +
-            '</div>' +
-            (jours.length
-                ? semaines.map(prWeekBlock).join('')
-                : '<div class="pr-empty">Aucun punch sur les 4 derni\u00e8res semaines.</div>');
+            '<div class="pr-weeks" id="pr-weeks"></div><div id="pr-week-vue"></div>';
+        renderFicheSemaine();
     }
 
-    function prWeekBlock(sem) {
+    // Le libelle d'une semaine. Le mois n'est repete que si la semaine
+    // enjambe deux mois : « 9 au 15 nov. » mais « 26 oct. au 1 nov. ».
+    function prWeekRange(sem, longueur) {
+        var mois = longueur || 'short';
         var memeMois = sem.lundi.slice(0, 7) === sem.dimanche.slice(0, 7);
-        var titre = 'Semaine du ' +
-            prKeyLabel(sem.lundi, memeMois ? { day: 'numeric' } : { day: 'numeric', month: 'long' }) +
-            ' au ' + prKeyLabel(sem.dimanche, { day: 'numeric', month: 'long' });
+        return prKeyLabel(sem.lundi, memeMois ? { day: 'numeric' } : { day: 'numeric', month: mois }) +
+            ' au ' + prKeyLabel(sem.dimanche, { day: 'numeric', month: mois });
+    }
 
-        return '<section class="pr-week">' +
-            '<header class="pr-week__head">' +
-                '<span class="pr-week__name">' + escHtml(titre) + '</span>' +
-                '<span class="pr-week__tot">' +
-                    (sem.worked ? prDur(sem.worked) : '<span class="pr-muted">aucune heure</span>') +
-                '</span>' +
-            '</header>' +
+    function renderFicheSemaine() {
+        var sems = prFiche.semaines, i = prFiche.index, sem = sems[i];
+        if (!sem) return;
+        var total4 = sems.reduce(function (n, x) { return n + x.worked; }, 0);
+
+        document.getElementById('m-emp-title').textContent =
+            prName(prFiche.row) + ' \u00b7 semaine du ' + prWeekRange(sem, 'long');
+
+        // Chaque bouton porte deja le total de sa semaine : les quatre
+        // chiffres se lisent sans avoir a ouvrir chaque semaine.
+        document.getElementById('pr-weeks').innerHTML = sems.map(function (x, k) {
+            return '<button type="button" class="period-btn pr-wbtn' + (k === i ? ' active' : '') + '" data-prweek="' + k + '">' +
+                '<span class="pr-wbtn__q">' + escHtml(prWeekRange(x)) + (k === 0 ? ' \u00b7 en cours' : '') + '</span>' +
+                '<span class="pr-wbtn__h">' + (x.worked ? prDur(x.worked) : '\u2014') + '</span>' +
+            '</button>';
+        }).join('');
+
+        document.getElementById('pr-week-vue').innerHTML =
+            '<div class="pr-kpis" style="margin-bottom:18px;">' +
+                prKpi('clock', 'blue', prDur(sem.worked), 'Travaill\u00e9 cette semaine') +
+                prKpi('coffee', 'orange', prDur(sem.brk), 'Breaks de la semaine') +
+                prKpi('users', 'green', sem.jours.length, sem.jours.length > 1 ? 'Jours travaill\u00e9s' : 'Jour travaill\u00e9') +
+                prKpi('clock', 'violet', prDur(total4), 'Total des 4 semaines') +
+            '</div>' +
             (sem.jours.length ? prWeekTable(sem)
-                : '<div class="pr-week__vide">Aucun punch cette semaine.</div>') +
-        '</section>';
+                : '<div class="pr-empty">Aucun punch pour la semaine du ' + escHtml(prWeekRange(sem, 'long')) + '.</div>');
     }
 
     function prWeekTable(sem) {

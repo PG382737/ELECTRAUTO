@@ -202,11 +202,11 @@
 }
 /* Fiche employe : une section par semaine, pour la comptabilite */
 #m-emp .modal--wide { max-width: 980px; }
-#panel-presences .pr-week, #m-punch .pr-week, #m-emp .pr-week { margin-bottom: 26px; }
-#panel-presences .pr-week:last-child, #m-punch .pr-week:last-child, #m-emp .pr-week:last-child { margin-bottom: 0; }
-#panel-presences .pr-week__head, #m-punch .pr-week__head, #m-emp .pr-week__head { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-#panel-presences .pr-week__name, #m-punch .pr-week__name, #m-emp .pr-week__name { font-size: .82rem; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: var(--accent); }
-#panel-presences .pr-week__tot, #m-punch .pr-week__tot, #m-emp .pr-week__tot { font-size: .95rem; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--text); }
-#panel-presences .pr-week__vide, #m-punch .pr-week__vide, #m-emp .pr-week__vide { padding: 14px 2px; font-size: .82rem; color: var(--text-muted); }
+
+/* Fiche employe : le selecteur des 4 dernieres semaines */
+#panel-presences .pr-weeks, #m-punch .pr-weeks, #m-emp .pr-weeks { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+#panel-presences .pr-wbtn, #m-punch .pr-wbtn, #m-emp .pr-wbtn { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 9px 16px; line-height: 1.3; text-align: left; }
+#panel-presences .pr-wbtn__q, #m-punch .pr-wbtn__q, #m-emp .pr-wbtn__q { font-size: .78rem; }
+#panel-presences .pr-wbtn__h, #m-punch .pr-wbtn__h, #m-emp .pr-wbtn__h { font-size: .92rem; font-weight: 800; font-variant-numeric: tabular-nums; }
 #panel-presences .pr-week__total td, #m-punch .pr-week__total td, #m-emp .pr-week__total td { border-top: 1px solid var(--border); font-weight: 700; color: var(--text); }
 #panel-presences .pr-week__total td:first-child, #m-punch .pr-week__total td:first-child, #m-emp .pr-week__total td:first-child { font-size: .8rem; letter-spacing: .3px; text-transform: uppercase; color: var(--text-muted); }
